@@ -1,18 +1,20 @@
 from transitions import Machine
 import logging
 
-from constants import TRANSITIONS
+from answers import Answers
+from states import TRANSITIONS
 
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-class Skills(object):
+class FiniteStateMachine(object):
     states = [
         "start",
         "info_center",
         "info_personal",
         "help",
+        "services_for_blind",
     ]
 
     transitions = TRANSITIONS
@@ -23,8 +25,8 @@ class Skills(object):
         self.saved_state = None
         self.machine = Machine(
             model=self,
-            states=Skills.states,
-            transitions=Skills.transitions,
+            states=FiniteStateMachine.states,
+            transitions=FiniteStateMachine.transitions,
             initial="start",
         )
 
@@ -57,4 +59,15 @@ class Skills(object):
         self.data = {"message": "Вот помощь по навигации по навыку"}
 
     def get_help_exit(self):
-        self.data = {"message": "Вы вышли из помощи"}
+        self.data = {"message": "Вы вышли из помощи!"}
+
+    def get_services_for_blind(self):
+        self.data = {"message": Answers.SERVICES_FOR_BLIND}
+
+    def get_exit(self):
+        self.data = {"message": "Вы вышли из навыка!"}
+
+    def get_service_for_blind(self):
+        self.data = {
+            "message": Answers.SERVICES_FOR_BLIND
+        }
