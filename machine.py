@@ -1,3 +1,4 @@
+from icecream import ic
 from transitions import Machine
 import logging
 
@@ -17,21 +18,26 @@ class FiniteStateMachine(object):
         "services_for_blind",
     ]
 
-    transitions = TRANSITIONS
-
     def __init__(self, name):
         self.name = name
         self.data = {}
         self.saved_state = None
+        self.progress = None
         self.machine = Machine(
             model=self,
             states=FiniteStateMachine.states,
-            transitions=FiniteStateMachine.transitions,
+            transitions=TRANSITIONS,
             initial="start",
         )
 
     def _save_state(self):
         self.saved_state = self.state
+        ic(self.saved_state)
+
+    def save_progress(self, step: str) -> None:
+        if self.progress is None:
+            self.progress = set()
+        self.progress.add(step)
 
     def _return_to_original_state(self):
         self.machine.set_state(self.saved_state)
@@ -41,9 +47,9 @@ class FiniteStateMachine(object):
 
     def get_info_about_center_personal(self):
         self.data = {"message": "Вот наш персонал: Маша, Витя и Леонид"}
-
-    def get_info(self):
-        self.data = {"message": "Дополнительная информация"}
+    #
+    # def get_info(self):
+    #     self.data = {"message": "Дополнительная информация"}
 
     def get_help(self):
         self.saved_state = self.state

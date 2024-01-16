@@ -17,4 +17,4 @@ class Commands:
     HELP_NAVIGATION = "помощь по навигации"
     HELP_EXIT = "выход из помощи"
     EXIT = "выход"
-    SERVICES_FOR_BLIND = "узнать о службах, объединяющие незрячих"
+    SERVICES_FOR_BLIND = "узнать о службах объединяющие незрячих"
