@@ -166,7 +166,6 @@ async def root(data: RequestData):
         }
 
     command_class = command_mapping.get(command.lower(), None)
-    ic(command, command_class)
 
     if not command.lower() and is_new:
         answer = Answers.FULL_GREETINGS
@@ -174,7 +173,6 @@ async def root(data: RequestData):
         command_instance = command_class()
         if len(skill.progress) < len(Default.ORDER):
             next_state = Default.ORDER[len(skill.progress)]
-            ic(next_state, "next_state")
             answer = command_instance.execute(
                 skill, Default.TRIGGERS_COMMANDS[next_state]
             )
@@ -187,8 +185,6 @@ async def root(data: RequestData):
     else:
         answer = Answers.DONT_UNDERSTAND
 
-    ic(command, skill.state, skill.saved_state)
-    ic(skill.progress)
     return {
         "response": {
             "text": answer,
