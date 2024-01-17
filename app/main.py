@@ -1,9 +1,8 @@
 from fastapi import FastAPI
+from icecream import ic
+from machine import Skills
 from pydantic import BaseModel
 from transitions import MachineError
-
-from machine import Skills
-from icecream import ic
 
 
 class RequestData(BaseModel):
@@ -41,8 +40,7 @@ class AdditionalInfo(Command):
         if skill.state == "info_center":
             skill.say_info()
             return skill.data["message"]
-        else:
-            return "Эта команда доступна только в состоянии info_center"
+        return "Эта команда доступна только в состоянии info_center"
 
 
 class HelpCommand(Command):
