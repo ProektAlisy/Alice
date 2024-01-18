@@ -1,10 +1,9 @@
-from icecream import ic
 from transitions import Machine
 import logging
 
 from answers import Answers
 from states import TRANSITIONS
-from user_commands import Commands, Default
+from utils import get_func_answers_command, get_trigger_by_command
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -41,26 +40,6 @@ class FiniteStateMachine(object):
     def _return_to_original_state(self):
         self.machine.set_state(self.saved_state)
 
-    # def get_training_center(self):
-    #     self.message = Answers.INFO_ABOUT_CENTER
-    #     self._save_progress(
-    #         Default.TRIGGERS_COMMANDS.get(Commands.ABOUT_TRAINING_CENTER)
-    #     )
-
-    # def get_staff(self):
-    #     self.message = Answers.INFO_ABOUT_STAFF
-    #     self._save_progress(
-    #         Default.TRIGGERS_COMMANDS.get(Commands.ABOUT_STAFF)
-    #     )
-    #
-    # def get_services_for_blind(self):
-    #     self.message = Answers.SERVICES_FOR_BLIND
-    #     self._save_progress(
-    #         Default.TRIGGERS_COMMANDS.get(
-    #             Commands.ABOUT_SERVICES_UNITING_BLIND_PEOPLE
-    #         )
-    #     )
-
     def get_help(self):
         self.saved_state = self.state
         self.message = Answers.HELP_MAIN
@@ -77,27 +56,14 @@ class FiniteStateMachine(object):
     def get_exit(self):
         self.message = Answers.EXIT_FROM_SKILL
 
-    def get_service_for_blind(self):
-        self.message = Answers.SERVICES_FOR_BLIND
-
     def generate_function(self, name, message, command):
         def func():
             self.message = message
-            self._save_progress(Default.TRIGGERS_COMMANDS.get(command))
-
+            self._save_progress(get_trigger_by_command(command))
         setattr(self, name, func)
 
     def create_functions(self):
-        self.generate_function(
-            "get_training_center",
-            Answers.INFO_ABOUT_CENTER,
-            Commands.ABOUT_TRAINING_CENTER,
-        )
-        self.generate_function(
-            "get_staff", Answers.INFO_ABOUT_STAFF, Commands.ABOUT_STAFF
-        )
-        self.generate_function(
-            "get_services_for_blind",
-            Answers.SERVICES_FOR_BLIND,
-            Commands.ABOUT_SERVICES_UNITING_BLIND_PEOPLE,
-        )
+        [
+            self.generate_function(func_name, answer, command)
+            for func_name, answer, command in get_func_answers_command()
+        ]
