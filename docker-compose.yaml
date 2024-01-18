@@ -4,5 +4,13 @@ services:
   app:
     build: .
     restart: always
+
+  nginx:
+    image: nginx:1.21.3-alpine
     ports:
-     - "80:80"
+      - "80:80"
+    volumes:
+      - ./default.conf:/etc/conf.d/default.conf
+
+    depends_on:
+      - app
