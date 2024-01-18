@@ -4,12 +4,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transitions import MachineError
 
-from answers import Answers
-from machine import FiniteStateMachine
-from icecream import ic
+from app.constants.answers import Answers
+from app.machine import FiniteStateMachine
 
-from user_commands import Commands, Default
-from utils import get_first_elements, get_trigger_by_command
+from app.utils import get_first_elements, get_trigger_by_command
+from app.constants.user_commands import Commands
 
 
 logging.basicConfig(
@@ -24,7 +23,7 @@ class RequestData(BaseModel):
     request: dict
 
 
-app = FastAPI()
+application = FastAPI()
 
 skill = FiniteStateMachine()
 
@@ -111,7 +110,11 @@ commands = {
 }
 
 
-@app.post("/")
+@application.post(
+        "/",
+        tags=['Alice project'],
+        summary='Диалог с Алисой.',
+)
 async def root(data: RequestData):
     command = data.request.get("command")
     is_new = data.session.get("new")

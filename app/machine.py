@@ -1,9 +1,9 @@
 from transitions import Machine
 import logging
 
-from answers import Answers
-from states import TRANSITIONS
-from utils import get_func_answers_command, get_trigger_by_command
+from app.constants.answers import Answers
+from app.constants.states import TRANSITIONS
+from app.utils import get_func_answers_command, get_trigger_by_command
 
 
 logging.basicConfig(level=logging.DEBUG)

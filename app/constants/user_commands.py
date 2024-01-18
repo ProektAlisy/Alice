@@ -1,4 +1,4 @@
-from answers import Answers
+from app.constants.answers import Answers
 
 
 class Commands:

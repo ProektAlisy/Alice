@@ -1,4 +1,4 @@
-from user_commands import Default
+from app.constants.user_commands import Default
 
 
 def get_command_by_trigger(trigger):
