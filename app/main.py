@@ -4,11 +4,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transitions import MachineError
 
-from answers import Answers
-from machine import FiniteStateMachine
+from app.constants.answers import Answers
+from app.machine import FiniteStateMachine
 from icecream import ic
 
-from user_commands import Commands, Default
+from app.constants.user_commands import Commands, Default
 
 
 logging.basicConfig(
@@ -150,7 +150,11 @@ command_mapping = {
 }
 
 
-@app.post("/")
+@app.post(
+        "/",
+        tags=['Alice project'],
+        summary='Диалог с Алисой.',
+)
 async def root(data: RequestData):
     command = data.request.get("command")
     is_new = data.session.get("new")

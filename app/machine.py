@@ -2,9 +2,9 @@ from icecream import ic
 from transitions import Machine
 import logging
 
-from answers import Answers
-from states import TRANSITIONS
-from user_commands import Commands, Default
+from app.constants.answers import Answers
+from app.constants.states import TRANSITIONS
+from app.constants.user_commands import Commands, Default
 
 
 logging.basicConfig(level=logging.DEBUG)
