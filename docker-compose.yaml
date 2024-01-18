@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    restart: always
+    ports:
+     - "80:80"
