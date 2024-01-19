@@ -11,6 +11,6 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./default.conf:/infra/nginx/default.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
