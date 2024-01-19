@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   app:
     image: guidedogsalice/alice_guidedogs
     platform: linux/x86_64
