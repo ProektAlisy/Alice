@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   app:
-    image: guidedogsalice/alice_guidedogs
+    build:
+      context: ../
+      dockerfile: guidedogsalice/alice_guidedogs
     platform: linux/x86_64
-    volumes:
-      - ./:/app/
     restart: always
 
   nginx:
