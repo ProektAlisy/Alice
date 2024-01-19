@@ -1,6 +1,6 @@
 import logging
 
-from constants import TRANSITIONS
+from app.constants import TRANSITIONS
 from transitions import Machine
 
 logging.basicConfig(level=logging.DEBUG)
