@@ -5,6 +5,8 @@ services:
     image: guidedogsalice/alice_guidedogs
     platform: linux/x86_64
     restart: always
+    ports:
+      - "8000:8000"
 
   nginx:
     image: nginx:1.19.3
