@@ -57,5 +57,5 @@ jobs:
           script: |
             cd ../home/alice_app/infra/
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
-            sudo docker compose down --rmi local
+            sudo docker-compose down --rmi local
             sudo docker-compose up -d --build
