@@ -13,6 +13,6 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./default.conf:/infra/nginx/conf.d/default.conf
+      - ./default.conf:/infra/nginx/default.conf
     depends_on:
       - app
