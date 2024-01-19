@@ -13,6 +13,10 @@ class FiniteStateMachine(object):
     states = [
         "start",
         "help",
+        "discounts_free_services",
+        "training",
+        "quiz",
+        "legislation",
         "services_for_blind",
     ]
 
@@ -53,13 +57,24 @@ class FiniteStateMachine(object):
     def get_help_exit(self):
         self.message = Answers.EXIT_FROM_HELP
 
+    def get_legislation_exit(self):
+        self.message = Answers.EXIT_FROM_LEGISLATION
+
+    def get_discounts_free_services_exit(self):
+        self.message = Answers.EXIT_FROM_DISCOUNTS
+
+    def get_services_for_blind_exit(self):
+        self.message = Answers.EXIT_FROM_BLIND
+
     def get_exit(self):
         self.message = Answers.EXIT_FROM_SKILL
 
     def generate_function(self, name, message, command):
         def func():
             self.message = message
+            self.saved_state = self.state
             self._save_progress(get_trigger_by_command(command))
+
         setattr(self, name, func)
 
     def create_functions(self):
