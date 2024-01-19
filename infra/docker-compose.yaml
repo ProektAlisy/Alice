@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build:
-      context: ../
-      dockerfile: guidedogsalice/alice_guidedogs
+    image: guidedogsalice/alice_guidedogs
     platform: linux/x86_64
     restart: always
 
