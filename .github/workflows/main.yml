@@ -56,6 +56,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
-            sudo docker-compose stop
-            sudo docker-compose rm app
             sudo docker-compose up -d --build
