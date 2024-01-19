@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from icecream import ic
-from .machine import Skills
 from pydantic import BaseModel
 from transitions import MachineError
+
+from app.machine import Skills
 
 
 class RequestData(BaseModel):
