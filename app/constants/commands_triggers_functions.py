@@ -31,6 +31,7 @@ class Commands:
 
     ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS = (
         "узнать о службах поддержки незрячих пассажиров на транспорте"
+    )
 
     ABOUT_SERVICES_UNITING_BLIND_PEOPLE = (
         "узнать о службах объединяющие незрячих"
