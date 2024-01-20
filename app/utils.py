@@ -1,4 +1,4 @@
-from app.constants.user_commands import TrigComAns
+from app.constants.commands_triggers_functions import TrigComAns
 
 
 def get_command_by_trigger(trigger):

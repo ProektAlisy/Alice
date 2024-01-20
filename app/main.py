@@ -1,24 +1,12 @@
-import logging
-
 from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
-from transitions import MachineError
 
 from app.constants.answers import Answers
-from app.machine import FiniteStateMachine
 
 from app.utils import get_first_elements, get_trigger_by_command
-from app.constants.user_commands import Commands, Triggers
+from app.constants.commands_triggers_functions import Commands
 from command_classes import commands, NextCommand, skill
-
-
-#
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format="%(asctime)s, %(levelname)s, %(message)s",
-# )
-# logger = logging.getLogger(__name__)
 
 
 class RequestData(BaseModel):

@@ -3,7 +3,7 @@ import logging
 from transitions import MachineError
 
 from app.constants.answers import Answers
-from app.constants.user_commands import Commands, Triggers
+from app.constants.commands_triggers_functions import Commands, Triggers
 from app.machine import FiniteStateMachine
 
 
@@ -64,17 +64,17 @@ commands = {
     Commands.NEXT: create_command_class(
         "NextCommand",
         "trigger",
-        Answers.INFO_ABOUT_CENTER,
+        Answers.ABOUT_TRAINING_CENTER,
     ),
     Commands.ABOUT_TRAINING_CENTER: create_command_class(
         "TrainingCenterCommand",
-        Triggers.TRAINING_CENTER,
-        Answers.INFO_ABOUT_CENTER,
+        Triggers.ABOUT_TRAINING_CENTER,
+        Answers.ABOUT_TRAINING_CENTER,
     ),
     Commands.ABOUT_STAFF: create_command_class(
         "StaffCommand",
-        Triggers.STAFF,
-        Answers.INFO_ABOUT_STAFF,
+        Triggers.ABOUT_STAFF,
+        Answers.ABOUT_STAFF,
     ),
     Commands.ABOUT_ACCOMMODATION: create_command_class(
         "AccommodationCommand",
@@ -146,8 +146,8 @@ commands = {
 
     Commands.ABOUT_SERVICES_UNITING_BLIND_PEOPLE: create_command_class(
         "ServicesForBlindCommand",
-        Triggers.SERVICES_FOR_BLIND,
-        Answers.SERVICES_FOR_BLIND,
+        Triggers.ABOUT_SERVICES_UNITING_BLIND_PEOPLE,
+        Answers.ABOUT_SERVICES_UNITING_BLIND_PEOPLE,
     ),
     Commands.ABOUT_REGIONAL_CLUBS: create_command_class(
         "RegionalClubsCommand",
@@ -173,7 +173,7 @@ commands = {
     ),
     Commands.HELP_PHRASE: create_command_class(
         "HelpPhraseCommand",
-        "TriggerHelpPhrase",
+        Triggers.HELP_PHRASE,
         Answers.HELP_PHRASE,
     ),
     Commands.HELP_NAVIGATION: create_command_class(
@@ -193,15 +193,15 @@ commands = {
         Answers.EXIT_FROM_LEGISLATION,
     ),
 
-    Commands.UNKNOWN: create_command_class(
-        "UnknownCommand",
-        Triggers.UNKNOWN,
-        Answers.UNKNOWN,
+    Commands.EXIT_DISCOUNTS_AND_FREE_SERVICES: create_command_class(
+        "ExitDiscountsAndFreeServicesCommand",
+        Triggers.EXIT_DISCOUNTS_AND_FREE_SERVICES,
+        Answers.EXIT_DISCOUNTS_AND_FREE_SERVICES,
     ),
 
-    Commands.EXIT: create_command_class(
+    Commands.EXIT_SERVICES_FOR_BLIND: create_command_class(
         "ExitCommand",
-        Triggers.EXIT,
-        Answers.EXIT,
+        Triggers.EXIT_SERVICES_FOR_BLIND,
+        Answers.EXIT_SERVICES_FOR_BLIND,
     ),
 }

@@ -1,8 +1,10 @@
+from icecream import ic
 from transitions import Machine
 import logging
 
 from app.constants.answers import Answers
 from app.constants.states import TRANSITIONS
+from app.constants.commands_triggers_functions import GetFunc
 from app.utils import get_func_answers_command, get_trigger_by_command
 
 
@@ -57,22 +59,26 @@ class FiniteStateMachine(object):
     def get_help_exit(self):
         self.message = Answers.EXIT_FROM_HELP
 
-    def get_legislation_exit(self):
-        self.message = Answers.EXIT_FROM_LEGISLATION
+    # def get_legislation_exit(self):
+    #     self.message = Answers.EXIT_FROM_LEGISLATION
 
-    def get_discounts_free_services_exit(self):
-        self.message = Answers.EXIT_FROM_DISCOUNTS
+    # def get_discounts_free_services_exit(self):
+    #     self.message = Answers.EXIT_DISCOUNTS_AND_FREE_SERVICES
 
-    def get_services_for_blind_exit(self):
-        self.message = Answers.EXIT_FROM_BLIND
+    # def get_services_for_blind_exit(self):
+    #     self.message = Answers.EXIT_SERVICES_FOR_BLIND
 
     def get_exit(self):
         self.message = Answers.EXIT_FROM_SKILL
 
     def generate_function(self, name, message, command):
+
         def func():
             self.message = message
-            self.saved_state = self.state
+            ic(name)
+            if name in GetFunc.CORE_COMMANDS:
+                print(name)
+                self._save_state()
             self._save_progress(get_trigger_by_command(command))
 
         setattr(self, name, func)
