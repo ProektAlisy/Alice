@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+
+  app:
+    image: guidedogsalice/alice_guidedogs
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "8000:8000"
+
+  nginx:
+    image: nginx:1.19.3
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
