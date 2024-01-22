@@ -5,7 +5,10 @@ class Commands:
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
-    ABOUT_TRAINING_CENTER = "прослушать информацию об учебно-кинологическим центре собаки-помощники"
+    ABOUT_TRAINING_CENTER = (
+        "прослушать информацию об учебно-кинологическим "
+        "центре собаки-помощники"
+    )
     ABOUT_STAFF = "прослушать информацию о персонале центра"
     ABOUT_ACCOMMODATION = "прослушать информацию о проживании в центре"
     ABOUT_FACILITY = "прослушать описание помещения центра"
@@ -13,7 +16,10 @@ class Commands:
     TAKE_QUIZ = "пройти викторину"
 
     LISTEN_TO_LEGISLATION = "прослушать выдержки из законодательства"
-    ABOUT_ACCESSIBILITY = "прослушать информацию о основаниях для доступа к объектам инфраструктуры"
+    ABOUT_ACCESSIBILITY = (
+        "прослушать информацию о основаниях для доступа к "
+        "объектам инфраструктуры"
+    )
     ABOUT_GUIDE_DOG_TRANSPORTATION = "прослушать информацию о провозе собак"
     SELF_DEFENSE_PHRASE = "прослушать фразу для самозащиты"
     EXIT_FROM_LEGISLATION = "выход из законодательства"
@@ -49,6 +55,7 @@ class Commands:
     HELP_EXIT = "выход из помощи"
     EXIT = "выход"
     NEXT = "следующее"
+    REPEAT = "повтори"
 
 
 class Triggers:

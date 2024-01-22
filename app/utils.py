@@ -36,3 +36,9 @@ def get_func_answers_command():
         command_tuple = (trig_commands[2], trig_commands[3], trig_commands[0])
         commands_without_triggers.append(command_tuple)
     return commands_without_triggers
+
+
+def transform_string(input_string):
+    parts = input_string.split('_')
+    transformed_parts = [part.capitalize() for part in parts]
+    return ''.join(transformed_parts) + 'Command'

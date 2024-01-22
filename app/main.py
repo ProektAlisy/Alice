@@ -46,6 +46,9 @@ async def root(data: RequestData):
             answer = command_instance.execute(
                 skill, get_next_trigger(skill.progress)
             )
+    elif command == Commands.REPEAT:
+        command_instance = NextCommand()
+        answer = command_instance.execute(skill, skill.progress[-1])
     elif command_class:
         greetings = Answers.SMALL_GREETINGS if is_new else ""
         command_instance = command_class()
