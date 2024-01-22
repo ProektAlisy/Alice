@@ -28,9 +28,11 @@ class FiniteStateMachine(object):
         )
         self.create_functions()
 
+
     def _save_state(self):
         self.saved_state = self.state
 
+ 
     def _save_progress(self, step: str) -> None:
         if self.progress is None:
             self.progress = []
