@@ -6,7 +6,7 @@ from app.constants.answers import Answers
 
 from app.utils import get_first_elements, get_trigger_by_command
 from app.constants.commands_triggers_functions import Commands
-from command_classes import commands, NextCommand, skill
+from app.command_classes import commands, NextCommand, skill
 
 
 class RequestData(BaseModel):

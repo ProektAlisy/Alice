@@ -5,7 +5,6 @@ class Commands:
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
-    # основные команды для историй
     ABOUT_TRAINING_CENTER = "прослушать информацию об учебно-кинологическим центре собаки-помощники"
     ABOUT_STAFF = "прослушать информацию о персонале центра"
     ABOUT_ACCOMMODATION = "прослушать информацию о проживании в центре"
