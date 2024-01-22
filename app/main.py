@@ -2,11 +2,10 @@ from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
+from app.command_classes import NextCommand, commands, skill
 from app.constants.answers import Answers
-
-from app.utils import get_first_elements, get_trigger_by_command
 from app.constants.commands_triggers_functions import Commands
-from app.command_classes import commands, NextCommand, skill
+from app.utils import get_next_trigger, is_completed
 
 
 class RequestData(BaseModel):
@@ -41,21 +40,19 @@ async def root(data: RequestData):
         answer = Answers.FULL_GREETINGS
     elif command_class and command_class.__name__ == "NextCommand":
         command_instance = NextCommand()
-        ordered_states = get_first_elements()
-        if skill.progress and len(skill.progress) < len(ordered_states):
-            next_command = ordered_states[len(skill.progress)]
-            answer = command_instance.execute(
-                skill, get_trigger_by_command(next_command)
-            )
-        else:
+        if is_completed(skill.progress):
             answer = Answers.ALL_COMPLETED
+        else:
+            answer = command_instance.execute(
+                skill, get_next_trigger(skill.progress)
+            )
     elif command_class:
         greetings = Answers.SMALL_GREETINGS if is_new else ""
         command_instance = command_class()
         answer = greetings + command_instance.execute(skill)
     else:
         answer = Answers.DONT_UNDERSTAND
-    ic(command, skill.state)
+    ic(command, skill.state, skill.progress)
     return {
         "response": {
             "text": answer,

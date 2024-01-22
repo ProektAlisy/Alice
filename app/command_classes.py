@@ -1,11 +1,11 @@
 import logging
 
+from icecream import ic
 from transitions import MachineError
 
 from app.constants.answers import Answers
 from app.constants.commands_triggers_functions import Commands, Triggers
 from app.machine import FiniteStateMachine
-
 
 skill = FiniteStateMachine()
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class Command:
     @staticmethod
     def execute(
-        skill: FiniteStateMachine, target_state: str | None = None
+        skill: FiniteStateMachine, trigger_name: str | None = None
     ) -> str:
         raise NotImplementedError
 
@@ -50,9 +50,7 @@ def create_command_class(name: str, trigger_name: str, message: str):
                 skill.trigger(trigger_name)
                 skill.message = message
             except MachineError:
-                logger.debug(
-                    f"Команда вызвана из состояния {skill.state}, а не из start"
-                )
+                logger.debug(f"Команда вызвана из состояния {skill.state}")
                 skill.message = "Отсюда нельзя вызвать эту команду"
             return skill.message
 
@@ -116,7 +114,6 @@ commands = {
         Triggers.SELF_DEFENSE_PHRASE,
         Answers.SELF_DEFENSE_PHRASE,
     ),
-
     Commands.ABOUT_DISCOUNTS_AND_FREE_SERVICES: create_command_class(
         "DiscountsFreeServicesCommand",
         Triggers.ABOUT_DISCOUNTS_AND_FREE_SERVICES,
@@ -137,13 +134,11 @@ commands = {
         Triggers.SPECIAL_OFFERS_FOR_VETERINARIES,
         Answers.SPECIAL_OFFERS_FOR_VETERINARIES,
     ),
-
     Commands.ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS: create_command_class(
         "SupportServicesForBlindCommand",
         Triggers.ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS,
         Answers.ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS,
     ),
-
     Commands.ABOUT_SERVICES_UNITING_BLIND_PEOPLE: create_command_class(
         "ServicesForBlindCommand",
         Triggers.ABOUT_SERVICES_UNITING_BLIND_PEOPLE,
@@ -159,13 +154,11 @@ commands = {
         Triggers.ABOUT_SPECIAL_VIEW_FOUNDATION,
         Answers.ABOUT_SPECIAL_VIEW_FOUNDATION,
     ),
-
     Commands.INSTRUCTIONS_FOR_LAUNCHING_PODCAST: create_command_class(
         "InstructionsForLaunchingPodcastCommand",
         Triggers.INSTRUCTIONS_FOR_LAUNCHING_PODCAST,
         Answers.INSTRUCTIONS_FOR_LAUNCHING_PODCAST,
     ),
-
     Commands.HELP: create_command_class(
         "HelpCommand",
         Triggers.HELP,
@@ -186,19 +179,16 @@ commands = {
         Triggers.HELP_EXIT,
         Answers.EXIT_FROM_HELP,
     ),
-
     Commands.EXIT_FROM_LEGISLATION: create_command_class(
         "ExitLegislationCommand",
         Triggers.EXIT_FROM_LEGISLATION,
         Answers.EXIT_FROM_LEGISLATION,
     ),
-
     Commands.EXIT_DISCOUNTS_AND_FREE_SERVICES: create_command_class(
         "ExitDiscountsAndFreeServicesCommand",
         Triggers.EXIT_DISCOUNTS_AND_FREE_SERVICES,
         Answers.EXIT_DISCOUNTS_AND_FREE_SERVICES,
     ),
-
     Commands.EXIT_SERVICES_FOR_BLIND: create_command_class(
         "ExitCommand",
         Triggers.EXIT_SERVICES_FOR_BLIND,

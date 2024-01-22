@@ -40,8 +40,7 @@ class Commands:
     EXIT_SERVICES_FOR_BLIND = "выход из служб поддержки незрячих"
 
     INSTRUCTIONS_FOR_LAUNCHING_PODCAST = (
-        "узнать инструкцию запуска подкаста "
-        "министерства наших собачьих дел"
+        "узнать инструкцию запуска подкаста " "министерства наших собачьих дел"
     )
 
     HELP = "помощь"
@@ -177,7 +176,7 @@ class TrigComAns:
         "INSTRUCTIONS_FOR_LAUNCHING_PODCAST",
     ]
 
-    TRIGGERS_COMMANDS_ANSWERS = [
+    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS = [
         (
             getattr(Commands, command_name),
             getattr(Triggers, command_name),

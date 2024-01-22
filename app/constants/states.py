@@ -1,5 +1,4 @@
-from app.constants.commands_triggers_functions import Triggers, GetFunc
-
+from app.constants.commands_triggers_functions import GetFunc, Triggers
 
 TRANSITIONS = [
     {
