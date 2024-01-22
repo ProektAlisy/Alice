@@ -58,5 +58,5 @@ jobs:
             cd ../home/alice_app/
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
             sudo docker-compose stop
-            sudo docker-compose rm backend
+            sudo docker-compose rm alice_app
             sudo docker-compose up -d --build
