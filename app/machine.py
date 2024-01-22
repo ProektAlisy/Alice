@@ -1,60 +1,71 @@
+from transitions import Machine
 import logging
 
-from transitions import Machine
+from app.constants.answers import Answers
+from app.constants.states import TRANSITIONS
+from app.utils import get_func_answers_command, get_trigger_by_command
 
-from app.constants import TRANSITIONS
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-class Skills(object):
+class FiniteStateMachine(object):
     states = [
         "start",
-        "info_center",
-        "info_personal",
         "help",
+        "services_for_blind",
     ]
 
-    transitions = TRANSITIONS
-
-    def __init__(self, name):
-        self.name = name
-        self.data = {}
+    def __init__(self):
+        self.message = ""
         self.saved_state = None
+        self.progress = None
         self.machine = Machine(
             model=self,
-            states=Skills.states,
-            transitions=Skills.transitions,
+            states=FiniteStateMachine.states,
+            transitions=TRANSITIONS,
             initial="start",
         )
+        self.create_functions()
+
 
     def _save_state(self):
         self.saved_state = self.state
 
+ 
+    def _save_progress(self, step: str) -> None:
+        if self.progress is None:
+            self.progress = []
+        if step not in self.progress:
+            self.progress.append(step)
+
     def _return_to_original_state(self):
         self.machine.set_state(self.saved_state)
 
-    def get_info_about_center(self):
-        self.data = {"message": "Наш центр самый самый и все такое"}
-
-    def get_info_about_center_personal(self):
-        self.data = {"message": "Вот наш персонал: Маша, Витя и Леонид"}
-
-    def get_info(self):
-        self.data = {"message": "Дополнительная информация"}
-
     def get_help(self):
         self.saved_state = self.state
-        self.data = {
-            "message": "Здесь вы можете узнать фразы взаимодействия или "
-            "получить помощь с навигацией по навыку!"
-        }
+        self.message = Answers.HELP_MAIN
 
     def get_help_phrase(self):
-        self.data = {"message": "Вот это фразы взаимодействия с навыком"}
+        self.message = Answers.HELP_PHRASE
 
     def get_help_navigation(self):
-        self.data = {"message": "Вот помощь по навигации по навыку"}
+        self.message = Answers.HELP_NAVIGATION
 
     def get_help_exit(self):
-        self.data = {"message": "Вы вышли из помощи"}
+        self.message = Answers.EXIT_FROM_HELP
+
+    def get_exit(self):
+        self.message = Answers.EXIT_FROM_SKILL
+
+    def generate_function(self, name, message, command):
+        def func():
+            self.message = message
+            self._save_progress(get_trigger_by_command(command))
+        setattr(self, name, func)
+
+    def create_functions(self):
+        [
+            self.generate_function(func_name, answer, command)
+            for func_name, answer, command in get_func_answers_command()
+        ]
