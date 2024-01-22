@@ -2,11 +2,10 @@ from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
+from app.command_classes import NextCommand, commands, skill
 from app.constants.answers import Answers
-
-from app.utils import get_first_elements, get_trigger_by_command
 from app.constants.commands_triggers_functions import Commands
-from app.command_classes import commands, NextCommand, skill
+from app.utils import get_first_elements, get_trigger_by_command
 
 
 class RequestData(BaseModel):
@@ -23,6 +22,9 @@ application = FastAPI()
     summary="Диалог с Алисой.",
 )
 async def root(data: RequestData):
+    """
+    Function for handling the root endpoint.
+    """
     command = data.request.get("command")
     is_new = data.session.get("new")
 

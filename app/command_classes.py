@@ -6,7 +6,6 @@ from app.constants.answers import Answers
 from app.constants.commands_triggers_functions import Commands, Triggers
 from app.machine import FiniteStateMachine
 
-
 skill = FiniteStateMachine()
 
 
@@ -18,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 class Command:
+    """
+    A static method to execute the given skill on the specified target state.
+    """
     @staticmethod
     def execute(
         skill: FiniteStateMachine, target_state: str | None = None
@@ -26,6 +28,10 @@ class Command:
 
 
 class NextCommand(Command):
+    """
+    Executes the given skill by triggering the specified trigger_name,
+    if provided.
+    """
     @staticmethod
     def execute(
         skill: FiniteStateMachine, trigger_name: str | None = None
@@ -42,6 +48,11 @@ class NextCommand(Command):
 
 
 def create_command_class(name: str, trigger_name: str, message: str):
+    """
+    Create a command class with the given name, trigger_name, and message.
+    The execute method triggers the specified skill, sets the message,
+    and handles MachineError exceptions. Returns the skill message.
+    """
     class CustomCommand(Command):
         def execute(
             self, skill: FiniteStateMachine, target_state: str | None = None
@@ -51,7 +62,8 @@ def create_command_class(name: str, trigger_name: str, message: str):
                 skill.message = message
             except MachineError:
                 logger.debug(
-                    f"Команда вызвана из состояния {skill.state}, а не из start"
+                    f"Команда вызвана из состояния {skill.state}, "
+                    "а не из start"
                 )
                 skill.message = "Отсюда нельзя вызвать эту команду"
             return skill.message
