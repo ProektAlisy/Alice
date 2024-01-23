@@ -3,14 +3,10 @@ import logging
 from transitions import MachineError
 
 from app.constants.answers import Answers
-from app.constants.commands_triggers_functions import (
-    Commands,
-    Triggers,
-    TrigComAns,
-)
+from app.constants.commands_triggers_functions import (Commands, TrigComAns,
+                                                       Triggers)
 from app.machine import FiniteStateMachine
 from app.utils import transform_string
-
 
 skill = FiniteStateMachine()
 
@@ -25,7 +21,8 @@ logger = logging.getLogger(__name__)
 class Command:
     @staticmethod
     def execute(
-        skill: FiniteStateMachine, trigger_name: str | None = None
+        skill: FiniteStateMachine,
+        trigger_name: str | None = None,
     ) -> str:
         raise NotImplementedError
 
@@ -33,14 +30,15 @@ class Command:
 class NextCommand(Command):
     @staticmethod
     def execute(
-        skill: FiniteStateMachine, trigger_name: str | None = None
+        skill: FiniteStateMachine,
+        trigger_name: str | None = None,
     ) -> str:
         try:
             skill.trigger(trigger_name)
         except MachineError:
             logger.debug(
                 f"Команда вызвана из состояния {skill.state}, "
-                f"а не из start"
+                f"а не из start",
             )
             skill.message = "Отсюда нельзя вызвать эту команду"
         return skill.message
@@ -49,7 +47,9 @@ class NextCommand(Command):
 def create_command_class(name: str, trigger_name: str, message: str):
     class CustomCommand(Command):
         def execute(
-            self, skill: FiniteStateMachine, target_state: str | None = None
+            self,
+            skill: FiniteStateMachine,
+            target_state: str | None = None,
         ) -> str:
             try:
                 skill.trigger(trigger_name)
@@ -65,14 +65,22 @@ def create_command_class(name: str, trigger_name: str, message: str):
 
 list_of_commands = TrigComAns.COMMAND_NAMES
 list_of_commands.extend(
-                ["HELP", "HELP_PHRASE", "HELP_NAVIGATION", "NEXT"]
-            )
-
+    [
+        "HELP",
+        "HELP_PHRASE",
+        "HELP_NAVIGATION",
+        "NEXT",
+    ],
+)
 
 commands = {}
 for constant in list_of_commands:
-    commands.update({getattr(Commands, constant): create_command_class(
-        transform_string(constant),
-        getattr(Triggers, constant),
-        getattr(Answers, constant),
-    )})
+    commands.update(
+        {
+            getattr(Commands, constant): create_command_class(
+                transform_string(constant),
+                getattr(Triggers, constant),
+                getattr(Answers, constant),
+            ),
+        },
+    )

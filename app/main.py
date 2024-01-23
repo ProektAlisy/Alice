@@ -44,7 +44,8 @@ async def root(data: RequestData):
             answer = Answers.ALL_COMPLETED
         else:
             answer = command_instance.execute(
-                skill, get_next_trigger(skill.progress)
+                skill,
+                get_next_trigger(skill.progress),
             )
     elif command == Commands.REPEAT:
         command_instance = NextCommand()
