@@ -2,6 +2,7 @@ from app.constants.answers import Answers
 
 
 class Commands:
+    """Класс для хранения команд пользователя."""
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
@@ -59,6 +60,11 @@ class Commands:
 
 
 class Triggers:
+    """Класс для хранения триггеров.
+
+    Триггеры - комманды, которые запускают некоторые команды и могут
+    изменять состояние `state`.
+    """
     def __setattr__(self, key, value):
         raise AttributeError("Триггеры изменять нельзя!")
 
@@ -102,6 +108,11 @@ class Triggers:
 
 
 class GetFunc:
+    """Класс для хранения имен функций.
+
+    Эти функции после запуска соответствующего триггера. Имена функций
+    и соответвующего триггера отличаются префиксами `get_` и `trigger_`.
+    """
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
@@ -155,6 +166,12 @@ class GetFunc:
 
 
 class TrigComAns:
+    """Класс для хранения структуры данных.
+
+    Состоит из соответствующих команд, триггеров, функций и ответов.
+
+    Note: для удобства использования в коде.
+    """
     def setattr(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
