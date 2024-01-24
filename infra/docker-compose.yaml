@@ -3,7 +3,6 @@ version: '3.8'
 services:
 
   app:
-    container_name: "app"
     image: guidedogsalice/alice_guidedogs
     platform: linux/x86_64
     restart: always
@@ -20,7 +19,6 @@ services:
 #      - mongodata:/data/db
 
   nginx:
-    container_name: "nginx"
     image: nginx:1.19.3
     ports:
       - "80:80"
