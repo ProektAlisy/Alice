@@ -1,10 +1,10 @@
-from transitions import Machine
 import logging
+
+from transitions import Machine
 
 from app.constants.answers import Answers
 from app.constants.states import TRANSITIONS
 from app.utils import get_func_answers_command, get_trigger_by_command
-
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -28,11 +28,9 @@ class FiniteStateMachine(object):
         )
         self.create_functions()
 
-
     def _save_state(self):
         self.saved_state = self.state
 
- 
     def _save_progress(self, step: str) -> None:
         if self.progress is None:
             self.progress = []

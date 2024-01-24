@@ -6,7 +6,8 @@ class Commands:
         raise AttributeError("Команды изменять нельзя!")
 
     # основные истории
-    ABOUT_TRAINING_CENTER = "прослушать информацию об учебно-кинологическим центре собаки-помощники"
+    ABOUT_TRAINING_CENTER = ("прослушать информацию об учебно-кинологическим "
+                             "центре собаки-помощники")
     ABOUT_ACCOMMODATION = "прослушать информацию о проживании в центре"
     ABOUT_STAFF = "прослушать информацию о персонале центра"
     ABOUT_FACILITY = "прослушать описание помещения центра"
@@ -65,9 +66,21 @@ class Default:
         raise AttributeError("Команды изменять нельзя!")
 
     TRIGGERS_COMMANDS_ANSWERS = (
-        (Commands.ABOUT_TRAINING_CENTER, "trigger_training_center", "get_training_center", Answers.INFO_ABOUT_CENTER,),
-        (Commands.ABOUT_STAFF, "trigger_staff", "get_staff", Answers.INFO_ABOUT_STAFF),
-        (Commands.ABOUT_SERVICES_UNITING_BLIND_PEOPLE, "trigger_services_for_blind", "get_services_for_blind", Answers.SERVICES_FOR_BLIND),
+        (Commands.ABOUT_TRAINING_CENTER,
+         "trigger_training_center",
+         "get_training_center",
+         Answers.INFO_ABOUT_CENTER,
+         ),
+        (Commands.ABOUT_STAFF,
+         "trigger_staff",
+         "get_staff",
+         Answers.INFO_ABOUT_STAFF
+         ),
+        (Commands.ABOUT_SERVICES_UNITING_BLIND_PEOPLE,
+         "trigger_services_for_blind",
+         "get_services_for_blind",
+         Answers.SERVICES_FOR_BLIND
+         ),
         # "trigger_help",
         # "trigger_help_phrase",
         # "trigger_help_navigation",

@@ -5,11 +5,9 @@ from pydantic import BaseModel
 from transitions import MachineError
 
 from app.constants.answers import Answers
-from app.machine import FiniteStateMachine
-
-from app.utils import get_first_elements, get_trigger_by_command
 from app.constants.user_commands import Commands
-
+from app.machine import FiniteStateMachine
+from app.utils import get_first_elements, get_trigger_by_command
 
 logging.basicConfig(
     level=logging.INFO,
@@ -62,7 +60,8 @@ def create_command_class(name: str, trigger_name: str, message: str):
                 skill.message = message
             except MachineError:
                 logger.debug(
-                    f"Команда вызвана из состояния {skill.state}, а не из start"
+                    f"Команда вызвана из состояния {skill.state}, "
+                    f"а не из start"
                 )
                 skill.message = "Отсюда нельзя вызвать эту команду"
             return skill.message
@@ -110,11 +109,7 @@ commands = {
 }
 
 
-@application.post(
-        "/",
-        tags=['Alice project'],
-        summary='Диалог с Алисой.',
-)
+@application.post("/", tags=['Alice project'], summary='Диалог с Алисой.')
 async def root(data: RequestData):
     command = data.request.get("command")
     is_new = data.session.get("new")
