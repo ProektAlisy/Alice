@@ -29,3 +29,11 @@
 ```
 uvicorn app.main:app --reload
 ```
+
+- Копирование docker-compose.yaml и nginx config файлов на сервер:
+```
+scp -r infra/* root@80.87.108.69:/home/alice_app/
+```
+
+- Деплой происходит при команде git push.
+- Предварительно проходит проверка flake8 и автотесты.
