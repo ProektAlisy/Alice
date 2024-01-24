@@ -1,5 +1,8 @@
-from app.constants.commands_triggers_functions import Triggers, GetFunc
+"""
+Хранятся описания переходов между состояниями и соответствующих действиях.
+"""
 
+from app.constants.commands_triggers_functions import GetFunc, Triggers
 
 TRANSITIONS = [
     {

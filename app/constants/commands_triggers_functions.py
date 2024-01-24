@@ -2,10 +2,14 @@ from app.constants.answers import Answers
 
 
 class Commands:
+    """Класс для хранения команд пользователя."""
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
-    ABOUT_TRAINING_CENTER = "прослушать информацию об учебно-кинологическим центре собаки-помощники"
+    ABOUT_TRAINING_CENTER = (
+        "прослушать информацию об учебно-кинологическим "
+        "центре собаки-помощники"
+    )
     ABOUT_STAFF = "прослушать информацию о персонале центра"
     ABOUT_ACCOMMODATION = "прослушать информацию о проживании в центре"
     ABOUT_FACILITY = "прослушать описание помещения центра"
@@ -13,7 +17,10 @@ class Commands:
     TAKE_QUIZ = "пройти викторину"
 
     LISTEN_TO_LEGISLATION = "прослушать выдержки из законодательства"
-    ABOUT_ACCESSIBILITY = "прослушать информацию о основаниях для доступа к объектам инфраструктуры"
+    ABOUT_ACCESSIBILITY = (
+        "прослушать информацию о основаниях для доступа к "
+        "объектам инфраструктуры"
+    )
     ABOUT_GUIDE_DOG_TRANSPORTATION = "прослушать информацию о провозе собак"
     SELF_DEFENSE_PHRASE = "прослушать фразу для самозащиты"
     EXIT_FROM_LEGISLATION = "выход из законодательства"
@@ -40,8 +47,7 @@ class Commands:
     EXIT_SERVICES_FOR_BLIND = "выход из служб поддержки незрячих"
 
     INSTRUCTIONS_FOR_LAUNCHING_PODCAST = (
-        "узнать инструкцию запуска подкаста "
-        "министерства наших собачьих дел"
+        "узнать инструкцию запуска подкаста " "министерства наших собачьих дел"
     )
 
     HELP = "помощь"
@@ -50,9 +56,15 @@ class Commands:
     HELP_EXIT = "выход из помощи"
     EXIT = "выход"
     NEXT = "следующее"
+    REPEAT = "повтори"
 
 
 class Triggers:
+    """Класс для хранения триггеров.
+
+    Триггеры - комманды, которые запускают некоторые команды и могут
+    изменять состояние `state`.
+    """
     def __setattr__(self, key, value):
         raise AttributeError("Триггеры изменять нельзя!")
 
@@ -96,6 +108,11 @@ class Triggers:
 
 
 class GetFunc:
+    """Класс для хранения имен функций.
+
+    Эти функции после запуска соответствующего триггера. Имена функций
+    и соответвующего триггера отличаются префиксами `get_` и `trigger_`.
+    """
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
@@ -149,6 +166,12 @@ class GetFunc:
 
 
 class TrigComAns:
+    """Класс для хранения структуры данных.
+
+    Состоит из соответствующих команд, триггеров, функций и ответов.
+
+    Note: для удобства использования в коде.
+    """
     def setattr(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
@@ -177,7 +200,7 @@ class TrigComAns:
         "INSTRUCTIONS_FOR_LAUNCHING_PODCAST",
     ]
 
-    TRIGGERS_COMMANDS_ANSWERS = [
+    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS = [
         (
             getattr(Commands, command_name),
             getattr(Triggers, command_name),
