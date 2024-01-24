@@ -10,15 +10,14 @@ services:
     ports:
       - "8000:8000"
 
-  mongodb:
-    container_name: "mongodb"
-    image: mongodb
+  mongo:
+    image: mongo:7.0
     restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb-data:/data/db
     env_file: .env
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
 
   nginx:
     container_name: "nginx"
@@ -29,3 +28,7 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
+
+volumes:
+  mongodata:
+    driver: local
