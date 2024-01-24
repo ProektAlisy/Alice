@@ -3,13 +3,25 @@ version: '3.8'
 services:
 
   app:
+    container_name: "app"
     image: guidedogsalice/alice_guidedogs
     platform: linux/x86_64
     restart: always
     ports:
       - "8000:8000"
 
+  mongodb:
+    container_name: "mongodb"
+    image: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    env_file: .env
+
   nginx:
+    container_name: "nginx"
     image: nginx:1.19.3
     ports:
       - "80:80"
