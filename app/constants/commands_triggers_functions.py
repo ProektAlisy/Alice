@@ -154,7 +154,7 @@ class GetFunc:
     EXIT = "get_exit"
     NEXT = "get_next"
 
-    CORE_COMMANDS = (
+    NOT_CORE_COMMANDS = (
         ABOUT_TRAINING_CENTER,
         ABOUT_STAFF,
         ABOUT_ACCOMMODATION,
