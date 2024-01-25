@@ -5,12 +5,8 @@ from transitions import Machine
 from app.constants.answers import Answers
 from app.constants.commands_triggers_functions import GetFunc
 from app.constants.states import TRANSITIONS
-from app.utils import (
-    get_func_answers_command,
-    get_trigger_by_command,
-    get_triggers_by_order,
-)
-
+from app.utils import (get_func_answers_command, get_trigger_by_command,
+                       get_triggers_by_order)
 
 logging.basicConfig(level=logging.INFO)
 

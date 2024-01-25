@@ -23,6 +23,7 @@ path = os.path.join("constants", "answers")
 for file_name in os.listdir(path):
     with open(os.path.join(path, file_name), "r", encoding="utf-8") as file:
         answer = " ".join([line.strip() for line in file])
+        answer.replace("  ", " ")
         if not answer:
             logger.debug(f"Файл {file_name} пустой")
             continue

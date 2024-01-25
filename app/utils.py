@@ -1,5 +1,3 @@
-from icecream import ic
-
 from app.constants.commands_triggers_functions import TrigComAns
 
 
@@ -101,7 +99,9 @@ def transform_string(input_string: str) -> str:
 
 def is_alice_commands(command: str) -> bool:
     with open(
-        "app/constants/alice_commands.txt", "r", encoding="utf-8"
+        "app/constants/alice_commands.txt",
+        "r",
+        encoding="utf-8",
     ) as file:
         commands = [line.strip() for line in file]
     return command in commands
