@@ -48,7 +48,7 @@ def test_exit_command():
         "request": {"command": "выход"},
     }
     response = client.post("/", json=request_data)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     data = response.json()
     assert "response" in data
     assert "text" in data["response"]
