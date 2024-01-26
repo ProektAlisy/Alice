@@ -5,7 +5,8 @@ from transitions import Machine
 from app.constants.answers import Answers
 from app.constants.commands_triggers_functions import GetFunc
 from app.constants.states import TRANSITIONS
-from app.utils import get_func_answers_command, get_trigger_by_command
+from app.utils import (get_func_answers_command, get_trigger_by_command,
+                       get_triggers_by_order)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,6 +32,7 @@ class FiniteStateMachine(object):
             transitions=TRANSITIONS,
             initial="start",
         )
+        self.max_progress = len(get_triggers_by_order())
         self.create_functions()
 
     def _save_state(self):
@@ -68,7 +70,7 @@ class FiniteStateMachine(object):
     def generate_function(self, name, message, command):
         def func():
             self.message = message
-            if name in GetFunc.CORE_COMMANDS:
+            if name in GetFunc.NOT_CORE_COMMANDS:
                 self._save_state()
             self._save_progress(get_trigger_by_command(command))
 

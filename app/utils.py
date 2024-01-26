@@ -1,19 +1,18 @@
 from app.constants.commands_triggers_functions import TrigComAns
 
 
-def is_completed(progress: list[str]) -> bool:
+def is_completed(skill) -> bool:
     """Проверяет, завершено ли обучение.
 
     Обучение считается завершенным, когда выполенные все элементы навыка.
 
     Args:
-        progress: Список прогресса выполнения. В него входят триггеры,
-        соответствующие выполненным элементам навыка.
+        skill: объект навыка.
 
     Returns:
         True, если все элементы навыка завершены, иначе False.
     """
-    return len(get_triggers_by_order()) == len(progress)
+    return len(skill.progress) == skill.max_progress
 
 
 def get_next_trigger(progress: list[str]) -> str:
@@ -96,3 +95,13 @@ def transform_string(input_string: str) -> str:
     parts = input_string.split("_")
     transformed_parts = [part.capitalize() for part in parts]
     return "".join(transformed_parts) + "Command"
+
+
+def is_alice_commands(command: str) -> bool:
+    with open(
+        "app/constants/alice_commands.txt",
+        "r",
+        encoding="utf-8",
+    ) as file:
+        commands = [line.strip() for line in file]
+    return command in commands

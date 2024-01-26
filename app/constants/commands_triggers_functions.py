@@ -3,6 +3,7 @@ from app.constants.answers import Answers
 
 class Commands:
     """Класс для хранения команд пользователя."""
+
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
@@ -65,6 +66,7 @@ class Triggers:
     Триггеры - комманды, которые запускают некоторые команды и могут
     изменять состояние `state`.
     """
+
     def __setattr__(self, key, value):
         raise AttributeError("Триггеры изменять нельзя!")
 
@@ -113,6 +115,7 @@ class GetFunc:
     Эти функции после запуска соответствующего триггера. Имена функций
     и соответвующего триггера отличаются префиксами `get_` и `trigger_`.
     """
+
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
@@ -151,7 +154,7 @@ class GetFunc:
     EXIT = "get_exit"
     NEXT = "get_next"
 
-    CORE_COMMANDS = (
+    NOT_CORE_COMMANDS = (
         ABOUT_TRAINING_CENTER,
         ABOUT_STAFF,
         ABOUT_ACCOMMODATION,
@@ -172,6 +175,7 @@ class TrigComAns:
 
     Note: для удобства использования в коде.
     """
+
     def setattr(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
