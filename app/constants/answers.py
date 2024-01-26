@@ -2,7 +2,16 @@ class Answers:
     def __setattr__(self, key, value):
         raise AttributeError("Messages is immutable")
 
-    DONT_UNDERSTAND = "Я не понимаю, что вы хотите сказать"
+    DONT_UNDERSTAND_THE_FIRST_TIME = (
+        "Извините, не поняла. Повторите, пожалуйста."
+    )
+    DONT_UNDERSTAND_THE_SECOND_TIME = (
+        "Извините, все еще не понимаю вас. Я жду от вас ответа на вопрос "
+    )
+    DONT_UNDERSTAND_MORE_THAN_TWICE = (
+        "Извините, боюсь, не могу помочь. Если есть сложности "
+        "с навигацией по навыку, то скажите помоги мне."
+    )
     SMALL_GREETINGS = """
     Вы приехали к нам на обучение, чтобы получить
     долгожданную собаку-поводыря. Добро пожаловать! Сейчас запущен навык
