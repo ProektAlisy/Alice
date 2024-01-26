@@ -1,13 +1,21 @@
 version: '3.8'
 
 services:
-
   app:
     image: guidedogsalice/alice_guidedogs
     platform: linux/x86_64
     restart: always
     ports:
       - "8000:8000"
+
+  mongo:
+    image: mongo:4.4.6
+    restart: always
+    env_file: .env
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
 
   nginx:
     image: nginx:1.19.3
@@ -20,3 +28,7 @@ services:
       - /etc/letsencrypt/live/www.guidedogs.acceleratorpracticum.ru/privkey.pem:/etc/nginx/ssl/privkey.pem
     depends_on:
       - app
+
+volumes:
+  mongodata:
+    driver: local
