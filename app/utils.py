@@ -1,4 +1,5 @@
 from app.constants.commands_triggers_functions import TrigComAns
+from app.command_classes import Commands
 
 
 def is_completed(progress: list[str]) -> bool:
@@ -96,3 +97,11 @@ def transform_string(input_string: str) -> str:
     parts = input_string.split("_")
     transformed_parts = [part.capitalize() for part in parts]
     return "".join(transformed_parts) + "Command"
+
+
+def get_all_commands() -> list[str]:
+    """
+    Возвращает список всех команд из класса Commands.
+    """
+    return [value for name, value in vars(Commands).items()
+            if not name.startswith('__')]
