@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from app.command_classes import NextCommand, commands, skill
 from app.constants.answers import Answers
 from app.constants.commands_triggers_functions import Commands
-from app.utils import get_next_trigger, is_completed
+from app.utils import get_next_trigger, is_completed, get_all_commands
 
 
 class RequestData(BaseModel):
@@ -24,6 +24,10 @@ application = FastAPI()
 async def root(data: RequestData):
     command = data.request.get("command")
     is_new = data.session.get("new")
+
+    all_commands = get_all_commands()
+    if is_new or command.lower() in all_commands:
+        skill.incorrect_answers = 0
 
     if command.lower() == Commands.EXIT:
         answer = Answers.EXIT_FROM_SKILL
@@ -54,7 +58,7 @@ async def root(data: RequestData):
         command_instance = command_class()
         answer = greetings + command_instance.execute(skill)
     else:
-        answer = Answers.DONT_UNDERSTAND
+        answer = skill.dont_understand()
     ic(command, skill.state, skill.progress)
     return {
         "response": {
