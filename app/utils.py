@@ -1,7 +1,7 @@
 from app.constants.commands_triggers_functions import TrigComAns
 
 
-def is_completed(skill) -> bool:
+def is_completed(skill: "FiniteStateMachine") -> bool:
     """Проверяет, завершено ли обучение.
 
     Обучение считается завершенным, когда выполенные все элементы навыка.
@@ -12,26 +12,32 @@ def is_completed(skill) -> bool:
     Returns:
         True, если все элементы навыка завершены, иначе False.
     """
-    return len(skill.progress) == skill.max_progress
+    try:
+        result = len(skill.progress) == skill.max_progress
+    except TypeError:
+        result = False
+    return result
 
 
-def get_next_trigger(progress: list[str]) -> str:
+def get_next_trigger(skill: "FiniteStateMachine") -> str:
     """Возвращает следующий триггер.
 
     Очередность определяется списком TrigComAns.COMMANDS_NAMES.
 
     Args:
-        progress: Список прогресса выполнения.
+        skill: Объект навыка.
 
     Returns:
         Следующий триггер.
     """
-    trigger = progress[-1]
+    trigger = last_trigger(skill)
+    if last_trigger(skill) is None:
+        return TrigComAns.COMMANDS_TRIGGERS_GET_FUNC_ANSWERS[0][1]
     ordered_triggers = get_triggers_by_order()
     trigger_index = ordered_triggers.index(trigger)
     len_triggers = len(ordered_triggers)
     for index in range(trigger_index, len_triggers + trigger_index):
-        if ordered_triggers[index % len_triggers] in progress:
+        if ordered_triggers[index % len_triggers] in skill.progress:
             continue
         return ordered_triggers[index % len_triggers]
 
@@ -117,3 +123,19 @@ def is_alice_commands(command: str) -> bool:
     ) as file:
         commands = [line.strip() for line in file]
     return command in commands
+
+
+def last_trigger(skill) -> str:
+    """Возвращает последний триггер.
+
+    Args:
+        skill: Объект навыка.
+
+    Returns:
+        Последний триггер.
+    """
+    try:
+        result = skill.progress[-1]
+    except (IndexError, TypeError):
+        result = None
+    return result
