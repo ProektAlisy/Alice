@@ -2,7 +2,7 @@ import os
 
 import pytest
 from mongomock import MongoClient
-from db_test_operations import insert_data, get_data, update_data, delete_data
+from .db_test_operations import insert_data, get_data, update_data, delete_data
 from dotenv import load_dotenv
 
 load_dotenv()

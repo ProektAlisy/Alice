@@ -10,6 +10,7 @@ from app.utils import transform_string
 
 skill = FiniteStateMachine()
 
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s, %(levelname)s, %(message)s",
@@ -20,7 +21,8 @@ logger = logging.getLogger(__name__)
 class Command:
     @staticmethod
     def execute(
-            skill: FiniteStateMachine, trigger_name: str | None = None
+        skill: FiniteStateMachine,
+        trigger_name: str | None = None,
     ) -> str:
         raise NotImplementedError
 
@@ -28,14 +30,14 @@ class Command:
 class NextCommand(Command):
     @staticmethod
     def execute(
-            skill: FiniteStateMachine, trigger_name: str | None = None
+        skill: FiniteStateMachine, trigger_name: str | None = None
     ) -> str:
         try:
             skill.trigger(trigger_name)
         except MachineError:
             logger.debug(
                 f"Команда вызвана из состояния {skill.state}, "
-                f"а не из start"
+                f"а не из start",
             )
             skill.message = "Отсюда нельзя вызвать эту команду"
         return skill.message
@@ -44,9 +46,9 @@ class NextCommand(Command):
 def create_command_class(name: str, trigger_name: str, message: str):
     class CustomCommand(Command):
         def execute(
-                self,
-                skill: FiniteStateMachine,
-                target_state: str | None = None
+            self,
+            skill: FiniteStateMachine,
+            target_state: str | None = None,
         ) -> str:
             try:
                 skill.trigger(trigger_name)
@@ -65,10 +67,15 @@ list_of_commands.extend(
     ["HELP", "HELP_PHRASE", "HELP_NAVIGATION", "NEXT"]
 )
 
+
 commands = {}
 for constant in list_of_commands:
-    commands.update({getattr(Commands, constant): create_command_class(
-        transform_string(constant),
-        getattr(Triggers, constant),
-        getattr(Answers, constant),
-    )})
+    commands.update(
+        {
+            getattr(Commands, constant): create_command_class(
+                transform_string(constant),
+                getattr(Triggers, constant),
+                getattr(Answers, constant),
+            ),
+        },
+    )
