@@ -3,16 +3,22 @@ import logging
 from transitions import Machine
 
 from app.constants.answers import Answers
+from app.constants.commands_triggers_functions import GetFunc
 from app.constants.states import TRANSITIONS
-from app.utils import get_func_answers_command, get_trigger_by_command
+from app.utils import (get_func_answers_command, get_trigger_by_command,
+                       get_triggers_by_order)
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class FiniteStateMachine(object):
     states = [
         "start",
         "help",
+        "discounts_free_services",
+        "training",
+        "quiz",
+        "legislation",
         "services_for_blind",
     ]
 
@@ -26,15 +32,20 @@ class FiniteStateMachine(object):
             transitions=TRANSITIONS,
             initial="start",
         )
+        self.max_progress = len(get_triggers_by_order())
         self.create_functions()
 
     def _save_state(self):
         self.saved_state = self.state
 
     def _save_progress(self, step: str) -> None:
+        """Прогресс прохождения навыка."""
         if self.progress is None:
             self.progress = []
         if step not in self.progress:
+            self.progress.append(step)
+        else:
+            self.progress.remove(step)
             self.progress.append(step)
 
     def _return_to_original_state(self):
@@ -59,7 +70,10 @@ class FiniteStateMachine(object):
     def generate_function(self, name, message, command):
         def func():
             self.message = message
+            if name in GetFunc.NOT_CORE_COMMANDS:
+                self._save_state()
             self._save_progress(get_trigger_by_command(command))
+
         setattr(self, name, func)
 
     def create_functions(self):
