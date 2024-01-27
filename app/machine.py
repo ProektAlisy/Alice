@@ -26,6 +26,7 @@ class FiniteStateMachine(object):
         self.message = ""
         self.saved_state = None
         self.progress = None
+        self.incorrect_answers = 0
         self.machine = Machine(
             model=self,
             states=FiniteStateMachine.states,
@@ -81,3 +82,18 @@ class FiniteStateMachine(object):
             self.generate_function(func_name, answer, command)
             for func_name, answer, command in get_func_answers_command()
         ]
+
+    def dont_understand(self):
+        """
+        Метод для обработки ответов, когда система не понимает пользователя.
+        Увеличивает счетчик ответов и устанавливает сообщение
+        в зависимости от счетчика.
+        """
+        self.incorrect_answers += 1
+        if self.incorrect_answers <= 1:
+            self.message = Answers.DONT_UNDERSTAND_THE_FIRST_TIME
+        elif self.incorrect_answers == 2:
+            self.message = Answers.DONT_UNDERSTAND_THE_SECOND_TIME
+        else:
+            self.message = Answers.DONT_UNDERSTAND_MORE_THAN_TWICE
+        return self.message
