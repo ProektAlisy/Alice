@@ -65,7 +65,7 @@ async def root(data: RequestData):
         command_instance = command_class()
         answer = greetings + command_instance.execute(skill)
     elif is_alice_commands(command):
-        answer = Answers.STANDART_ALICE_COMMAND
+        answer = Answers.STANDARD_ALICE_COMMAND
     else:
         answer = skill.dont_understand()
     ic(command, skill.state, skill.progress)

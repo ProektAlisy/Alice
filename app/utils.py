@@ -1,4 +1,5 @@
 from app.constants.commands_triggers_functions import TrigComAns
+from app.monga_initialize import db
 
 
 def is_completed(skill: "FiniteStateMachine") -> bool:
@@ -139,3 +140,8 @@ def last_trigger(skill) -> str:
     except (IndexError, TypeError):
         result = None
     return result
+
+
+def read_from_db(query, collection):
+    print(db[collection].find_one(query, {"_id": 0}))
+    return db[collection].find_one(query, {"_id": 0})
