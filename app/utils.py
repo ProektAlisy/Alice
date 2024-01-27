@@ -81,6 +81,18 @@ def get_func_answers_command() -> list[tuple[str, str, str]]:
     return commands_without_triggers
 
 
+def get_all_commands() -> list[str]:
+    """Возвращает список команд.
+
+    Returns:
+        Список команд.
+    """
+    commands = []
+    for trig_commands in TrigComAns.COMMANDS_TRIGGERS_GET_FUNC_ANSWERS:
+        commands.append(trig_commands[0])
+    return commands
+
+
 def transform_string(input_string: str) -> str:
     """Преобразует строку.
 
