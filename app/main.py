@@ -5,13 +5,8 @@ from pydantic import BaseModel
 from app.command_classes import NextCommand, commands, skill
 from app.constants.answers import Answers
 from app.constants.commands_triggers_functions import Commands
-from app.utils import (
-    get_all_commands,
-    get_next_trigger,
-    is_alice_commands,
-    is_completed,
-    last_trigger,
-)
+from app.utils import (get_all_commands, get_next_trigger, is_alice_commands,
+                       is_completed, last_trigger)
 
 
 class RequestData(BaseModel):

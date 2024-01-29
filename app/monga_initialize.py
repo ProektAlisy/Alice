@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
@@ -7,8 +8,8 @@ def connect_to_mongodb():
     load_dotenv()
 
     mongo_host = os.getenv("MONGO_HOST")
-    mongo_user = os.getenv("MONGO_USER")
-    mongo_pass = os.getenv("MONGO_PASSWORD")
+    mongo_user = os.getenv("MONGO_USER") # noqa
+    mongo_pass = os.getenv("MONGO_PASSWORD") # noqa
 
     client = MongoClient(
         host=mongo_host,

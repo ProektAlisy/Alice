@@ -33,7 +33,7 @@ paths = [os.path.join(path, folder) for folder in folders]
 def write_to_db(path, collection):
     for file_name in os.listdir(path):
         with open(
-            os.path.join(path, file_name), "r", encoding="utf-8"
+            os.path.join(path, file_name), "r", encoding="utf-8",
         ) as file:
             answer = " ".join([line.strip() for line in file])
             answer.replace("  ", " ")
@@ -42,7 +42,7 @@ def write_to_db(path, collection):
                 continue
             try:
                 collection.insert_one(
-                    {"key": file_name[:-4], "answer": answer}
+                    {"key": file_name[:-4], "answer": answer},
                 )
             except DuplicateKeyError:
                 logger.debug("Такой ответ уже есть")
