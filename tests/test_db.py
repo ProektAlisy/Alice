@@ -2,7 +2,8 @@
 #
 # import pytest
 # from mongomock import MongoClient
-# from .db_test_operations import insert_data, get_data, update_data, delete_data
+# from .db_test_operations import (insert_data, get_data,
+#                                 update_data, delete_data)
 # from dotenv import load_dotenv
 #
 # load_dotenv()
@@ -14,7 +15,11 @@
 #
 # @pytest.fixture
 # def mongo_client():
-#     client = MongoClient(host=mongo_test_host, username=mongo_user, password=mongo_pass)
+#     client = MongoClient(
+#         host=mongo_test_host,
+#         username=mongo_user,
+#         password=mongo_pass
+#     )
 #     db = client["test_db"]
 #     yield client
 #     client.drop_database(db)

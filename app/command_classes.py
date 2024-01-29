@@ -3,11 +3,8 @@ import logging
 from transitions import MachineError
 
 from app.constants.answers import Answers
-from app.constants.commands_triggers_functions import (
-    Commands,
-    TrigComAns,
-    Triggers,
-)
+from app.constants.commands_triggers_functions import (Commands, TrigComAns,
+                                                       Triggers)
 from app.machine import FiniteStateMachine
 from app.utils import transform_string
 

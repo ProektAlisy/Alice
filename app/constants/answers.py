@@ -1,8 +1,6 @@
-from app.monga_initialize import (
-    answers_collection,
-    after_answers_collection,
-    disagree_answers_collection,
-)
+# from app.monga_initialize import (
+#     after_answers_collection, answers_collection,
+#     disagree_answers_collection)
 
 # from app.utils import read_from_db
 
