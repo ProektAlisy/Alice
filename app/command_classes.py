@@ -33,7 +33,7 @@ class Command:
 class NextCommand(Command):
     @staticmethod
     def execute(
-        skill: FiniteStateMachine, trigger_name: str | None = None
+            skill: FiniteStateMachine, trigger_name: str | None = None,
     ) -> str:
         if trigger_name is None:
             return Answers.HELP_MAIN
@@ -66,7 +66,7 @@ def create_command_class(name: str, trigger_name: str, message: str):
 
 list_of_commands = TrigComAns.COMMAND_NAMES
 list_of_commands.extend(
-    ["HELP", "HELP_PHRASE", "HELP_NAVIGATION", "NEXT"]
+    ["HELP", "HELP_PHRASE", "HELP_NAVIGATION", "NEXT"],
 )
 
 
