@@ -3,8 +3,11 @@ import logging
 from transitions import MachineError
 
 from app.constants.answers import Answers
-from app.constants.commands_triggers_functions import (Commands, TrigComAns,
-                                                       Triggers)
+from app.constants.commands_triggers_functions import (
+    Commands,
+    TrigComAns,
+    Triggers,
+)
 from app.machine import FiniteStateMachine
 from app.utils import transform_string
 
@@ -32,13 +35,12 @@ class NextCommand(Command):
     def execute(
             skill: FiniteStateMachine, trigger_name: str | None = None,
     ) -> str:
+        if trigger_name is None:
+            return Answers.HELP_MAIN
         try:
             skill.trigger(trigger_name)
         except MachineError:
-            logger.debug(
-                f"Команда вызвана из состояния {skill.state}, "
-                f"а не из start",
-            )
+            logger.debug(f"Команда вызвана из состояния {skill.state}")
             skill.message = "Отсюда нельзя вызвать эту команду"
         return skill.message
 
