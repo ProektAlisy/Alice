@@ -39,28 +39,28 @@ def test_load_from_file_with_wrong_correct_choice():
 
 def test_advance_question():
     """Проверка is_finished(), advance_question() и свойств
-    correct_answers_count, current_question_number
+    mistakes_count, current_question_number
     """
     quiz = Quiz()
     quiz.load_questions("tests/quiz_patterns/quiz_ok.json")
     assert quiz.is_finished() == False
     assert quiz.total_questions_count == 3
-    assert quiz.correct_answers_count == 0
+    assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 1
     # обрабатываем первый вопрос как правильный ответ
     quiz.advance_question(is_correct_answer=True)
     assert quiz.is_finished() == False
-    assert quiz.correct_answers_count == 1
+    assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 2
     # обрабатываем первый вопрос как неправильный ответ
     quiz.advance_question(is_correct_answer=False)
     assert quiz.is_finished() == False
-    assert quiz.correct_answers_count == 1
+    assert quiz.mistakes_count == 1
     assert quiz.current_question_number == 3
     # обрабатываем третий вопрос как правильный ответ
     quiz.advance_question(is_correct_answer=True)
     assert quiz.is_finished() == True
-    assert quiz.correct_answers_count == 2
+    assert quiz.mistakes_count == 1
     assert quiz.current_question_number == 4
     with pytest.raises(QuizIsFinishedAliceException):
         quiz.advance_question(is_correct_answer=False)
@@ -71,7 +71,7 @@ def test_load_from_file():
     quiz = Quiz()
     quiz.load_questions("tests/quiz_patterns/quiz_ok.json")
     assert quiz.total_questions_count == 3
-    assert quiz.correct_answers_count == 0
+    assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 1
     assert quiz.is_finished() == False
 
@@ -147,11 +147,11 @@ def test_restart():
     quiz.load_questions("tests/quiz_patterns/quiz_ok.json")
     quiz.advance_question(True)
     quiz.advance_question(True)
-    quiz.advance_question(True)
-    assert quiz.correct_answers_count == 3
+    quiz.advance_question(False)
+    assert quiz.mistakes_count == 1
     assert quiz.current_question_number == 4
     assert quiz.is_finished() == True
     quiz.restart()
-    assert quiz.correct_answers_count == 0
+    assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 1
     assert quiz.is_finished() == False

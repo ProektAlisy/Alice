@@ -5,10 +5,14 @@ from transitions import Machine
 from app.constants.answers import Answers
 from app.constants.commands_triggers_functions import GetFunc
 from app.constants.states import TRANSITIONS
-from app.utils import (get_func_answers_command, get_trigger_by_command,
-                       get_triggers_by_order)
+from app.utils import (
+    get_func_answers_command,
+    get_trigger_by_command,
+    get_triggers_by_order,
+)
 
 logging.basicConfig(level=logging.INFO)
+from app.quiz import QuizSkill
 
 
 class FiniteStateMachine(object):
@@ -35,6 +39,7 @@ class FiniteStateMachine(object):
         )
         self.max_progress = len(get_triggers_by_order())
         self.create_functions()
+        self.quiz_skill = QuizSkill()
 
     def _save_state(self):
         self.saved_state = self.state

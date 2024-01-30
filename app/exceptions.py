@@ -2,21 +2,25 @@ class AliceException(Exception):
     pass
 
 
-class QuizFileNotFoundAliceException(AliceException):
+class QuizException(AliceException):
     pass
 
 
-class QuizFileWrongFormatAliceException(AliceException):
+class QuizFileNotFoundAliceException(QuizException):
     pass
 
 
-class QuizFileWrongAnswerAliceException(AliceException):
+class QuizFileWrongFormatAliceException(QuizException):
     pass
 
 
-class QuizIsFinishedAliceException(AliceException):
+class QuizFileWrongAnswerAliceException(QuizException):
     pass
 
 
-class QuizNoActiveQuestionAliceException(AliceException):
+class QuizIsFinishedAliceException(QuizException):
+    pass
+
+
+class QuizNoActiveQuestionAliceException(QuizException):
     pass
