@@ -4,12 +4,13 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 
-def connect_to_mongodb():
-    load_dotenv()
+load_dotenv()
 
+
+def connect_to_mongodb():
     mongo_host = os.getenv("MONGO_HOST")
-    mongo_user = os.getenv("MONGO_USER") # noqa
-    mongo_pass = os.getenv("MONGO_PASSWORD") # noqa
+    mongo_user = os.getenv("MONGO_USER")  # noqa
+    mongo_pass = os.getenv("MONGO_PASSWORD")  # noqa
 
     client = MongoClient(
         host=mongo_host,
@@ -20,8 +21,8 @@ def connect_to_mongodb():
     answers_collection = db["answers"]
     after_answers_collection = db["after_answers"]
     disagree_answers_collection = db["disagree_answers"]
-
     return (
+        db,
         answers_collection,
         after_answers_collection,
         disagree_answers_collection,

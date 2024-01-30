@@ -1,12 +1,17 @@
 import logging
 
+from icecream import ic
 from transitions import MachineError
 
 from app.constants.answers import Answers
-from app.constants.commands_triggers_functions import (Commands, TrigComAns,
-                                                       Triggers)
+from app.constants.comands_triggers_answers import answers_documents
+from app.constants.commands import (
+    Commands,
+)
+from app.constants.states import STATES
 from app.machine import FiniteStateMachine
-from app.utils import transform_string
+from app.utils import transform_string, create_trigger
+
 
 skill = FiniteStateMachine()
 
@@ -30,11 +35,13 @@ class Command:
 class NextCommand(Command):
     @staticmethod
     def execute(
-            skill: FiniteStateMachine, trigger_name: str | None = None,
+        skill: FiniteStateMachine,
+        trigger_name: str | None = None,
     ) -> str:
         if trigger_name is None:
             return Answers.HELP_MAIN
         try:
+            ic(trigger_name)
             skill.trigger(trigger_name)
         except MachineError:
             logger.debug(f"Команда вызвана из состояния {skill.state}")
@@ -61,20 +68,27 @@ def create_command_class(name: str, trigger_name: str, message: str):
     return CustomCommand
 
 
-list_of_commands = TrigComAns.COMMAND_NAMES
-list_of_commands.extend(
-    ["HELP", "HELP_PHRASE", "HELP_NAVIGATION", "NEXT"],
-)
+list_of_commands = STATES[1:]
 
 
 commands = {}
-for constant in list_of_commands:
+for command in list_of_commands:
     commands.update(
         {
-            getattr(Commands, constant): create_command_class(
-                transform_string(constant),
-                getattr(Triggers, constant),
-                getattr(Answers, constant),
+            getattr(Commands, command): create_command_class(
+                transform_string(command),
+                create_trigger(command),
+                answers_documents.get(command),
             ),
         },
     )
+commands.update(
+    {
+        "да": NextCommand,
+    },
+)
+commands.update(
+    {
+        "нет": NextCommand,
+    },
+)
