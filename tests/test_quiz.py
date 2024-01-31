@@ -109,7 +109,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 1.3" in question_1
     )
     answer_1 = quiz.get_current_answer()
-    assert "а Ответ 1.1" in answer_1
+    assert "'А' Ответ 1.1" in answer_1
     quiz.advance_question(is_correct_answer=True)
     # анализ второго вопроса
     question_2 = quiz.get_question()
@@ -120,7 +120,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 2.3" in question_2
     )
     answer_2 = quiz.get_current_answer()
-    assert "б Ответ 2.2" in answer_2
+    assert "'Б' Ответ 2.2" in answer_2
     # обрабатываем второй вопрос как не правильный ответ
     quiz.advance_question(is_correct_answer=False)
     # анализ третьего вопроса
@@ -132,7 +132,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 3.3" in question_3
     )
     answer_3 = quiz.get_current_answer()
-    assert "в Ответ 3.3" in answer_3
+    assert "'В' Ответ 3.3" in answer_3
     # обрабатываем последний вопрос как правильный ответ
     quiz.advance_question(is_correct_answer=True)
     with pytest.raises(QuizIsFinishedAliceException):
