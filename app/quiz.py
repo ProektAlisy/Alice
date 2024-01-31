@@ -312,6 +312,10 @@ class QuizSkill:
 
         :param: command - команда для навыка
         :param: intents - словарь намерений (intents) для навыка
+
+        :returns: (result, answer)
+        result: bool - True, если команда воспринята викториной
+        answer: str - текстовое сообщение ответа на команду
         """
         command = command.lower()
         if not self._in_progress and (
