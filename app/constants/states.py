@@ -13,9 +13,8 @@ STATES = [
     "self_defense_phrase",
     "about_legislation_accessibility",
     "about_guide_dog_transportation",
-    #
     "help_main",
-    "help_navigation",
+    "possibilities",
     "help_phrase",
     # "start",
 ]

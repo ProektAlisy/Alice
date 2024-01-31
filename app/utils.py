@@ -1,6 +1,4 @@
-from typing import List, Tuple, Any
-
-from icecream import ic
+from pymongo.collection import Collection
 
 
 def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
@@ -21,12 +19,16 @@ def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
     return result
 
 
-def get_next_trigger(skill: "FiniteStateMachine", triggers: list) -> str:
+def get_next_trigger(
+    skill: "FiniteStateMachine",  # noqa
+    triggers: list,
+) -> str:
     """Возвращает следующий триггер.
 
     Очередность определяется списком TrigComAns.COMMANDS_NAMES.
 
     Args:
+        triggers: Список все триггеров.
         skill: Объект навыка.
 
     Returns:
@@ -108,7 +110,6 @@ def get_all_commands(structure: tuple) -> list[str]:
     commands = []
     for trig_commands in structure:
         commands.append(trig_commands[0])
-    commands.append("да")
     return commands
 
 
@@ -129,6 +130,14 @@ def transform_string(input_string: str) -> str:
 
 
 def is_alice_commands(command: str) -> bool:
+    """Проверяет, является ли команда командами Алисы.
+
+    Args:
+        command: Команда пользователя.
+
+    Returns:
+        True, если команда является командой Алисы, иначе False.
+    """
     with open(
         "app/constants/alice_commands.txt",
         "r",
@@ -154,27 +163,39 @@ def last_trigger(skill) -> str:
     return result
 
 
-def read_from_db(collection):
+def read_from_db(collection: Collection):
+    """Читает из БД и преобразует в словарь.
+
+    Args:
+        collection: Коллекция в БД.
+
+    Returns:
+        Словарь вида {key: answer}
+    """
     documents = collection.find({}, projection={"_id": False})
     document_dict = {doc["key"]: doc["answer"] for doc in documents}
     return document_dict
 
 
-def create_trigger(name):
+def create_trigger(name: str) -> str:
+    """Создает имя триггера.
+
+    Args:
+        name: Имя состояния.
+
+    Returns:
+        Имя триггера
+    """
     return "trigger_" + name
 
 
 def create_func(name):
+    """Создает имя функции.
+
+    Args:
+        name: Имя состояния.
+
+    Returns:
+        Имя функции
+    """
     return "get_" + name
-
-
-def create_func_study(name):
-    return "get_" + name + "_study"
-
-
-def is_agree(answer):
-    return answer == "да"
-
-
-def is_disagree(answer):
-    return not is_agree(answer)

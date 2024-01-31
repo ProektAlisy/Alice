@@ -6,14 +6,22 @@ import os
 
 from pymongo.errors import DuplicateKeyError
 
-from app.monga_initialize import connect_to_mongodb
-
-(
-    db,
+from app.monga_initialize import (
     answers_collection,
     after_answers_collection,
     disagree_answers_collection,
-) = connect_to_mongodb()
+    db,
+)
+
+
+# from app.monga_initialize import connect_to_mongodb
+
+# (
+#     db,
+#     answers_collection,
+#     after_answers_collection,
+#     disagree_answers_collection,
+# ) = connect_to_mongodb()
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -40,7 +48,7 @@ def write_to_db(path, collection):
             answer = " ".join([line.strip() for line in file])
             answer.replace("  ", " ")
             if not answer:
-                logger.debug(f"Файл {file_name} пустой")
+                logger.debug(f"Файл {path}/{file_name} пустой")
                 continue
             try:
                 collection.insert_one(
@@ -55,8 +63,8 @@ answers_to_collections = {
     paths[1]: after_answers_collection,
     paths[2]: disagree_answers_collection,
 }
+print(answers_collection.count_documents({}))
 
-if __name__ == "__main__":
-    for path in paths:
-        db.drop_collection(answers_to_collections.get(path).name)
-        write_to_db(path, answers_to_collections.get(path))
+for path in paths:
+    db[answers_to_collections.get(path).name].drop()
+    write_to_db(path, answers_to_collections.get(path))

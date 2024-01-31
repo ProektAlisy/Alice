@@ -1,19 +1,12 @@
 from app.constants.commands import Commands
 from app.constants.states import STATES
-from app.monga_initialize import connect_to_mongodb
-from app.utils import (
-    create_trigger,
-    create_func,
-    read_from_db,
-)
-
-
-(
-    db,
+from app.monga_initialize import (
     answers_collection,
     after_answers_collection,
     disagree_answers_collection,
-) = connect_to_mongodb()
+)
+
+from app.utils import create_func, create_trigger, read_from_db
 
 answers_documents = read_from_db(answers_collection)
 after_answers_documents = read_from_db(after_answers_collection)
