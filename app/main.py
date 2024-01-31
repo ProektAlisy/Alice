@@ -72,17 +72,17 @@ async def root(data: RequestData):
         else:
             answer = command_instance.execute(
                 skill,
-                get_next_trigger(skill.progress),
+                get_next_trigger(skill),
             )
     elif command == Commands.REPEAT:
         command_instance = NextCommand()
-        answer = command_instance.execute(skill, skill.progress[-1])
+        answer = command_instance.execute(skill, last_trigger(skill))
     elif command_class:
         greetings = Answers.SMALL_GREETINGS if is_new else ""
         command_instance = command_class()
         answer = greetings + command_instance.execute(skill)
     elif is_alice_commands(command):
-        answer = Answers.STANDART_ALICE_COMMAND
+        answer = Answers.STANDARD_ALICE_COMMAND
     else:
         answer = skill.dont_understand()
     ic(command, skill.state, skill.progress)
