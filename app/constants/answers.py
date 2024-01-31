@@ -1,3 +1,10 @@
+# from app.monga_initialize import (
+#     after_answers_collection, answers_collection,
+#     disagree_answers_collection)
+
+# from app.utils import read_from_db
+
+
 class Answers:
     def __setattr__(self, key, value):
         raise AttributeError("Messages is immutable")
@@ -43,7 +50,9 @@ class Answers:
         " ",
     )
     ABOUT_TRAINING_CENTER = "Здесь будет информация о центре"
+    ABOUT_TRAINING_CENTER_AFTER = "Что дальше?(центр)"
     ABOUT_STAFF = "Здесь будет информация о персонале центра"
+    ABOUT_STAFF_AFTER = "Что дальше?(персонал)"
     ABOUT_ACCOMMODATION = "Здесь будет информация о проживании в центре"
     ABOUT_FACILITY = "Здесь будет информация о помещении центра"
     TAKE_TRAINING = (
@@ -105,9 +114,18 @@ class Answers:
         "Если вы хотите продолжить по порядку скажите Дальше или "
         "любую другую команду навыка"
     )
-    STANDART_ALICE_COMMAND = """Извините, ваша просьба относиться к функциям
+    POSSIBILITIES = "тут будут возможности навыка"
+    STANDARD_ALICE_COMMAND = """Извините, ваша просьба относиться к функциям
     Алисы. Чтобы Алиса могла Вам помочь,  выйдите из навыка, сказав команду
     "Выйти"  и повторите просьбу Алисе""".replace(
         "\n    ",
         " ",
     )
+    # ANSWERS_STRUCTURE = [
+    #     (read_from_db(name, answers_collection),
+    #     read_from_db(name, after_answers_collection),
+    #     read_from_db(name, disagree_answers_collection)) for name in ,
+    # ]
+
+
+# read_from_db({"key": "key"}, "answers")
