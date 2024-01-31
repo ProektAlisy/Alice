@@ -51,9 +51,7 @@ async def root(data: RequestData):
     command_class = commands.get(command.lower(), None)
     ic(command, intents, skill.state)
     if skill.state == "quiz":
-        print("обработка команды викторины")
         result, answer = skill.quiz_skill.execute_command(command, intents)
-        print(result, answer)
         if result:
             return {
                 "response": {
@@ -64,7 +62,6 @@ async def root(data: RequestData):
             }
     if Intents.TAKE_QUIZ in intents:
         skill.machine.set_state("quiz")
-        print("обработка take_quiz")
         result, answer = skill.quiz_skill.execute_command(command, intents)
     elif not command and is_new:
         answer = Answers.FULL_GREETINGS

@@ -8,4 +8,4 @@ class Intents:
     AGREE = "agree"  # 'Давай', 'Начинай', 'Хочу', 'дальше', 'попробуем', 'согласен'
     REPEAT = "YANDEX.REPEAT"
     START_AGAIN = "start_again"  # 'Начать заново' 'Запустить с начала'
-    NO_ANSWER = "no_answer"  # TODO
+    NO_ANSWER = "no_answer"  # 'не знаю', 'забыл', 'затрудняюсь ответить'

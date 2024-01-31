@@ -87,6 +87,17 @@ class QuizMessages:
         "Ответ неверный.",
         "Не совсем так.",
     ]
+    CHEER_UP_VARIANTS: Final = [
+        (
+            "Не страшно, Вы здесь чтобы учиться. "
+            "Попробуйте угадать ответ, а я Вам расскажу какой ответ правильный."
+        ),
+        (
+            "В теории мы это точно проходили, попробуйте вспомнить. "
+            "Ничего страшного, если ошибетесь."
+        ),
+        ("Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю."),
+    ]
 
 
 class QuizQuestion:
@@ -297,7 +308,7 @@ class QuizSkill:
     def execute_command(
         self, command: str, intents: dict[str]
     ) -> tuple[bool, str]:
-        """Анализ и исполнение команды/намерения.
+        """Анализ и исполнение команды/интента.
 
         :param: command - команда для навыка
         :param: intents - словарь намерений (intents) для навыка
@@ -329,9 +340,11 @@ class QuizSkill:
             and self._quiz.is_finished()
             and Intents.START_AGAIN in intents
         ):
+            # запустить заново
             self._quiz.restart()
             return True, self._get_full_question()
         if self._in_progress and Intents.REPEAT in intents:
+            # повторить
             if self._quiz.is_finished():
                 return True, self._get_current_result()
             else:
@@ -343,6 +356,8 @@ class QuizSkill:
                 return True, self._get_full_question()
             return True, "Викторина пока недоступна!!!"
         if self._in_progress and not self._quiz.is_finished():
+            if Intents.NO_ANSWER in intents:
+                return True, random.choice(QuizMessages.CHEER_UP_VARIANTS)
             if command not in "абв":
                 return True, QuizMessages.CHOICE_HELP
             is_correct_answer = self._quiz.is_user_choice_correct(command)
@@ -353,31 +368,4 @@ class QuizSkill:
             else:
                 answer_result += "\n" + self._get_full_question()
             return True, answer_result
-
         return False, ""
-
-
-# -------------------------------
-# quiz workflow example
-# quiz = Quiz()
-# quiz.load_questions(QUIZ_FILE_PATH)
-# quiz.restart()
-# while not quiz.is_finished():
-#     question_and_choices = quiz.get_question()
-#     print(
-#         QuizMessages.FULL_QUESTION_FORMAT.format(
-#             current_question_number=quiz._current_question_number + 1,
-#             question_and_choices=question_and_choices,
-#         )
-#     )
-#     answer = input()
-#     is_correct_answer = quiz.is_user_choice_correct(answer)
-#     if is_correct_answer:
-#         print("Абсолютно верно!")
-#     else:
-#         print("К сожалению неверно!")
-#         print(quiz.get_current_answer())
-#     quiz.advance_question(is_correct_answer)
-# print(
-#     f"Результат викторины: {quiz.correct_answers_count} / {quiz.total_questions_count}",
-# )
