@@ -7,12 +7,11 @@ import os
 from pymongo.errors import DuplicateKeyError
 
 from app.monga_initialize import (
-    answers_collection,
     after_answers_collection,
-    disagree_answers_collection,
+    answers_collection,
     db,
+    disagree_answers_collection,
 )
-
 
 # from app.monga_initialize import connect_to_mongodb
 
@@ -63,7 +62,6 @@ answers_to_collections = {
     paths[1]: after_answers_collection,
     paths[2]: disagree_answers_collection,
 }
-print(answers_collection.count_documents({}))
 
 for path in paths:
     db[answers_to_collections.get(path).name].drop()

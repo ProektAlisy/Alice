@@ -24,17 +24,17 @@ class Command:
         raise NotImplementedError
 
 
-class NextCommand(Command):
+class Action(Command):
     @staticmethod
     def execute(
-        skill: FiniteStateMachine,
+        skill_obj: FiniteStateMachine,
         trigger_name: str | None = None,
     ) -> str:
         if trigger_name is None:
             return Answers.HELP_MAIN
         try:
-            skill.trigger(trigger_name)
+            skill_obj.trigger(trigger_name)
         except MachineError:
-            logger.debug(f"Команда вызвана из состояния {skill.state}")
-            skill.message = "Отсюда нельзя вызвать эту команду"
-        return skill.message
+            logger.debug(f"Команда вызвана из состояния {skill_obj.state}")
+            skill_obj.message = "Отсюда нельзя вызвать эту команду"
+        return skill_obj.message

@@ -2,12 +2,13 @@ from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
-from app.command_classes import NextCommand, skill
+from app.command_classes import Action, skill
 from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
 )
 from app.constants.commands import ServiceCommands
+from app.constants.intents import Intents
 from app.utils import (
     get_all_commands,
     get_next_trigger,
@@ -16,7 +17,6 @@ from app.utils import (
     is_completed,
     last_trigger,
 )
-from app.constants.intents import Intents
 
 
 class RequestData(BaseModel):
@@ -54,9 +54,8 @@ async def root(data: RequestData):
             },
             "version": "1.0",
         }
-    ic(command, intents, skill.state)
-    command_instance = NextCommand()
-    if skill.state == "quiz":
+    command_instance = Action()
+    if skill.state == "take_quiz":
         result, answer = skill.quiz_skill.execute_command(command, intents)
         if result:
             return {
@@ -74,7 +73,7 @@ async def root(data: RequestData):
     elif is_completed(skill):
         answer = Answers.ALL_COMPLETED
     elif command.lower() == ServiceCommands.REPEAT:
-        command_instance = NextCommand()
+        command_instance = Action()
         answer = command_instance.execute(skill, last_trigger(skill))
     elif is_alice_commands(command):
         answer = Answers.STANDARD_ALICE_COMMAND

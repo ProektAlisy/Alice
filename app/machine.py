@@ -10,9 +10,10 @@ from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import TRANSITIONS
 from app.constants.states import STATES
 from app.utils import get_func_answers_command, get_trigger_by_command
+from app.quiz import QuizSkill
+
 
 logging.basicConfig(level=logging.INFO)
-from app.quiz import QuizSkill
 
 
 class FiniteStateMachine(object):
@@ -34,6 +35,7 @@ class FiniteStateMachine(object):
         self.max_progress = len(self.states)
         self.create_agree_functions()
         self.create_disagree_functions()
+        self.quiz_skill = QuizSkill()
 
     def _save_progress(self, step: str, command: str) -> None:
         """Прогресс прохождения навыка."""
