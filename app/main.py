@@ -16,6 +16,7 @@ from app.utils import (
     is_completed,
     last_trigger,
 )
+from app.constants.intents import Intents
 
 
 class RequestData(BaseModel):
@@ -33,6 +34,10 @@ application = FastAPI()
 )
 async def root(data: RequestData):
     command = data.request.get("command")
+    nlu = data.request.get("nlu")
+    intents = []
+    if nlu:
+        intents = nlu.get("intents", [])
     is_new = data.session.get("new")
     all_commands = get_all_commands(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
     skill.command = command
@@ -49,8 +54,22 @@ async def root(data: RequestData):
             },
             "version": "1.0",
         }
+    ic(command, intents, skill.state)
     command_instance = NextCommand()
-    if not command and is_new:
+    if skill.state == "quiz":
+        result, answer = skill.quiz_skill.execute_command(command, intents)
+        if result:
+            return {
+                "response": {
+                    "text": answer,
+                    "end_session": False,
+                },
+                "version": "1.0",
+            }
+    if Intents.TAKE_QUIZ in intents:
+        skill.machine.set_state("quiz")
+        result, answer = skill.quiz_skill.execute_command(command, intents)
+    elif not command and is_new:
         answer = Answers.FULL_GREETINGS
     elif is_completed(skill):
         answer = Answers.ALL_COMPLETED

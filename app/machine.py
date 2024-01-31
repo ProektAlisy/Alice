@@ -12,6 +12,7 @@ from app.constants.states import STATES
 from app.utils import get_func_answers_command, get_trigger_by_command
 
 logging.basicConfig(level=logging.INFO)
+from app.quiz import QuizSkill
 
 
 class FiniteStateMachine(object):
