@@ -10,6 +10,7 @@ from app.utils import (
     get_next_trigger,
     is_alice_commands,
     is_completed,
+    last_trigger,
 )
 from app.constants.intents import Intents
 
