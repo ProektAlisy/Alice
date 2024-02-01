@@ -1,10 +1,12 @@
 import pytest
-from app.quiz import Quiz, QuizIsFinishedAliceException
+
 from app.quiz import (
+    Quiz,
+    QuizFileNotFoundAliceException,
     QuizFileWrongAnswerAliceException,
     QuizFileWrongFormatAliceException,
+    QuizIsFinishedAliceException,
     QuizNoActiveQuestionAliceException,
-    QuizFileNotFoundAliceException,
 )
 
 

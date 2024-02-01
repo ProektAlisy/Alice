@@ -2,17 +2,21 @@ from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
-from app.command_classes import NextCommand, commands, skill
+from app.command_classes import Action, skill
 from app.constants.answers import Answers
-from app.constants.commands_triggers_functions import Commands
+from app.constants.comands_triggers_answers import (
+    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+)
+from app.constants.commands import ServiceCommands
+from app.constants.intents import Intents
 from app.utils import (
     get_all_commands,
     get_next_trigger,
+    get_trigger_by_command,
     is_alice_commands,
     is_completed,
     last_trigger,
 )
-from app.constants.intents import Intents
 
 
 class RequestData(BaseModel):
@@ -35,12 +39,13 @@ async def root(data: RequestData):
     if nlu:
         intents = nlu.get("intents", [])
     is_new = data.session.get("new")
+    all_commands = get_all_commands(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
+    skill.command = command
 
-    all_commands = get_all_commands()
     if is_new or command in all_commands:
         skill.incorrect_answers = 0
 
-    if command.lower() == Commands.EXIT:
+    if command.lower() == ServiceCommands.EXIT:
         answer = Answers.EXIT_FROM_SKILL
         return {
             "response": {
@@ -49,9 +54,8 @@ async def root(data: RequestData):
             },
             "version": "1.0",
         }
-    command_class = commands.get(command.lower(), None)
-    ic(command, intents, skill.state)
-    if skill.state == "quiz":
+    command_instance = Action()
+    if skill.state == "take_quiz":
         result, answer = skill.quiz_skill.execute_command(command, intents)
         if result:
             return {
@@ -66,24 +70,29 @@ async def root(data: RequestData):
         result, answer = skill.quiz_skill.execute_command(command, intents)
     elif not command and is_new:
         answer = Answers.FULL_GREETINGS
-    elif command_class and command_class.__name__ == "NextCommand":
-        command_instance = NextCommand()
-        if is_completed(skill):
-            answer = Answers.ALL_COMPLETED
-        else:
-            answer = command_instance.execute(
-                skill,
-                get_next_trigger(skill),
-            )
-    elif command == Commands.REPEAT:
-        command_instance = NextCommand()
+    elif is_completed(skill):
+        answer = Answers.ALL_COMPLETED
+    elif command.lower() == ServiceCommands.REPEAT:
+        command_instance = Action()
         answer = command_instance.execute(skill, last_trigger(skill))
-    elif command_class:
-        greetings = Answers.SMALL_GREETINGS if is_new else ""
-        command_instance = command_class()
-        answer = greetings + command_instance.execute(skill)
     elif is_alice_commands(command):
         answer = Answers.STANDARD_ALICE_COMMAND
+    elif command.lower() in all_commands:
+        skill.flag = True
+        greetings = Answers.SMALL_GREETINGS if is_new else ""
+        answer = greetings + command_instance.execute(
+            skill,
+            get_trigger_by_command(
+                command,
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            ),
+        )
+    elif command in (ServiceCommands.AGREE, ServiceCommands.DISAGREE):
+        skill.flag = True if command == ServiceCommands.AGREE else False
+        answer = command_instance.execute(
+            skill,
+            get_next_trigger(skill, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS),
+        )
     else:
         answer = skill.dont_understand()
     ic(command, skill.state, skill.progress)
