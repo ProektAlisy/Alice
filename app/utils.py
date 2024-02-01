@@ -173,8 +173,7 @@ def read_from_db(collection: Collection):
         Словарь вида {key: answer}
     """
     documents = collection.find({}, projection={"_id": False})
-    document_dict = {doc["key"]: doc["answer"] for doc in documents}
-    return document_dict
+    return {doc["key"]: doc["answer"] for doc in documents}
 
 
 def create_trigger(name: str) -> str:

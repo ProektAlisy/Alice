@@ -9,9 +9,8 @@ from app.constants.comands_triggers_answers import (
 from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import TRANSITIONS
 from app.constants.states import STATES
-from app.utils import get_func_answers_command, get_trigger_by_command
 from app.quiz import QuizSkill
-
+from app.utils import get_func_answers_command, get_trigger_by_command
 
 logging.basicConfig(level=logging.INFO)
 
