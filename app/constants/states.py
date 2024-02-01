@@ -1,6 +1,5 @@
 from typing import Final
 
-
 STATES: Final = [
     "start",
     "about_training_center",

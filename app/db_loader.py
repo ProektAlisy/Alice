@@ -13,7 +13,6 @@ from app.monga_initialize import (
     disagree_answers_collection,
 )
 
-
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s, %(levelname)s, %(message)s",

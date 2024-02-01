@@ -2,8 +2,8 @@
 Точка входа в приложение.
 """
 from typing import Optional
+
 from fastapi import FastAPI
-from icecream import ic
 from pydantic import BaseModel
 
 from app.command_classes import Action, skill
@@ -21,8 +21,7 @@ from app.utils import (
     is_completed,
     last_trigger,
 )
-from app.constants.intents import Intents
-from app.machine import FiniteStateMachine
+
 
 class RequestData(BaseModel):
     session: dict
@@ -48,7 +47,7 @@ async def root(data: RequestData):
 
     try:
         session_state = data.state.get("session")
-    except:
+    except AttributeError:
         session_state = {}
 
     skill.load_session_state(session_state)
@@ -108,7 +107,6 @@ async def root(data: RequestData):
         )
     else:
         answer = skill.dont_understand()
-    ic(command, skill.state, skill.progress)
     return {
         "response": {
             "text": answer,

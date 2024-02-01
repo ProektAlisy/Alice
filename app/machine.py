@@ -6,19 +6,16 @@ from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
 )
-
 from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import TRANSITIONS
-from app.constants.states import STATES, HELP_STATES
+from app.constants.states import HELP_STATES, STATES
 from app.quiz import QuizSkill
 from app.utils import (
-    get_func_answers_command,
-    get_trigger_by_command,
     create_trigger,
     get_after_answer_by_trigger,
+    get_func_answers_command,
+    get_trigger_by_command,
 )
-from app.utils import get_func_answers_command, get_trigger_by_command
-
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
 
@@ -73,7 +70,7 @@ class FiniteStateMachine:
             create_trigger(state) for state in STATES
         ]:
             self.progress = list(set(self.progress) - {current_step}) + [
-                current_step
+                current_step,
             ]
 
     def _generate_function(self, name, message, command):
@@ -136,14 +133,15 @@ class FiniteStateMachine:
             step: Список пройденных состояний.
 
         Returns:
-            Добавленный ответ к основному, содержит варианты действия пользователя.
+            Добавленный ответ к основному, содержит варианты действия
+            пользователя.
         """
         remaining_progress = self.get_remaining_answer(self.progress)
         try:
             index = remaining_progress.index(step)
         except ValueError:
             raise ValueError(
-                f"Step {step} not found in progress {self.progress}"
+                f"Step {step} not found in progress {self.progress}",
             )
         try:
             next_trigger = remaining_progress[index + 1]
@@ -170,17 +168,16 @@ class FiniteStateMachine:
         Returns:
             dict(): словарь сохраненного состояния вида::
 
+        Examples:
             {
                 "quiz_state": { .... } - параметры состояния викторины
                 ...
             }
         """
-
-        state = {QUIZ_SESSION_STATE_KEY: self.quiz_skill.dump_state()}
         # state["test_value"] = 123
         # тут добавляем другие ключи для других разделов,
         # если нужно что-то хранить, например текущее состояние
-        return state
+        return {QUIZ_SESSION_STATE_KEY: self.quiz_skill.dump_state()}
 
     def load_session_state(self, session_state: dict):
         """Функция загружает текущее состояние из словаря session_state."""
@@ -211,7 +208,4 @@ class FiniteStateMachine:
         return self.command == ServiceCommands.DISAGREE
 
     def get_remaining_answer(self, progress: list[str]) -> list[str]:
-        remaining_progress = [
-            step for step in progress if step not in self.machine.states
-        ]
-        return remaining_progress
+        return [step for step in progress if step not in self.machine.states]

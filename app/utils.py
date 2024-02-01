@@ -1,10 +1,4 @@
-from app.constants.commands_triggers_functions import TrigComAns
 from pymongo.collection import Collection
-# from app.monga_initialize import db
-
-from app.constants.comands_triggers_answers import (
-    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
-)
 
 
 def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
@@ -217,8 +211,11 @@ def get_basic_triggers(state_names: list[str]) -> list[str]:
     return [create_trigger(state_name) for state_name in state_names]
 
 
-def get_after_answer_by_trigger(trigger: str) -> str:
-    for trig_com_ans in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS:
+def get_after_answer_by_trigger(
+    trigger: str,
+    structure: list[tuple[str]],
+) -> str:
+    for trig_com_ans in structure:
         if trig_com_ans[1] == trigger:
             return trig_com_ans[4]
     return ""
