@@ -167,7 +167,9 @@ class Quiz:
     def load_questions(self, file_name: str):
         """Загрузка вопросов викторины из json файла.
 
-        :param: file_name - наименование файла с вопросами следующего формата
+        Args:
+            file_name (str) наименование файла с вопросами следующего формата::
+
         [
             {
                 "question": "Текст вопроса 1?",
@@ -197,12 +199,14 @@ class Quiz:
     def dump_state(self) -> dict[str, str]:
         """Возвращает текущее состояние викторины в виде словаря.
 
-        :return:
-        {
-            "questions_order": list[int],
-            "current_question_number": int,
-            "mistakes_count": int
-        }
+        Returns:
+            dict() - словарь вида::
+
+            {
+                "questions_order": list[int],
+                "current_question_number": int,
+                "mistakes_count": int
+            }
         """
         return {
             "questions_order": self._questions_order.copy(),
@@ -213,12 +217,14 @@ class Quiz:
     def load_state(self, state: dict[str, str] | None):
         """Загружает текущее состояние викторины из словаря.
 
-        :param: state - словарь состояния следующего формата
-        {
-            "questions_order": list[int],
-            "current_question_number": int,
-            "mistakes_count": int
-        }
+        Args:
+            state (dict) - словарь состояния следующего формата::
+
+            {
+                "questions_order": list[int],
+                "current_question_number": int,
+                "mistakes_count": int
+            }
         """
 
         if not state:
@@ -238,7 +244,8 @@ class Quiz:
     def restart(self, shuffle: bool = True):
         """Запуск викторины заново.
 
-        :param: shuffle - перемешивать ли вопросы (True/False)
+        Args:
+            shuffle (bool) - перемешивать ли вопросы (True/False)
         """
         if shuffle:
             random.shuffle(self._questions_order)
@@ -248,9 +255,11 @@ class Quiz:
     def _get_current_question(self) -> QuizQuestion:
         """Возвращает текущий вопрос викторины.
 
-        :return: QuizQuestion - текущий вопрос викторины
-        :raises:
-        QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR если викторина завершена
+        Returns:
+            QuizQuestion - текущий вопрос викторины
+
+        Raises:
+            QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR если викторина завершена
         """
         if self.is_finished():
             raise QuizNoActiveQuestionAliceException(
@@ -274,7 +283,14 @@ class Quiz:
         return str(self._get_current_question())
 
     def is_user_choice_correct(self, user_choice: str) -> bool:
-        """Анализирует ответ пользователя на текущий вопрос."""
+        """Анализирует ответ пользователя на текущий вопрос.
+
+        Args:
+            user_choice (str) - ответ пользователя
+
+        Returns:
+            (bool) - True, если ответ соответствует правильному, False - иначе
+        """
         correct_choice = self._get_current_question().correct_choice
         return user_choice == correct_choice
 
@@ -289,7 +305,8 @@ class Quiz:
     def advance_question(self, is_correct_answer: bool) -> str:
         """Обновляет количество ошибочных ответов и обновляет номер текущего вопроса
 
-        :param: is_correct_answer признак правильного ответа на текущий вопрос.
+        Args:
+            is_correct_answer (bool) - признак правильного ответа на текущий вопрос.
         """
         if self.is_finished():
             raise QuizIsFinishedAliceException(
