@@ -1,6 +1,8 @@
 # Alice
 Навык для голосового помощника Алиса
 
+ProjectTree.theme
+
 ### Запуск проекта локально:
 
 - В дирректории `Alice/` создать виртуальное окружение:
@@ -25,15 +27,14 @@
 
 `pip install -r requirements.txt`
 
+- Создать туннель ngrok:
+```
+ngrok http 8000
+```
+- Запустить MongoDB.
+
 - Запустить проект:
 ```
-uvicorn app.main:app --reload
+uvicorn app.main:application --reload
 ```
-
-- Копирование docker-compose.yaml и nginx config файлов на сервер:
-```
-scp -r infra/* root@80.87.108.69:/home/alice_app/
-```
-
-- Деплой происходит при команде git push.
-- Предварительно проходит проверка flake8 и автотесты.
+- Скопировать временный URL из ngrok и вставить его в настройки навыка Яндекс.Диалоги(Webhook URL)
