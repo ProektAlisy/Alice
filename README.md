@@ -1,7 +1,6 @@
 # Alice
 Навык для голосового помощника Алиса
 
-ProjectTree.theme
 
 ### Запуск проекта локально:
 
@@ -24,8 +23,9 @@ ProjectTree.theme
     ```
 
 - Установить зависимости:
-
-`pip install -r requirements.txt`
+```
+pip install -r requirements.txt
+```
 
 - Создать туннель ngrok:
 ```
@@ -33,8 +33,14 @@ ngrok http 8000
 ```
 - Запустить MongoDB.
 
+- Наполнить БД ответами пользователю:
+```
+python db_loader.py
+```
+
 - Запустить проект:
 ```
 uvicorn app.main:application --reload
 ```
 - Скопировать временный URL из ngrok и вставить его в настройки навыка Яндекс.Диалоги(Webhook URL)
+```
