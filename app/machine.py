@@ -6,6 +6,7 @@ from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
 )
+
 from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import TRANSITIONS
 from app.constants.states import STATES, HELP_STATES
@@ -16,7 +17,10 @@ from app.utils import (
     create_trigger,
     get_after_answer_by_trigger,
 )
+from app.utils import get_func_answers_command, get_trigger_by_command
 
+
+QUIZ_SESSION_STATE_KEY = "quiz_state"
 
 logging.basicConfig(level=logging.INFO)
 
@@ -154,13 +158,37 @@ class FiniteStateMachine:
         в зависимости от счетчика.
         """
         self.incorrect_answers += 1
-        messages = {
-            1: Answers.DONT_UNDERSTAND_THE_FIRST_TIME,
-            2: Answers.DONT_UNDERSTAND_THE_SECOND_TIME,
-        }
-        default_message = Answers.DONT_UNDERSTAND_MORE_THAN_TWICE
-        self.message = messages.get(self.incorrect_answers, default_message)
+        if self.incorrect_answers <= 1:
+            self.message = Answers.DONT_UNDERSTAND_THE_FIRST_TIME
+        else:
+            self.message = Answers.DONT_UNDERSTAND_MORE_THAN_ONCE
         return self.message
+
+    def dump_session_state(self) -> dict:
+        """Функция возвращает словарь ответа для сохранения состояния навыка.
+
+        Returns:
+            dict(): словарь сохраненного состояния вида::
+
+            {
+                "quiz_state": { .... } - параметры состояния викторины
+                ...
+            }
+        """
+
+        state = {QUIZ_SESSION_STATE_KEY: self.quiz_skill.dump_state()}
+        # state["test_value"] = 123
+        # тут добавляем другие ключи для других разделов,
+        # если нужно что-то хранить, например текущее состояние
+        return state
+
+    def load_session_state(self, session_state: dict):
+        """Функция загружает текущее состояние из словаря session_state."""
+        quiz_state = None
+        if QUIZ_SESSION_STATE_KEY in session_state:
+            quiz_state = session_state.pop(QUIZ_SESSION_STATE_KEY)
+        self.quiz_skill.load_state(quiz_state)
+        # тут возможна загрузка других ключей при необходимости
 
     def is_agree(self) -> bool:
         """Функция состояния.

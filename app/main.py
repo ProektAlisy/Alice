@@ -1,6 +1,7 @@
 """
 Точка входа в приложение.
 """
+from typing import Optional
 from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
@@ -11,7 +12,7 @@ from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
 )
 from app.constants.commands import ServiceCommands
-from app.constants.intents import Intents
+from app.constants.quiz.intents import Intents
 from app.utils import (
     get_all_commands,
     get_next_trigger,
@@ -20,11 +21,13 @@ from app.utils import (
     is_completed,
     last_trigger,
 )
-
+from app.constants.intents import Intents
+from app.machine import FiniteStateMachine
 
 class RequestData(BaseModel):
     session: dict
     request: dict
+    state: Optional[dict]
 
 
 application = FastAPI()
@@ -42,10 +45,17 @@ async def root(data: RequestData):
     if nlu:
         intents = nlu.get("intents", [])
     is_new = data.session.get("new")
+
+    try:
+        session_state = data.state.get("session")
+    except:
+        session_state = {}
+
+    skill.load_session_state(session_state)
     all_commands = get_all_commands(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
     skill.command = command
 
-    if is_new or command in all_commands:
+    if is_new or command in all_commands or is_alice_commands(command):
         skill.incorrect_answers = 0
 
     if command.lower() == ServiceCommands.EXIT:
@@ -66,6 +76,7 @@ async def root(data: RequestData):
                     "text": answer,
                     "end_session": False,
                 },
+                "session_state": skill.dump_session_state(),
                 "version": "1.0",
             }
     if Intents.TAKE_QUIZ in intents:
@@ -103,5 +114,6 @@ async def root(data: RequestData):
             "text": answer,
             "end_session": False,
         },
+        "session_state": skill.dump_session_state(),
         "version": "1.0",
     }
