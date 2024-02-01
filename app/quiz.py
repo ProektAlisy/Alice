@@ -1,14 +1,14 @@
 import json
+import logging
 import random
 from typing import Final
-import logging
-from app.constants.intents import Intents
 
+from app.constants.intents import Intents
 from app.exceptions import (
     QuizException,
     QuizFileNotFoundAliceException,
-    QuizFileWrongFormatAliceException,
     QuizFileWrongAnswerAliceException,
+    QuizFileWrongFormatAliceException,
     QuizIsFinishedAliceException,
     QuizNoActiveQuestionAliceException,
 )
@@ -117,27 +117,30 @@ class QuizQuestion:
             or self.correct_choice is None
         ):
             raise QuizFileWrongFormatAliceException(
-                QuizExceptionMessages.QUIZ_FILE_WRONG_FORMAT
+                QuizExceptionMessages.QUIZ_FILE_WRONG_FORMAT,
             )
         if self.correct_choice not in self.choices.keys():
             raise QuizFileWrongAnswerAliceException(
                 QuizExceptionMessages.QUIZ_FILE_WRONG_ANSWER.format(
-                    answer=self.correct_choice, question=self.question
-                )
+                    answer=self.correct_choice,
+                    question=self.question,
+                ),
             )
         self.correct_choice = self.correct_choice.lower()
         # формирование отформатированной строки вопроса с ответами
         choices_as_str = "\n".join(
             [
                 QuizMessages.CHOICE_FORMAT.format(
-                    key=choice[0], value=choice[1]
+                    key=choice[0],
+                    value=choice[1],
                 )
                 for choice in self.choices.items()
-            ]
+            ],
         )
         self.question_and_choices = (
             QuizMessages.QUESTION_AND_CHOICES_FORMAT.format(
-                question=self.question, choices=choices_as_str
+                question=self.question,
+                choices=choices_as_str,
             )
         )
 
@@ -277,7 +280,7 @@ class Quiz:
         """Возвращает текущий вопрос и варианты ответов."""
         if self.is_finished():
             raise QuizIsFinishedAliceException(
-                QuizExceptionMessages.QUIZ_IS_FINISHED
+                QuizExceptionMessages.QUIZ_IS_FINISHED,
             )
         # если викторина не завершена - возвращаем текст текущего вопроса
         return str(self._get_current_question())
@@ -299,7 +302,8 @@ class Quiz:
         question = self._get_current_question()
         answer = question.choices[question.correct_choice]
         return QuizMessages.CORRECT_ANSWER_FORMAT.format(
-            choice=question.correct_choice.upper(), answer=answer
+            choice=question.correct_choice.upper(),
+            answer=answer,
         )
 
     def advance_question(self, is_correct_answer: bool) -> str:
@@ -310,7 +314,7 @@ class Quiz:
         """
         if self.is_finished():
             raise QuizIsFinishedAliceException(
-                QuizExceptionMessages.QUIZ_IS_FINISHED
+                QuizExceptionMessages.QUIZ_IS_FINISHED,
             )
         self._mistakes_count += not is_correct_answer
         self._current_question_number += 1
@@ -333,7 +337,7 @@ class QuizSkill:
         match self._quiz.mistakes_count:
             case 0:
                 return QuizMessages.RESULT_EXCELLENT.format(
-                    self._quiz.current_question_number - 1
+                    self._quiz.current_question_number - 1,
                 )
             case 1:
                 return QuizMessages.RESULT_GOOD_1
@@ -341,15 +345,15 @@ class QuizSkill:
                 return QuizMessages.RESULT_GOOD_2
             case 3 | 4:
                 return QuizMessages.RESULT_NOT_BAD_3_4.format(
-                    mistakes=self._quiz.mistakes_count
+                    mistakes=self._quiz.mistakes_count,
                 )
             case 5 | 6:
                 return QuizMessages.RESULT_BAD.format(
-                    mistakes=self._quiz.mistakes_count
+                    mistakes=self._quiz.mistakes_count,
                 )
             case _:
                 return QuizMessages.RESULT_VERY_BAD.format(
-                    mistakes=self._quiz.mistakes_count
+                    mistakes=self._quiz.mistakes_count,
                 )
 
     def _get_full_question(self) -> str:
@@ -409,7 +413,9 @@ class QuizSkill:
         self._quiz.load_state(state)
 
     def execute_command(
-        self, command: str, intents: dict[str]
+        self,
+        command: str,
+        intents: dict[str],
     ) -> tuple[bool, str]:
         """Анализ и исполнение команды/интента.
 
@@ -426,12 +432,12 @@ class QuizSkill:
         ):
             # первый вход, показываем правила
             return True, QuizMessages.RULES.format(
-                total_questions_count=self._quiz.total_questions_count
+                total_questions_count=self._quiz.total_questions_count,
             )
         elif self._in_progress and Intents.TAKE_QUIZ in intents:
             if not self._quiz.is_finished():
                 return True, QuizMessages.ALREADY_IN_PROGRESS.format(
-                    current_question_number=self._quiz.current_question_number
+                    current_question_number=self._quiz.current_question_number,
                 )
             # викторина уже завершена
             result = " ".join(
@@ -439,7 +445,7 @@ class QuizSkill:
                     QuizMessages.ALREADY_FINISHED,
                     self._get_current_result(),
                     QuizMessages.RESET_PROGRESS,
-                ]
+                ],
             )
             return True, result
         if (
