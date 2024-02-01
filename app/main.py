@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
@@ -17,11 +18,13 @@ from app.utils import (
     is_completed,
     last_trigger,
 )
-
+from app.constants.intents import Intents
+from app.machine import FiniteStateMachine
 
 class RequestData(BaseModel):
     session: dict
     request: dict
+    state: Optional[dict]
 
 
 application = FastAPI()
@@ -39,6 +42,13 @@ async def root(data: RequestData):
     if nlu:
         intents = nlu.get("intents", [])
     is_new = data.session.get("new")
+
+    try:
+        session_state = data.state.get("session")
+    except:
+        session_state = {}
+
+    skill.load_session_state(session_state)
     all_commands = get_all_commands(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
     skill.command = command
 
@@ -63,6 +73,7 @@ async def root(data: RequestData):
                     "text": answer,
                     "end_session": False,
                 },
+                "session_state": skill.dump_session_state(),
                 "version": "1.0",
             }
     if Intents.TAKE_QUIZ in intents:
@@ -101,5 +112,6 @@ async def root(data: RequestData):
             "text": answer,
             "end_session": False,
         },
+        "session_state": skill.dump_session_state(),
         "version": "1.0",
     }
