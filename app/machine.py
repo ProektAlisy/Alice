@@ -10,9 +10,11 @@ from app.utils import (
     get_trigger_by_command,
     get_triggers_by_order,
 )
+from app.quiz import QuizSkill
 
 logging.basicConfig(level=logging.INFO)
-from app.quiz import QuizSkill
+
+QUIZ_SESSION_STATE_KEY = "quiz_state"
 
 
 class FiniteStateMachine(object):
@@ -102,3 +104,29 @@ class FiniteStateMachine(object):
         else:
             self.message = Answers.DONT_UNDERSTAND_MORE_THAN_TWICE
         return self.message
+
+    def dump_session_state(self) -> dict:
+        """Функция возвращает словарь ответа для сохранения состояния навыка.
+
+        Returns:
+            dict(): словарь сохраненного состояния вида::
+
+            {
+                "quiz_state": { .... } - параметры состояния викторины
+                ...
+            }
+        """
+
+        state = {QUIZ_SESSION_STATE_KEY: self.quiz_skill.dump_state()}
+        # state["test_value"] = 123
+        # тут добавляем другие ключи для других разделов,
+        # если нужно что-то хранить, например текущее состояние
+        return state
+
+    def load_session_state(self, session_state: dict):
+        """Функция загружает текущее состояние из словаря session_state."""
+        quiz_state = None
+        if QUIZ_SESSION_STATE_KEY in session_state:
+            quiz_state = session_state.pop(QUIZ_SESSION_STATE_KEY)
+        self.quiz_skill.load_state(quiz_state)
+        # тут возможна загрузка других ключей при необходимости

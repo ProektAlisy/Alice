@@ -35,7 +35,7 @@ class QuizMessages:
     def __setattr__(self, key, value):
         raise AttributeError("Messages are immutable")
 
-    CHOICE_FORMAT: Final = "{key}. - {value}."
+    CHOICE_FORMAT: Final = "{key}) - {value}."
     QUESTION_AND_CHOICES_FORMAT: Final = "{question}\n{choices}\n"
     FULL_QUESTION_FORMAT: Final = (
         "Вопрос номер {current_question_number}.\n"
@@ -220,15 +220,20 @@ class Quiz:
             "mistakes_count": int
         }
         """
+
         if not state:
-            self._mistakes_count = 0
-            self._current_question_number = 0
-            self._questions_order = list(len(self._questions))
+            # self._mistakes_count = 0
+            # self._current_question_number = 0
+            # self._questions_order = list(range(len(self._questions)))
+            return
+        print("Quiz loaded!")
+        print("before:", self._current_question_number)
         self._mistakes_count = state.get("mistakes_count", 0)
         self._current_question_number = state.get("current_question_number", 0)
         order = state.get("questions_order", None)
         if order:
             self._questions_order = order
+        print("after:", self._current_question_number)
 
     def restart(self, shuffle: bool = True):
         """Запуск викторины заново.
@@ -348,6 +353,43 @@ class QuizSkill:
                 + " "
                 + self._quiz.get_current_answer()
             )
+
+    def dump_state(self):
+        """Возвращает словарь текущего состояния.
+
+        Returns:
+            dict() - словарь текущего состояния вида::
+
+            {
+                "questions_order": list[int],
+                "current_question_number": int,
+                "mistakes_count": int,
+                "in_progress": bool
+            }
+        """
+        state = self._quiz.dump_state()
+        state["in_progress"] = self._in_progress
+        return state
+
+    def load_state(self, state: dict[str, str] | None):
+        """Загружает информацию о состоянии викторины из словаря.
+
+        Args:
+            state - словарь сохраненного состояния вида::
+
+            {
+                "questions_order": list[int],
+                "current_question_number": int,
+                "mistakes_count": int,
+                "in_progress": bool
+            }
+        """
+        if not state:
+            self._quiz.load_state(None)
+            return
+        if "in_progress" in state:
+            self._in_progress = state.pop("in_progress")
+        self._quiz.load_state(state)
 
     def execute_command(
         self, command: str, intents: dict[str]
