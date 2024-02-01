@@ -10,8 +10,9 @@ from app.constants.comands_triggers_answers import (
 from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import TRANSITIONS
 from app.constants.states import STATES
-from app.utils import get_func_answers_command, get_trigger_by_command
 from app.quiz import QuizSkill
+from app.utils import get_func_answers_command, get_trigger_by_command
+
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
 
@@ -96,10 +97,8 @@ class FiniteStateMachine(object):
         self.incorrect_answers += 1
         if self.incorrect_answers <= 1:
             self.message = Answers.DONT_UNDERSTAND_THE_FIRST_TIME
-        elif self.incorrect_answers == 2:
-            self.message = Answers.DONT_UNDERSTAND_THE_SECOND_TIME
         else:
-            self.message = Answers.DONT_UNDERSTAND_MORE_THAN_TWICE
+            self.message = Answers.DONT_UNDERSTAND_MORE_THAN_ONCE
         return self.message
 
     def dump_session_state(self) -> dict:

@@ -9,7 +9,7 @@ from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
 )
 from app.constants.commands import ServiceCommands
-from app.constants.intents import Intents
+from app.constants.quiz.intents import Intents
 from app.utils import (
     get_all_commands,
     get_next_trigger,
@@ -52,7 +52,7 @@ async def root(data: RequestData):
     all_commands = get_all_commands(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
     skill.command = command
 
-    if is_new or command in all_commands:
+    if is_new or command in all_commands or is_alice_commands(command):
         skill.incorrect_answers = 0
 
     if command.lower() == ServiceCommands.EXIT:

@@ -3,7 +3,7 @@ import logging
 import random
 from typing import Final
 
-from app.constants.intents import Intents
+from app.constants.quiz.intents import Intents
 from app.exceptions import (
     QuizException,
     QuizFileNotFoundAliceException,
