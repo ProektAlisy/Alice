@@ -1,8 +1,9 @@
 from app.constants.commands_triggers_functions import TrigComAns
-from app.monga_initialize import db
+
+# from app.monga_initialize import db
 
 
-def is_completed(skill: "FiniteStateMachine") -> bool: # noqa
+def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
     """Проверяет, завершено ли обучение.
 
     Обучение считается завершенным, когда выполенные все элементы навыка.
@@ -20,7 +21,7 @@ def is_completed(skill: "FiniteStateMachine") -> bool: # noqa
     return result
 
 
-def get_next_trigger(skill: "FiniteStateMachine") -> str: # noqa
+def get_next_trigger(skill: "FiniteStateMachine") -> str:  # noqa
     """Возвращает следующий триггер.
 
     Очередность определяется списком TrigComAns.COMMANDS_NAMES.

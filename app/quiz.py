@@ -35,7 +35,7 @@ class QuizMessages:
     def __setattr__(self, key, value):
         raise AttributeError("Messages are immutable")
 
-    CHOICE_FORMAT: Final = "{key} {value}"
+    CHOICE_FORMAT: Final = "{key}. - {value}."
     QUESTION_AND_CHOICES_FORMAT: Final = "{question}\n{choices}\n"
     FULL_QUESTION_FORMAT: Final = (
         "Вопрос номер {current_question_number}.\n"
@@ -45,7 +45,7 @@ class QuizMessages:
     RULES: Final = (
         "Вы оказались в разделе, где можете проверить насколько усвоен"
         " пройденный теоретический материал. Я задам Вам {total_questions_count} вопросов,"
-        " после каждого вопроса, и предложу три варианта ответа."
+        " и после каждого вопроса предложу три варианта ответа."
         " Вам надо выбрать единственный правильный ответ."
         " Для ответа просто назовите букву с правильным ответом: А, Б или В."
         " Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'."
@@ -54,7 +54,7 @@ class QuizMessages:
     ALREADY_IN_PROGRESS: Final = (
         "Вы оказались в разделе, где можете проверить насколько усвоен"
         " пройденный теоретический материал."
-        " После каждого вопроса, и предложу три варианта ответа."
+        " После каждого вопроса я предложу три варианта ответа."
         " Вам надо выбрать единственный правильный ответ."
         " Для ответа просто назовите букву с правильным ответом: А, Б или В."
         " Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'."
@@ -66,14 +66,14 @@ class QuizMessages:
         " Это удалит весь предыдущий прогресс."
     )
     CHOICE_HELP: Final = "Чтобы ответить на вопрос назовите букву с правильным вариантом ответа - А, Б или В"
-    CORRECT_ANSWER_FORMAT: Final = "Правильный ответ '{choice}' {answer}."
-    RESULT_EXCELLENT: Final = "Превосходный результат! Вы ответили на все {total} вопросов без ошибок"
-    RESULT_GOOD_1: Final = "Неплохой результат, всего одна ошибка"
-    RESULT_GOOD_2: Final = "Неплохой результат, всего две ошибки"
-    RESULT_NOT_BAD_3_4: Final = "Вы допустили {mistakes} ошибки. Не плохо, но думаю, стоит еще поучиться"
-    RESULT_BAD: Final = "Вы допустили {mistakes} ошибок, это довольно много. Стоит еще поучиться"
+    CORRECT_ANSWER_FORMAT: Final = "Правильный ответ '{choice}') - {answer}."
+    RESULT_EXCELLENT: Final = "Превосходный результат! Вы ответили на все {total} вопросов без ошибок."
+    RESULT_GOOD_1: Final = "Неплохой результат, всего одна ошибка."
+    RESULT_GOOD_2: Final = "Неплохой результат, всего две ошибки."
+    RESULT_NOT_BAD_3_4: Final = "Вы допустили {mistakes} ошибки. Не плохо, но думаю, стоит еще поучиться."
+    RESULT_BAD: Final = "Вы допустили {mistakes} ошибок, это довольно много. Стоит еще поучиться."
     RESULT_VERY_BAD: Final = (
-        "Вы допустили {mistakes} ошибок, это очень много. Стоит еще поучиться"
+        "Вы допустили {mistakes} ошибок, это очень много. Стоит еще поучиться."
     )
     CORRECT_VARIANTS: Final = [
         "Поздравляю, это правильный ответ!",
@@ -150,6 +150,7 @@ class Quiz:
         self._questions = []
         self._mistakes_count = 0
         self._current_question_number = 0
+        self._questions_order = []
 
     @property
     def total_questions_count(self) -> int:
@@ -187,9 +188,47 @@ class Quiz:
                 self._questions = [
                     QuizQuestion(record) for record in questions_list
                 ]
+                self._questions_order = list(range(len(self._questions)))
         except FileNotFoundError as e:
             self._questions = []
+            self._questions_order = []
             raise QuizFileNotFoundAliceException(e.filename)
+
+    def dump_state(self) -> dict[str, str]:
+        """Возвращает текущее состояние викторины в виде словаря.
+
+        :return:
+        {
+            "questions_order": list[int],
+            "current_question_number": int,
+            "mistakes_count": int
+        }
+        """
+        return {
+            "questions_order": self._questions_order.copy(),
+            "current_question_number": self._current_question_number,
+            "mistakes_count": self._mistakes_count,
+        }
+
+    def load_state(self, state: dict[str, str] | None):
+        """Загружает текущее состояние викторины из словаря.
+
+        :param: state - словарь состояния следующего формата
+        {
+            "questions_order": list[int],
+            "current_question_number": int,
+            "mistakes_count": int
+        }
+        """
+        if not state:
+            self._mistakes_count = 0
+            self._current_question_number = 0
+            self._questions_order = list(len(self._questions))
+        self._mistakes_count = state.get("mistakes_count", 0)
+        self._current_question_number = state.get("current_question_number", 0)
+        order = state.get("questions_order", None)
+        if order:
+            self._questions_order = order
 
     def restart(self, shuffle: bool = True):
         """Запуск викторины заново.
@@ -197,9 +236,24 @@ class Quiz:
         :param: shuffle - перемешивать ли вопросы (True/False)
         """
         if shuffle:
-            random.shuffle(self._questions)
+            random.shuffle(self._questions_order)
         self._mistakes_count = 0
         self._current_question_number = 0
+
+    def _get_current_question(self) -> QuizQuestion:
+        """Возвращает текущий вопрос викторины.
+
+        :return: QuizQuestion - текущий вопрос викторины
+        :raises:
+        QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR если викторина завершена
+        """
+        if self.is_finished():
+            raise QuizNoActiveQuestionAliceException(
+                QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR
+            )
+        return self._questions[
+            self._questions_order[self._current_question_number]
+        ]
 
     def is_finished(self) -> bool:
         """Завершена ли викторина."""
@@ -211,27 +265,17 @@ class Quiz:
             raise QuizIsFinishedAliceException(
                 QuizExceptionMessages.QUIZ_IS_FINISHED
             )
-        # если еще ни один из вопросов не задан, задаем первый
-        return str(self._questions[self._current_question_number])
+        # если викторина не завершена - возвращаем текст текущего вопроса
+        return str(self._get_current_question())
 
     def is_user_choice_correct(self, user_choice: str) -> bool:
         """Анализирует ответ пользователя на текущий вопрос."""
-        if self.is_finished():
-            raise QuizNoActiveQuestionAliceException(
-                QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR
-            )
-        correct_choice = self._questions[
-            self._current_question_number
-        ].correct_choice
+        correct_choice = self._get_current_question().correct_choice
         return user_choice == correct_choice
 
     def get_current_answer(self) -> str:
         """Возвращает ответ на текущий вопрос в формате <'БУКВА' ответ>"""
-        if self.is_finished():
-            raise QuizNoActiveQuestionAliceException(
-                QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR
-            )
-        question = self._questions[self._current_question_number]
+        question = self._get_current_question()
         answer = question.choices[question.correct_choice]
         return QuizMessages.CORRECT_ANSWER_FORMAT.format(
             choice=question.correct_choice.upper(), answer=answer

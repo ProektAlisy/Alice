@@ -96,6 +96,31 @@ def test_is_user_choice_correct():
         quiz.is_user_choice_correct("а")
 
 
+def test_get_current_question():
+    """Проверка _get_current_question()."""
+    quiz = Quiz()
+    quiz.load_questions("tests/quiz_patterns/quiz_ok.json")
+    # тест вопроса 1 (без перемешивания)
+    question_1 = quiz._get_current_question()
+    assert "Текст вопроса 1?" in question_1.question
+    assert question_1 == quiz._questions[0]
+    quiz.advance_question(is_correct_answer=True)
+    # анализ второго вопроса
+    question_2 = quiz._get_current_question()
+    assert "Текст вопроса 2?" in question_2.question
+    assert question_2 == quiz._questions[1]
+    # обрабатываем второй вопрос как не правильный ответ
+    quiz.advance_question(is_correct_answer=False)
+    # анализ третьего вопроса
+    question_3 = quiz._get_current_question()
+    assert "Текст вопроса 3?" in question_3.question
+    assert question_3 == quiz._questions[2]
+    # обрабатываем последний вопрос как правильный ответ
+    quiz.advance_question(is_correct_answer=True)
+    with pytest.raises(QuizNoActiveQuestionAliceException):
+        quiz._get_current_question()
+
+
 def test_get_question_and_get_current_answer():
     """Проверка get_question(), get_current_answer()"""
     quiz = Quiz()
@@ -109,7 +134,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 1.3" in question_1
     )
     answer_1 = quiz.get_current_answer()
-    assert "'А' Ответ 1.1" in answer_1
+    assert "'А') - Ответ 1.1" in answer_1
     quiz.advance_question(is_correct_answer=True)
     # анализ второго вопроса
     question_2 = quiz.get_question()
@@ -120,7 +145,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 2.3" in question_2
     )
     answer_2 = quiz.get_current_answer()
-    assert "'Б' Ответ 2.2" in answer_2
+    assert "'Б') - Ответ 2.2" in answer_2
     # обрабатываем второй вопрос как не правильный ответ
     quiz.advance_question(is_correct_answer=False)
     # анализ третьего вопроса
@@ -132,7 +157,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 3.3" in question_3
     )
     answer_3 = quiz.get_current_answer()
-    assert "'В' Ответ 3.3" in answer_3
+    assert "'В') - Ответ 3.3" in answer_3
     # обрабатываем последний вопрос как правильный ответ
     quiz.advance_question(is_correct_answer=True)
     with pytest.raises(QuizIsFinishedAliceException):
@@ -155,3 +180,48 @@ def test_restart():
     assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 1
     assert quiz.is_finished() == False
+
+
+def test_dump_state():
+    """Проверка dump_state()"""
+    quiz = Quiz()
+    quiz.load_questions("tests/quiz_patterns/quiz_ok.json")
+    state = quiz.dump_state()
+    assert state == {
+        "questions_order": [0, 1, 2],
+        "current_question_number": 0,
+        "mistakes_count": 0,
+    }
+    quiz.advance_question(False)
+    state = quiz.dump_state()
+    assert state == {
+        "questions_order": [0, 1, 2],
+        "current_question_number": 1,
+        "mistakes_count": 1,
+    }
+    quiz.advance_question(True)
+    state = quiz.dump_state()
+    assert state == {
+        "questions_order": [0, 1, 2],
+        "current_question_number": 2,
+        "mistakes_count": 1,
+    }
+
+
+def test_load_state():
+    """Проверка load_state()"""
+    quiz = Quiz()
+    quiz.load_questions("tests/quiz_patterns/quiz_ok.json")
+    assert quiz._current_question_number == 0
+    assert quiz._mistakes_count == 0
+    assert quiz._questions_order == [0, 1, 2]
+
+    state_1 = {
+        "questions_order": [2, 0, 1],
+        "current_question_number": 2,
+        "mistakes_count": 1,
+    }
+    quiz.load_state(state_1)
+    assert quiz._current_question_number == 2
+    assert quiz._mistakes_count == 1
+    assert quiz._questions_order == [2, 0, 1]
