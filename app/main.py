@@ -1,3 +1,6 @@
+"""
+Точка входа в приложение.
+"""
 from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
@@ -66,14 +69,13 @@ async def root(data: RequestData):
                 "version": "1.0",
             }
     if Intents.TAKE_QUIZ in intents:
-        skill.machine.set_state("quiz")
+        skill.machine.set_state("take_quiz")
         result, answer = skill.quiz_skill.execute_command(command, intents)
     elif not command and is_new:
         answer = Answers.FULL_GREETINGS
     elif is_completed(skill):
         answer = Answers.ALL_COMPLETED
     elif command.lower() == ServiceCommands.REPEAT:
-        command_instance = Action()
         answer = command_instance.execute(skill, last_trigger(skill))
     elif is_alice_commands(command):
         answer = Answers.STANDARD_ALICE_COMMAND

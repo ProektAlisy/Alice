@@ -1,10 +1,14 @@
 from pymongo.collection import Collection
 
+from app.constants.comands_triggers_answers import (
+    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+)
+
 
 def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
     """Проверяет, завершено ли обучение.
 
-    Обучение считается завершенным, когда выполенные все элементы навыка.
+    Обучение считается завершенным, когда выполенны все элементы навыка.
 
     Args:
         skill: объект навыка.
@@ -13,7 +17,7 @@ def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
         True, если все элементы навыка завершены, иначе False.
     """
     try:
-        result = len(skill.progress) == skill.max_progress
+        result = len(skill.progress) + 1 == skill.max_progress
     except TypeError:
         result = False
     return result
@@ -25,7 +29,7 @@ def get_next_trigger(
 ) -> str:
     """Возвращает следующий триггер.
 
-    Очередность определяется списком TrigComAns.COMMANDS_NAMES.
+    Очередность определяется списком состояний STATES в states.py.
 
     Args:
         triggers: Список все триггеров.
@@ -38,7 +42,6 @@ def get_next_trigger(
     ordered_triggers = get_triggers_by_order(triggers)
     if trigger is None:
         return ordered_triggers[1]
-
     trigger_index = ordered_triggers.index(trigger)
     len_triggers = len(ordered_triggers)
     for index in range(trigger_index, len_triggers + trigger_index):
@@ -173,8 +176,7 @@ def read_from_db(collection: Collection):
         Словарь вида {key: answer}
     """
     documents = collection.find({}, projection={"_id": False})
-    document_dict = {doc["key"]: doc["answer"] for doc in documents}
-    return document_dict
+    return {doc["key"]: doc["answer"] for doc in documents}
 
 
 def create_trigger(name: str) -> str:
@@ -199,3 +201,22 @@ def create_func(name):
         Имя функции
     """
     return "get_" + name
+
+
+def get_basic_triggers(state_names: list[str]) -> list[str]:
+    """Возвращает список базовых триггеров.
+
+    Args:
+        state_names: Список состояний.
+
+    Returns:
+        Список базовых триггеров.
+    """
+    return [create_trigger(state_name) for state_name in state_names]
+
+
+def get_after_answer_by_trigger(trigger: str) -> str:
+    for trig_com_ans in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS:
+        if trig_com_ans[1] == trigger:
+            return trig_com_ans[4]
+    return ""

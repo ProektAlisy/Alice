@@ -114,28 +114,3 @@ class Answers:
         "\n    ",
         " ",
     )
-    ORDER_KEY = [
-        "about_training_center",
-        "about_facility",
-        "about_staff_1",
-        "about_staff_2",
-        "about_staff_3",
-        "about_training_course",
-        "take_manual_training",
-        "take_quiz",
-        "listen_quiz_results",
-        "listen_to_legislation",
-        "self_defense_phrase",
-        "about_legislation_accessibility",
-        "about_guide_dog_transportation",
-        #
-        "about_discounts_and_free_services",
-        "discounts_for_food",
-        "discounts_for_delicacy",
-        "special_offers_for_veterinarians",
-        "about_support_services_for_blind_passengers",
-        "about_services_uniting_blind_people",
-        "about_regional_clubs",
-        "about_special_view_foundation",
-        "instructions_for_launching_podcast",
-    ]

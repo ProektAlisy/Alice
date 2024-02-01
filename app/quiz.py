@@ -44,7 +44,8 @@ class QuizMessages:
     )
     RULES: Final = (
         "Вы оказались в разделе, где можете проверить насколько усвоен"
-        " пройденный теоретический материал. Я задам Вам {total_questions_count} вопросов,"
+        " пройденный теоретический материал. Я задам Вам "
+        "{total_questions_count} вопросов,"
         " после каждого вопроса, и предложу три варианта ответа."
         " Вам надо выбрать единственный правильный ответ."
         " Для ответа просто назовите букву с правильным ответом: А, Б или В."
@@ -65,13 +66,25 @@ class QuizMessages:
         "Чтобы начать викторину заново скажите 'Начать заново'."
         " Это удалит весь предыдущий прогресс."
     )
-    CHOICE_HELP: Final = "Чтобы ответить на вопрос назовите букву с правильным вариантом ответа - А, Б или В"
+    CHOICE_HELP: Final = (
+        "Чтобы ответить на вопрос назовите букву с "
+        "правильным вариантом ответа - А, Б или В"
+    )
     CORRECT_ANSWER_FORMAT: Final = "Правильный ответ '{choice}' {answer}."
-    RESULT_EXCELLENT: Final = "Превосходный результат! Вы ответили на все {total} вопросов без ошибок"
+    RESULT_EXCELLENT: Final = (
+        "Превосходный результат! Вы ответили на все "
+        "{total} вопросов без ошибок"
+    )
     RESULT_GOOD_1: Final = "Неплохой результат, всего одна ошибка"
     RESULT_GOOD_2: Final = "Неплохой результат, всего две ошибки"
-    RESULT_NOT_BAD_3_4: Final = "Вы допустили {mistakes} ошибки. Не плохо, но думаю, стоит еще поучиться"
-    RESULT_BAD: Final = "Вы допустили {mistakes} ошибок, это довольно много. Стоит еще поучиться"
+    RESULT_NOT_BAD_3_4: Final = (
+        "Вы допустили {mistakes} ошибки. Не плохо, "
+        "но думаю, стоит еще поучиться"
+    )
+    RESULT_BAD: Final = (
+        "Вы допустили {mistakes} ошибок, это довольно много. "
+        "Стоит еще поучиться"
+    )
     RESULT_VERY_BAD: Final = (
         "Вы допустили {mistakes} ошибок, это очень много. Стоит еще поучиться"
     )
@@ -90,13 +103,13 @@ class QuizMessages:
     CHEER_UP_VARIANTS: Final = [
         (
             "Не страшно, Вы здесь чтобы учиться. "
-            "Попробуйте угадать ответ, а я Вам расскажу какой ответ правильный."
+            "Попробуйте угадать ответ, а я Вам расскажу какой ответ правильный"
         ),
         (
             "В теории мы это точно проходили, попробуйте вспомнить. "
             "Ничего страшного, если ошибетесь."
         ),
-        ("Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю."),
+        "Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю.",
     ]
 
 
@@ -169,7 +182,11 @@ class Quiz:
     def load_questions(self, file_name: str):
         """Загрузка вопросов викторины из json файла.
 
-        :param: file_name - наименование файла с вопросами следующего формата
+        Args:
+             file_name: наименование файла с вопросами следующего формата
+
+        Examples:
+            Пример json-файла:
         [
             {
                 "question": "Текст вопроса 1?",
@@ -194,10 +211,11 @@ class Quiz:
             self._questions = []
             raise QuizFileNotFoundAliceException(e.filename)
 
-    def restart(self, shuffle: bool = True):
+    def restart(self, shuffle: bool = True) -> None:
         """Запуск викторины заново.
 
-        :param: shuffle - перемешивать ли вопросы (True/False)
+        Args:
+             shuffle: перемешивать ли вопросы (True/False)
         """
         if shuffle:
             random.shuffle(self._questions)
@@ -241,10 +259,14 @@ class Quiz:
             answer=answer,
         )
 
-    def advance_question(self, is_correct_answer: bool) -> str:
-        """Обновляет количество ошибочных ответов и обновляет номер текущего вопроса
+    def advance_question(self, is_correct_answer: bool) -> None:
+        """Работа с ошибками.
 
-        :param: is_correct_answer признак правильного ответа на текущий вопрос.
+        Обновляет количество ошибочных ответов и обновляет номер текущего
+        вопроса
+
+        Args:
+             is_correct_answer: признак правильного ответа на текущий вопрос.
         """
         if self.is_finished():
             raise QuizIsFinishedAliceException(
@@ -263,12 +285,12 @@ class QuizSkill:
             self._quiz.restart()
         except QuizException as e:
             logging.exception(e)
-            # raise e
 
     def _get_current_result(self) -> str:
         """Возвращает текстовую строку согласно текущему результату."""
 
-        match self._quiz.mistakes_count:
+        mistakes_count = self._quiz.mistakes_count
+        match mistakes_count:
             case 0:
                 return QuizMessages.RESULT_EXCELLENT.format(
                     self._quiz.current_question_number - 1,
@@ -279,16 +301,17 @@ class QuizSkill:
                 return QuizMessages.RESULT_GOOD_2
             case 3 | 4:
                 return QuizMessages.RESULT_NOT_BAD_3_4.format(
-                    mistakes=self._quiz.mistakes_count,
+                    mistakes=mistakes_count,
                 )
             case 5 | 6:
                 return QuizMessages.RESULT_BAD.format(
-                    mistakes=self._quiz.mistakes_count,
+                    mistakes=mistakes_count,
                 )
             case _:
                 return QuizMessages.RESULT_VERY_BAD.format(
-                    mistakes=self._quiz.mistakes_count,
+                    mistakes=mistakes_count,
                 )
+        return ""  # для линтера
 
     def _get_full_question(self) -> str:
         """Возвращает полный текст вопроса с вариантами ответов."""
@@ -302,12 +325,11 @@ class QuizSkill:
         """Возвращает результат в зависимости от правильности ответа."""
         if is_correct_answer:
             return random.choice(QuizMessages.CORRECT_VARIANTS)
-        else:
-            return (
-                random.choice(QuizMessages.INCORRECT_VARIANTS)
-                + " "
-                + self._quiz.get_current_answer()
-            )
+        return (
+            random.choice(QuizMessages.INCORRECT_VARIANTS)
+            + " "
+            + self._quiz.get_current_answer()
+        )
 
     def execute_command(
         self,
@@ -316,12 +338,12 @@ class QuizSkill:
     ) -> tuple[bool, str]:
         """Анализ и исполнение команды/интента.
 
-        :param: command - команда для навыка
-        :param: intents - словарь намерений (intents) для навыка
+        Args:
+            command: Команда для навыка.
+            intents: Словарь намерений (intents) для навыка.
 
-        :returns: (result, answer)
-        result: bool - True, если команда воспринята викториной
-        answer: str - текстовое сообщение ответа на команду
+        Returns:
+            Кортеж, содержащий результат и ответ.
         """
         command = command.lower()
         if not self._in_progress and (
@@ -331,7 +353,7 @@ class QuizSkill:
             return True, QuizMessages.RULES.format(
                 total_questions_count=self._quiz.total_questions_count,
             )
-        elif self._in_progress and Intents.TAKE_QUIZ in intents:
+        if self._in_progress and Intents.TAKE_QUIZ in intents:
             if not self._quiz.is_finished():
                 return True, QuizMessages.ALREADY_IN_PROGRESS.format(
                     current_question_number=self._quiz.current_question_number,
@@ -357,8 +379,7 @@ class QuizSkill:
             # повторить
             if self._quiz.is_finished():
                 return True, self._get_current_result()
-            else:
-                return True, self._get_full_question()
+            return True, self._get_full_question()
         if not self._in_progress and Intents.AGREE in intents:
             # получено согласие на запуск викторины
             self._in_progress = True
