@@ -22,6 +22,18 @@ class Commands:
         "объектам инфраструктуры"
     )
     about_guide_dog_transportation = "прослушать информацию о провозе собак"
+    about_transportation_by_land_transport = (
+        "узнать о провозе собак-проводников в наземном транспорте"
+    )
+    about_transportation_by_rail = (
+        "узнать о провозе собак-проводников в железнодорожном транспорте"
+    )
+    about_air_transportation = (
+        "узнать о провозе собак-проводников в воздушном транспорте"
+    )
+    about_transportation_by_water = (
+        "узнать о провозе собак-проводников в водном транспорте"
+    )
     self_defense_phrase = "прослушать фразу для самозащиты"
 
     about_discounts_and_free_services = (
@@ -45,6 +57,7 @@ class Commands:
     about_special_view_foundation = "узнать о фонде особый взгляд"
     exit_services_for_blind = "выход из служб поддержки незрячих"
 
+    about_podcast = "узнать о подкасте"
     instructions_for_launching_podcast = (
         "узнать инструкцию запуска подкаста " "министерства наших собачьих дел"
     )
