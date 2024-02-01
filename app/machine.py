@@ -95,10 +95,8 @@ class FiniteStateMachine(object):
         self.incorrect_answers += 1
         if self.incorrect_answers <= 1:
             self.message = Answers.DONT_UNDERSTAND_THE_FIRST_TIME
-        elif self.incorrect_answers == 2:
-            self.message = Answers.DONT_UNDERSTAND_THE_SECOND_TIME
         else:
-            self.message = Answers.DONT_UNDERSTAND_MORE_THAN_TWICE
+            self.message = Answers.DONT_UNDERSTAND_MORE_THAN_ONCE
         return self.message
 
     def is_agree(self) -> bool:
