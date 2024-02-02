@@ -36,3 +36,45 @@ HELP_STATES: Final = [
     "help_phrase",
 ]
 DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
+
+STATES_BY_GROUP: Final = [
+    ("about_training_center",),
+    ("about_facility",),
+    (
+        "about_staff_1",
+        "about_staff_2",
+        "about_staff_3",
+    ),
+    ("about_training_course",),
+    ("take_manual_training",),
+    (
+        "take_quiz",
+        "listen_quiz_results",
+    ),
+    (
+        "listen_to_legislation",
+        "about_legislation_accessibility",
+        "about_guide_dog_transportation",
+        "about_transportation_by_land_transport",
+        "about_transportation_by_rail",
+        "about_air_transportation",
+        "about_transportation_by_water",
+        "self_defense_phrase",
+    ),
+    ("about_support_services_for_blind_passengers",),
+    (
+        "about_discounts_and_free_services",
+        "discounts_for_food",
+        "discounts_for_delicacy",
+        "special_offers_for_veterinaries",
+    ),
+    (
+        "about_services_uniting_blind_people",
+        "about_regional_clubs",
+        "about_special_view_foundation",
+    ),
+    (
+        "about_podcast",
+        "instructions_for_launching_podcast",
+    ),
+]

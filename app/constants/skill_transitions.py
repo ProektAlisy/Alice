@@ -3,7 +3,7 @@
 """
 import itertools
 
-from app.constants.states import DISAGREE_STATES, STATES
+from app.constants.states import DISAGREE_STATES, STATES, HELP_STATES
 from app.utils import create_func, create_trigger
 
 transitions = [
@@ -51,4 +51,14 @@ transitions = [
     for number, state in enumerate(STATES)
     if number != len(STATES) - 1
 ]
-TRANSITIONS = list(itertools.chain.from_iterable(transitions))
+transitions = list(itertools.chain.from_iterable(transitions))
+help_transitions = [
+    {
+        "trigger": create_trigger(state),
+        "source": "*",
+        "dest": "=",
+        "before": create_func(state),
+    }
+    for state in HELP_STATES
+]
+transitions.extend(help_transitions)

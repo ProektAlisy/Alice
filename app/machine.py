@@ -8,14 +8,12 @@ from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
 )
 from app.constants.commands import ServiceCommands
-from app.constants.skill_transitions import TRANSITIONS
+from app.constants.skill_transitions import transitions
 from app.constants.states import HELP_STATES, STATES
-from app.logger_initialize import logger
 from app.quiz import QuizSkill
 from app.utils import (
     create_trigger,
     get_after_answer_by_trigger,
-    get_func_answers_command,
     get_trigger_by_command,
     get_next_trigger,
 )
@@ -49,7 +47,7 @@ class FiniteStateMachine:
         self.machine = Machine(
             model=self,
             states=STATES + HELP_STATES,
-            transitions=TRANSITIONS,
+            transitions=transitions,
             initial="start",
         )
         self.flag = False
@@ -77,7 +75,7 @@ class FiniteStateMachine:
             ]
 
     def _generate_function(self, name, command, trigger, answer):
-        """Генератор функций.
+        """Создает функции, вызываемые триггерами.
 
         Создаем сразу все функции, которые указаны в transitions класса
         FiniteStateMachine.
@@ -98,7 +96,6 @@ class FiniteStateMachine:
                     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
                 ),
             )
-            ic(after_answer)
 
         setattr(self, name, _func)
 
@@ -150,7 +147,6 @@ class FiniteStateMachine:
         while step in self.progress:
             step = get_next_trigger(self, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
 
-        ic(step)
         return get_after_answer_by_trigger(
             step,
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
@@ -213,20 +209,3 @@ class FiniteStateMachine:
           True, если пользователь отказался.
         """
         return self.command == ServiceCommands.DISAGREE
-
-    def _get_remaining_progress(self) -> list[str]:
-        """Возвращает список не пройденных состояний.
-
-        Состояния определяются соответствующими триггерами.
-        """
-        if self.progress is None:
-            return [create_trigger(step) for step in STATES][1:]
-        ic(
-            self.progress,
-        )
-        ic(STATES[1:])
-        return [
-            create_trigger(step)
-            for step in STATES[1:]
-            if create_trigger(step) not in self.progress
-        ]

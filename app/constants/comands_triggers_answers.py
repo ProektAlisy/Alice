@@ -1,5 +1,5 @@
 from app.constants.commands import Commands
-from app.constants.states import STATES
+from app.constants.states import STATES, HELP_STATES
 from app.monga_initialize import (
     after_answers_collection,
     answers_collection,
@@ -21,5 +21,5 @@ COMMANDS_TRIGGERS_GET_FUNC_ANSWERS = [
         after_answers_documents.get(command_name, ""),
         disagree_answers_documents.get(command_name, ""),
     )
-    for command_name in STATES
+    for command_name in STATES + HELP_STATES
 ]
