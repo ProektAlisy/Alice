@@ -4,6 +4,7 @@
 from typing import Optional
 
 from fastapi import FastAPI
+from icecream import ic
 from pydantic import BaseModel
 
 from app.command_classes import Action, skill
@@ -107,6 +108,7 @@ async def root(data: RequestData):
         )
     else:
         answer = skill.dont_understand()
+    ic(command, skill.state, skill.progress, skill.max_progress)
     return {
         "response": {
             "text": answer,

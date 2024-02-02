@@ -3,22 +3,16 @@ import logging
 from transitions import MachineError
 
 from app.constants.answers import Answers
+from app.logger_initialize import logger
 from app.machine import FiniteStateMachine
 
 skill = FiniteStateMachine()
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s, %(levelname)s, %(message)s",
-)
-logger = logging.getLogger(__name__)
-
-
 class Command:
     @staticmethod
     def execute(
-        skill: FiniteStateMachine,
+        skill_obj: FiniteStateMachine,
         trigger_name: str | None = None,
     ) -> str:
         raise NotImplementedError

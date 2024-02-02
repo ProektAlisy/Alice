@@ -1,3 +1,4 @@
+from icecream import ic
 from pymongo.collection import Collection
 
 
@@ -85,7 +86,7 @@ def get_func_answers_command(
     Возвращает команды без соответствующих триггеров.
 
     Returns:
-        Список кортежей (Триггер, Функция, Ответ).
+        Список кортежей (Триггер, Функция, Ответ, Фраза после ответа, Команда).
     """
     commands_without_triggers = []
     for trig_commands in structure:
@@ -215,7 +216,18 @@ def get_after_answer_by_trigger(
     trigger: str,
     structure: list[tuple[str]],
 ) -> str:
+    ic(trigger)
     for trig_com_ans in structure:
         if trig_com_ans[1] == trigger:
+            ic(trig_com_ans[4])
             return trig_com_ans[4]
     return ""
+
+
+def get_trigger_by_func_name(
+    func_name: str,
+    structure: list[tuple[str]],
+):
+    for trig_com_ans in structure:
+        if trig_com_ans[2] == func_name:
+            return trig_com_ans[1]
