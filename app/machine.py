@@ -43,6 +43,7 @@ class FiniteStateMachine:
     def __init__(self):
         self.message = ""
         self.progress = []
+        self.all_steps = []
         self.incorrect_answers = 0
         self.command = ""
         self.machine = Machine(
@@ -66,14 +67,17 @@ class FiniteStateMachine:
             self: Объект FiniteStateMachine.
             current_step: Состояние навыка.
         """
-        if self.progress is None:
-            self.progress = []
         if self.flag and current_step in [
             create_trigger(state) for state in STATES[1:]
         ]:
             self.progress = list(set(self.progress) - {current_step}) + [
                 current_step,
             ]
+        if current_step in [create_trigger(state) for state in STATES[1:]]:
+            self.all_steps = list(set(self.progress) - {current_step}) + [
+                current_step,
+            ]
+            ic(self.all_steps)
 
     def _generate_agree_function(self, name, command, trigger, answer):
         """Создает функции, вызываемые триггерами.
@@ -107,6 +111,7 @@ class FiniteStateMachine:
             answer = self.get_next_disagree_answer(
                 trigger,
             )
+            ic(answer)
             self.message = answer
             self.incorrect_answers = 0
             self._save_progress(
@@ -171,8 +176,12 @@ class FiniteStateMachine:
         )
 
     def get_next_disagree_answer(self, step: str) -> str:
+        ic(step, self.progress, "1")
+        step = get_next_trigger(self, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
+        ic(step, self.progress, "2")
         while step in self.progress:
             step = get_next_trigger(self, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
+        ic(step)
         return get_disagree_answer_by_trigger(
             step,
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,

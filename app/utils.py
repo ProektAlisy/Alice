@@ -37,20 +37,21 @@ def get_next_trigger(
     Returns:
         Следующий триггер.
     """
-    trigger = last_trigger(skill)
+    trigger = last_trigger(skill.all_steps)
     ordered_triggers = get_triggers_by_order(triggers)
-    if skill.command != 0:  # ServiceCommands.DISAGREE:
-        if trigger is None:
-            return ordered_triggers[
-                1
-            ]  # триггер состояния start ничего не делает, поэтому его
-            # пропускаем и назначаем первый триггер из прогресса.
-        trigger_index = ordered_triggers.index(trigger)
-        len_triggers = len(ordered_triggers)
-        for index in range(trigger_index, len_triggers + trigger_index):
-            if ordered_triggers[index % len_triggers] in skill.progress:
-                continue
-            return ordered_triggers[index % len_triggers]
+
+    if trigger is None:
+        return ordered_triggers[
+            1
+        ]  # триггер состояния start ничего не делает, поэтому его
+        # пропускаем и назначаем первый триггер из тех, которые засчитываюсятся в прогрессе.
+    trigger_index = ordered_triggers.index(trigger)
+    len_triggers = len(ordered_triggers)
+    for index in range(trigger_index, len_triggers + trigger_index):
+        if ordered_triggers[index % len_triggers] in skill.progress:
+            continue
+        ic(ordered_triggers[index % len_triggers])
+        return ordered_triggers[index % len_triggers]
 
 
 def get_trigger_by_command(command: str, structure: tuple) -> str | None:
@@ -170,7 +171,7 @@ def is_alice_commands(command: str) -> bool:
     return command in commands
 
 
-def last_trigger(skill) -> str:
+def last_trigger(actions: list) -> str:
     """Возвращает последний триггер.
 
     Args:
@@ -180,7 +181,7 @@ def last_trigger(skill) -> str:
         Последний триггер.
     """
     try:
-        result = skill.progress[-1]
+        result = actions[-1]
     except (IndexError, TypeError):
         result = None
     return result
