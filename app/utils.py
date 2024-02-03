@@ -1,6 +1,8 @@
 from icecream import ic
 from pymongo.collection import Collection
 
+from app.constants.commands import ServiceCommands
+
 
 def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
     """Проверяет, завершено ли обучение.
@@ -37,14 +39,18 @@ def get_next_trigger(
     """
     trigger = last_trigger(skill)
     ordered_triggers = get_triggers_by_order(triggers)
-    if trigger is None:
-        return ordered_triggers[1]
-    trigger_index = ordered_triggers.index(trigger)
-    len_triggers = len(ordered_triggers)
-    for index in range(trigger_index, len_triggers + trigger_index):
-        if ordered_triggers[index % len_triggers] in skill.progress:
-            continue
-        return ordered_triggers[index % len_triggers]
+    if skill.command != 0:  # ServiceCommands.DISAGREE:
+        if trigger is None:
+            return ordered_triggers[
+                1
+            ]  # триггер состояния start ничего не делает, поэтому его
+            # пропускаем и назначаем первый триггер из прогресса.
+        trigger_index = ordered_triggers.index(trigger)
+        len_triggers = len(ordered_triggers)
+        for index in range(trigger_index, len_triggers + trigger_index):
+            if ordered_triggers[index % len_triggers] in skill.progress:
+                continue
+            return ordered_triggers[index % len_triggers]
 
 
 def get_trigger_by_command(command: str, structure: tuple) -> str | None:
@@ -61,6 +67,23 @@ def get_trigger_by_command(command: str, structure: tuple) -> str | None:
     for trig_commands in structure:
         if trig_commands[0] == command:
             return trig_commands[1]
+    return None
+
+
+def get_disagree_answer_by_trigger(trigger: str, structure: tuple):
+    """Возвращает соответствующий отрицательный ответ.
+
+    Args:
+        trigger: Триггер действия.
+        structure: Структура, содержащая соответствующие команды и триггеры.
+
+    Returns:
+        Триггер, соответствующий команде. Если соответствующий триггер
+        не найден, возвращает None.
+    """
+    for trig_commands in structure:
+        if trig_commands[1] == trigger:
+            return trig_commands[5]
     return None
 
 
