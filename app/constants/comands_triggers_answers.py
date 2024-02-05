@@ -15,8 +15,8 @@ disagree_answers_documents = read_from_db(disagree_answers_collection)
 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS = [
     (
         getattr(Commands, command_name),
-        create_trigger(name=command_name),
-        create_func(name=command_name),
+        create_trigger(command_name),
+        create_func(command_name),
         answers_documents.get(command_name, ""),
         after_answers_documents.get(command_name, ""),
         disagree_answers_documents.get(command_name, ""),

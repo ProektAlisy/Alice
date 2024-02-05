@@ -1,4 +1,6 @@
-STATES = [
+from typing import Final
+
+STATES: Final = [
     "start",
     "about_training_center",
     "about_facility",
@@ -30,6 +32,5 @@ STATES = [
     "help_main",
     "possibilities",
     "help_phrase",
-    # "start",
 ]
-DISAGREE_STATES = [state + "_disagree" for state in STATES]
+DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
