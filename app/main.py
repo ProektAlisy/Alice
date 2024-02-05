@@ -61,6 +61,7 @@ async def root(data: RequestData):
         return {
             "response": {
                 "text": answer,
+                "tts": answer,
                 "end_session": True,
             },
             "version": "1.0",
@@ -72,6 +73,7 @@ async def root(data: RequestData):
             return {
                 "response": {
                     "text": answer,
+                    "tts": answer,
                     "end_session": False,
                 },
                 "session_state": skill.dump_session_state(),
@@ -111,6 +113,7 @@ async def root(data: RequestData):
     return {
         "response": {
             "text": answer,
+            "tts": answer,
             "end_session": False,
         },
         "session_state": skill.dump_session_state(),

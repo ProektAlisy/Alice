@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 import logging
 import random
@@ -47,8 +48,10 @@ class QuizMessages:
         пройденный теоретический материал.
         Я задам Вам {total_questions_count} вопросов, и после каждого вопроса
         предложу три варианта ответа.
-        Вам надо выбрать единственный правильный ответ.
+        Вам надо выбрать единственный правильный ответ. 
         Для ответа просто назовите букву с правильным ответом: А, Б или В.
+        Если чувствуете, что Вам пока не хватает знаний, скажите:
+        'Завершить викторину'.
         Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'.
         Приступаем?
         """.replace(
@@ -57,13 +60,12 @@ class QuizMessages:
     )
 
     ALREADY_IN_PROGRESS: Final = (
-        """Вы оказались в разделе, где можете проверить насколько усвоен
-        пройденный теоретический материал.
-        После каждого вопроса я предложу три варианта ответа.
-        Вам надо выбрать единственный правильный ответ.
-        Для ответа просто назовите букву с правильным ответом: А, Б или В.
-        Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'.
-        Сейчас вы остановились на вопросе номер {current_question_number}.
+        """Вы вернулись. Как здорово! Напоминаю правила: Я задаю вопрос и 
+        предлагаю Вам на выбор три варианта ответа. Для ответа просто назовите 
+        букву с правильным ответом: А, Б или В. Правильный ответ может быть
+        только один. У Вас есть незаконченная викторина. Сейчас вы остановились 
+        на вопросе номер {current_question_number}. Продолжим ее? 
+        Чтобы начать викторину заново скажите 'Начать заново'.
         """.replace(
             "\n", " "
         )
@@ -97,6 +99,23 @@ class QuizMessages:
     RESULT_VERY_BAD: Final = (
         "Вы допустили {mistakes} ошибок, это очень много. Стоит еще поучиться."
     )
+    # форматы ответов при досрочном выходе
+    PARTIAL_RESULT_0: Final = """
+    Хорошо, завершаю викторину, но хочу сказать, что Вы отлично справились,
+    не допустив ни одной ошибки.
+    """
+    PARTIAL_RESULT_1: Final = """
+    Вы допустили всего одну ошибку. Не плохой результат.
+    Завершаю викторину и жду Вашего возвращения.
+    """
+    PARTIAL_RESULT_NOT_BAD: Final = """
+    Вы допустили {mistakes} ошибки. Не плохо, но думаю, стоит еще поучиться.
+    Завершаю викторину и жду Вашего возвращения.
+    """
+    PARTIAL_RESULT_BAD: Final = """
+    Вы допустили {mistakes} ошибок, это довольно много. Стоит еще поучиться.
+    Завершаю викторину, но очень жду Вашего возвращения|
+    """
     CORRECT_VARIANTS: Final = [
         "Поздравляю, это правильный ответ!",
         "Верно.",
@@ -118,6 +137,10 @@ class QuizMessages:
         """,
         "Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю.",
     ]
+    NO_RESULTS: Final = "Завершаю викторину и жду Вашего возвращения."
+    NO_QUIZ: Final = "Викторина временно недоступна!"
+    UNKNOWN_COMMAND: Final = "Неизвестная команда!"
+    AFTER_QUIZ: Final = "Продолжим?"
 
 
 class QuizQuestion:
@@ -287,7 +310,7 @@ class Quiz:
         """Запуск викторины заново.
 
         Args:
-            shuffle (bool) - перемешивать ли вопросы (True/False)
+            shuffle (bool): перемешивать ли вопросы (True/False)
         """
         if shuffle:
             random.shuffle(self._questions_order)
@@ -360,10 +383,24 @@ class Quiz:
         self._current_question_number += 1
 
 
+class QuizState(Enum):
+    """Состояния диалога викторины."""
+
+    INIT = 0
+    RULES = 1
+    IN_PROGRESS = 2
+    FINISHED = 3
+    TERMINATED = 4
+    RESUME = 5
+
+
 class QuizSkill:
+
     def __init__(self):
         self._quiz = Quiz()
-        self._in_progress = False
+        self._state = QuizState.INIT
+        # self._in_progress = False  # был начальный запуск
+        # self._terminated = False  # был досрочный выход
         try:
             self._quiz.load_questions(QUIZ_FILE_PATH)
             self._quiz.restart()
@@ -371,9 +408,12 @@ class QuizSkill:
             logging.exception(e)
             # raise e
 
-    def _get_current_result(self) -> str:
-        """Возвращает текстовую строку согласно текущему результату."""
+    # def is_terminated(self) -> bool:
+    #     """Возвращает признак досрочного выхода из викторины."""
+    #     return self._is_terminated
 
+    def _get_final_result(self) -> str:
+        """Возвращает строку результата для завершенной викторины."""
         match self._quiz.mistakes_count:
             case 0:
                 return QuizMessages.RESULT_EXCELLENT.format(
@@ -396,6 +436,28 @@ class QuizSkill:
                     mistakes=self._quiz.mistakes_count,
                 )
 
+    def _get_partial_result(self) -> str:
+        """Возвращает строку промежуточного результата прерванной викторины."""
+        match self._quiz.mistakes_count:
+            case 0:
+                return QuizMessages.PARTIAL_RESULT_0
+            case 1:
+                return QuizMessages.PARTIAL_RESULT_1
+            case 2 | 3 | 4:
+                return QuizMessages.PARTIAL_RESULT_NOT_BAD.format(
+                    mistakes=self._quiz.mistakes_count,
+                )
+            case _:
+                return QuizMessages.PARTIAL_RESULT_BAD.format(
+                    mistakes=self._quiz.mistakes_count,
+                )
+
+    def _get_current_result(self) -> str:
+        """Возвращает строку текущего результата викторины."""
+        if self._quiz.is_finished():
+            return self._get_final_result() + QuizMessages.AFTER_QUIZ
+        return self._get_partial_result() + QuizMessages.AFTER_QUIZ
+
     def _get_full_question(self) -> str:
         """Возвращает полный текст вопроса с вариантами ответов."""
         question_and_choices = self._quiz.get_question()
@@ -411,7 +473,6 @@ class QuizSkill:
         else:
             return (
                 random.choice(QuizMessages.INCORRECT_VARIANTS)
-                + " "
                 + self._quiz.get_current_answer()
             )
 
@@ -425,11 +486,13 @@ class QuizSkill:
                 "questions_order": list[int],
                 "current_question_number": int,
                 "mistakes_count": int,
-                "in_progress": bool
+                "in_progress": bool,
+                "state": int
             }
         """
         state = self._quiz.dump_state()
-        state["in_progress"] = self._in_progress
+        # state["in_progress"] = self._in_progress
+        state["state"] = self._state
         return state
 
     def load_state(self, state: dict[str, str] | None):
@@ -442,15 +505,134 @@ class QuizSkill:
                 "questions_order": list[int],
                 "current_question_number": int,
                 "mistakes_count": int,
-                "in_progress": bool
+                "in_progress": bool,
+                "state": int
             }
         """
         if not state:
             self._quiz.load_state(None)
             return
-        if "in_progress" in state:
-            self._in_progress = state.pop("in_progress")
+        if "state" in state:
+            self._state = QuizState(state.pop("state"))
         self._quiz.load_state(state)
+
+    def _process_init_state(
+        self, intents: dict[str], command: str
+    ) -> tuple[bool, str]:
+        """Обработчик начального запуска до показа правил."""
+        # if Intents.TAKE_QUIZ in intents:
+        self._state = QuizState.RULES
+        return True, QuizMessages.RULES.format(
+            total_questions_count=self._quiz.total_questions_count,
+        )
+
+    def _process_rules_state(
+        self, intents: dict[str], command: str
+    ) -> tuple[bool, str]:
+        """Обработчик первоначального показа правил."""
+        if Intents.TAKE_QUIZ in intents or Intents.REPEAT in intents:
+            # повторить правила
+            return True, QuizMessages.RULES.format(
+                total_questions_count=self._quiz.total_questions_count,
+            )
+        if Intents.TERMINATE_QUIZ in intents:
+            # выход до показа первого вопроса
+            self._state = QuizState.INIT
+            return True, QuizMessages.NO_RESULTS + QuizMessages.AFTER_QUIZ
+        if Intents.AGREE in intents:
+            # получено согласие на запуск викторины
+            self._state = QuizState.IN_PROGRESS
+            if not self._quiz.is_finished():
+                return True, self._get_full_question()
+            return True, QuizMessages.NO_QUIZ
+        return False, QuizMessages.UNKNOWN_COMMAND
+
+    def _process_in_progress_state(
+        self, intents: dict[str], command: str
+    ) -> tuple[bool, str]:
+        """Обработчик в режиме прогресса викторины."""
+        if Intents.REPEAT in intents:
+            # повторить последний вопрос
+            return True, self._get_full_question()
+        if Intents.NO_ANSWER in intents:
+            # нет ответа - подбодрить
+            return True, random.choice(QuizMessages.CHEER_UP_VARIANTS)
+        if Intents.TERMINATE_QUIZ in intents:
+            # досрочно завершить викторину
+            self._state = QuizState.TERMINATED
+            return True, self._get_current_result()
+        if command in "абв":
+            # обработка ответа
+            is_correct_answer = self._quiz.is_user_choice_correct(command)
+            answer_result = self._get_answer_result(is_correct_answer)
+            self._quiz.advance_question(is_correct_answer)
+            if self._quiz.is_finished():
+                self._state = QuizState.FINISHED
+                answer_result += self._get_current_result()
+            else:
+                answer_result += self._get_full_question()
+            return True, answer_result
+        # неизвестный вариант ответа - показать подсказку
+        return True, QuizMessages.CHOICE_HELP
+
+    def _process_finished_state(
+        self, intents: dict[str], command: str
+    ) -> tuple[bool, str]:
+        """Обработчик в режиме завершенной викторины."""
+        if Intents.TAKE_QUIZ in intents:
+            # викторина уже завершена
+            result = " ".join(
+                [
+                    QuizMessages.ALREADY_FINISHED,
+                    self._get_final_result(),
+                    QuizMessages.RESET_PROGRESS,
+                ],
+            )
+            return True, result
+        if Intents.START_AGAIN in intents:
+            # запустить заново
+            self._state = QuizState.RULES
+            self._quiz.restart()
+            return True, QuizMessages.RULES.format(
+                total_questions_count=self._quiz.total_questions_count,
+            )
+        return False, QuizMessages.UNKNOWN_COMMAND
+
+    def _process_terminated_state(
+        self, intents: dict[str], command: str
+    ) -> tuple[bool, str]:
+        """Обработчик досрочно завершенной викторины."""
+        if Intents.TAKE_QUIZ in intents:
+            # викторина уже завершена
+            self._state = QuizState.RESUME
+            return True, QuizMessages.ALREADY_IN_PROGRESS.format(
+                current_question_number=self._quiz.current_question_number,
+            )
+        return False, ""
+
+    def _process_resume_state(
+        self, intents: dict[str], command: str
+    ) -> tuple[bool, str]:
+        """Обработчик диалога возобновления викторины."""
+        if Intents.REPEAT in intents:
+            # повторить диалог возобновления викторины
+            return True, QuizMessages.ALREADY_IN_PROGRESS.format(
+                current_question_number=self._quiz.current_question_number,
+            )
+        if Intents.START_AGAIN in intents:
+            # запустить заново
+            self._quiz.restart()
+            self._state = QuizState.IN_PROGRESS
+            return True, self._get_full_question()
+        if Intents.CONTINUE in intents:
+            # продолжить
+            self._state = QuizState.IN_PROGRESS
+            return True, self._get_full_question()
+        if Intents.TERMINATE_QUIZ in intents:
+            # досрочно завершить викторину
+            self._state = QuizState.TERMINATED
+            return True, self._get_current_result()
+        return False, ""
 
     def execute_command(
         self,
@@ -469,58 +651,15 @@ class QuizSkill:
             answer (str): текстовое сообщение ответа на команду
         """
         command = command.lower()
-        if not self._in_progress and (
-            Intents.TAKE_QUIZ in intents or Intents.REPEAT in intents
-        ):
-            # первый вход, показываем правила
-            return True, QuizMessages.RULES.format(
-                total_questions_count=self._quiz.total_questions_count,
-            )
-        elif self._in_progress and Intents.TAKE_QUIZ in intents:
-            if not self._quiz.is_finished():
-                return True, QuizMessages.ALREADY_IN_PROGRESS.format(
-                    current_question_number=self._quiz.current_question_number,
-                )
-            # викторина уже завершена
-            result = " ".join(
-                [
-                    QuizMessages.ALREADY_FINISHED,
-                    self._get_current_result(),
-                    QuizMessages.RESET_PROGRESS,
-                ],
-            )
-            return True, result
-        if (
-            self._in_progress
-            and self._quiz.is_finished()
-            and Intents.START_AGAIN in intents
-        ):
-            # запустить заново
-            self._quiz.restart()
-            return True, self._get_full_question()
-        if self._in_progress and Intents.REPEAT in intents:
-            # повторить
-            if self._quiz.is_finished():
-                return True, self._get_current_result()
-            else:
-                return True, self._get_full_question()
-        if not self._in_progress and Intents.AGREE in intents:
-            # получено согласие на запуск викторины
-            self._in_progress = True
-            if not self._quiz.is_finished():
-                return True, self._get_full_question()
-            return True, "Викторина пока недоступна!!!"
-        if self._in_progress and not self._quiz.is_finished():
-            if Intents.NO_ANSWER in intents:
-                return True, random.choice(QuizMessages.CHEER_UP_VARIANTS)
-            if command not in "абв":
-                return True, QuizMessages.CHOICE_HELP
-            is_correct_answer = self._quiz.is_user_choice_correct(command)
-            answer_result = self._get_answer_result(is_correct_answer)
-            self._quiz.advance_question(is_correct_answer)
-            if self._quiz.is_finished():
-                answer_result += "\n" + self._get_current_result()
-            else:
-                answer_result += "\n" + self._get_full_question()
-            return True, answer_result
+        state_processors = {
+            QuizState.INIT: self._process_init_state,
+            QuizState.RULES: self._process_rules_state,
+            QuizState.IN_PROGRESS: self._process_in_progress_state,
+            QuizState.FINISHED: self._process_finished_state,
+            QuizState.TERMINATED: self._process_terminated_state,
+            QuizState.RESUME: self._process_resume_state,
+        }
+        print("self._state", self._state)
+        if self._state in state_processors:
+            return state_processors[self._state](intents, command)
         return False, ""
