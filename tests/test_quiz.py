@@ -45,23 +45,23 @@ def test_advance_question():
     """
     quiz = Quiz()
     quiz.load_questions("tests/quiz_patterns/quiz_ok.json")
-    assert quiz.is_finished() == False
+    assert quiz.is_finished() is False
     assert quiz.total_questions_count == 3
     assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 1
     # обрабатываем первый вопрос как правильный ответ
     quiz.advance_question(is_correct_answer=True)
-    assert quiz.is_finished() == False
+    assert quiz.is_finished() is False
     assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 2
     # обрабатываем первый вопрос как неправильный ответ
     quiz.advance_question(is_correct_answer=False)
-    assert quiz.is_finished() == False
+    assert quiz.is_finished() is False
     assert quiz.mistakes_count == 1
     assert quiz.current_question_number == 3
     # обрабатываем третий вопрос как правильный ответ
     quiz.advance_question(is_correct_answer=True)
-    assert quiz.is_finished() == True
+    assert quiz.is_finished()
     assert quiz.mistakes_count == 1
     assert quiz.current_question_number == 4
     with pytest.raises(QuizIsFinishedAliceException):
@@ -75,7 +75,7 @@ def test_load_from_file():
     assert quiz.total_questions_count == 3
     assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 1
-    assert quiz.is_finished() == False
+    assert quiz.is_finished() is False
 
 
 def test_is_user_choice_correct():
@@ -177,11 +177,11 @@ def test_restart():
     quiz.advance_question(False)
     assert quiz.mistakes_count == 1
     assert quiz.current_question_number == 4
-    assert quiz.is_finished() == True
+    assert quiz.is_finished()
     quiz.restart()
     assert quiz.mistakes_count == 0
     assert quiz.current_question_number == 1
-    assert quiz.is_finished() == False
+    assert quiz.is_finished() is False
 
 
 def test_dump_state():

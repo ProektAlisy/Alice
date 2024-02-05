@@ -1,7 +1,7 @@
-from enum import Enum
 import json
 import logging
 import random
+from enum import Enum
 from typing import Final
 
 from app.constants.quiz.intents import Intents
@@ -48,26 +48,28 @@ class QuizMessages:
         пройденный теоретический материал.
         Я задам Вам {total_questions_count} вопросов, и после каждого вопроса
         предложу три варианта ответа.
-        Вам надо выбрать единственный правильный ответ. 
+        Вам надо выбрать единственный правильный ответ.
         Для ответа просто назовите букву с правильным ответом: А, Б или В.
         Если чувствуете, что Вам пока не хватает знаний, скажите:
         'Завершить викторину'.
         Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'.
         Приступаем?
         """.replace(
-            "\n", " "
+            "\n",
+            " ",
         )
     )
 
     ALREADY_IN_PROGRESS: Final = (
-        """Вы вернулись. Как здорово! Напоминаю правила: Я задаю вопрос и 
-        предлагаю Вам на выбор три варианта ответа. Для ответа просто назовите 
+        """Вы вернулись. Как здорово! Напоминаю правила: Я задаю вопрос и
+        предлагаю Вам на выбор три варианта ответа. Для ответа просто назовите
         букву с правильным ответом: А, Б или В. Правильный ответ может быть
-        только один. У Вас есть незаконченная викторина. Сейчас вы остановились 
-        на вопросе номер {current_question_number}. Продолжим ее? 
+        только один. У Вас есть незаконченная викторина. Сейчас вы остановились
+        на вопросе номер {current_question_number}. Продолжим ее?
         Чтобы начать викторину заново скажите 'Начать заново'.
         """.replace(
-            "\n", " "
+            "\n",
+            " ",
         )
     )
 
@@ -88,7 +90,7 @@ class QuizMessages:
     RESULT_GOOD_1: Final = "Неплохой результат, всего одна ошибка."
     RESULT_GOOD_2: Final = "Неплохой результат, всего две ошибки."
     RESULT_NOT_BAD_3_4: Final = """
-    Вы допустили {mistakes} ошибки. 
+    Вы допустили {mistakes} ошибки.
     Не плохо, но думаю, стоит еще поучиться.
     """
     RESULT_BAD: Final = (
@@ -470,11 +472,10 @@ class QuizSkill:
         """Возвращает результат в зависимости от правильности ответа."""
         if is_correct_answer:
             return random.choice(QuizMessages.CORRECT_VARIANTS)
-        else:
-            return (
-                random.choice(QuizMessages.INCORRECT_VARIANTS)
-                + self._quiz.get_current_answer()
-            )
+        return (
+            random.choice(QuizMessages.INCORRECT_VARIANTS)
+            + self._quiz.get_current_answer()
+        )
 
     def dump_state(self):
         """Возвращает словарь текущего состояния.
@@ -659,7 +660,7 @@ class QuizSkill:
             QuizState.TERMINATED: self._process_terminated_state,
             QuizState.RESUME: self._process_resume_state,
         }
-        print("self._state", self._state)
+        # print("self._state", self._state)
         if self._state in state_processors:
             return state_processors[self._state](intents, command)
         return False, ""

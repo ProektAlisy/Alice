@@ -6,17 +6,16 @@ from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
 )
-
 from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import TRANSITIONS
 from app.constants.states import STATES
 from app.quiz import QuizSkill
 from app.utils import get_func_answers_command, get_trigger_by_command
 
-
 QUIZ_SESSION_STATE_KEY = "quiz_state"
 
 logging.basicConfig(level=logging.INFO)
+
 
 class FiniteStateMachine(object):
     states = STATES

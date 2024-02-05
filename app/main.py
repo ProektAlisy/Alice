@@ -1,4 +1,5 @@
 from typing import Optional
+
 from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
@@ -18,8 +19,8 @@ from app.utils import (
     is_completed,
     last_trigger,
 )
-from app.constants.quiz.intents import Intents
-from app.machine import FiniteStateMachine
+
+# from app.machine import FiniteStateMachine
 
 
 class RequestData(BaseModel):
