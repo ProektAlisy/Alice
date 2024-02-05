@@ -21,10 +21,10 @@ class QuizExceptionMessages:
         raise AttributeError("Messages are immutable")
 
     QUIZ_FILE_WRONG_FORMAT: Final = "Ошибка формата в файле вопросов викторины"
-    QUIZ_FILE_WRONG_ANSWER: Final = (
-        "Неизвестный ответ <{answer}> в файле вопросов викторины для вопроса "
-        "<{question}>"
-    )
+    QUIZ_FILE_WRONG_ANSWER: Final = """
+    Неизвестный ответ <{answer}> в файле вопросов викторины для вопроса
+    <{question}>
+    """
     QUIZ_IS_FINISHED: Final = (
         "Все вопросы викторины заданы. Викторина завершена!"
     )
@@ -37,41 +37,63 @@ class QuizMessages:
 
     CHOICE_FORMAT: Final = "{key}) - {value}."
     QUESTION_AND_CHOICES_FORMAT: Final = "{question}\n{choices}\n"
-    FULL_QUESTION_FORMAT: Final = (
-        "Вопрос номер {current_question_number}.\n"
-        "{question_and_choices}\n"
-        "Ваш вариант ответа:"
-    )
+    FULL_QUESTION_FORMAT: Final = """
+    Вопрос номер {current_question_number}.
+    {question_and_choices}
+    Ваш вариант ответа:
+    """
     RULES: Final = (
-        "Вы оказались в разделе, где можете проверить насколько усвоен"
-        " пройденный теоретический материал. Я задам Вам {total_questions_count} вопросов,"
-        " и после каждого вопроса предложу три варианта ответа."
-        " Вам надо выбрать единственный правильный ответ."
-        " Для ответа просто назовите букву с правильным ответом: А, Б или В."
-        " Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'."
-        " Приступаем?"
+        """Вы оказались в разделе, где можете проверить насколько усвоен
+        пройденный теоретический материал.
+        Я задам Вам {total_questions_count} вопросов, и после каждого вопроса
+        предложу три варианта ответа.
+        Вам надо выбрать единственный правильный ответ.
+        Для ответа просто назовите букву с правильным ответом: А, Б или В.
+        Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'.
+        Приступаем?
+        """.replace(
+            "\n", " "
+        )
     )
+
     ALREADY_IN_PROGRESS: Final = (
-        "Вы оказались в разделе, где можете проверить насколько усвоен"
-        " пройденный теоретический материал."
-        " После каждого вопроса я предложу три варианта ответа."
-        " Вам надо выбрать единственный правильный ответ."
-        " Для ответа просто назовите букву с правильным ответом: А, Б или В."
-        " Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'."
-        " Сейчас вы остановились на вопросе номер {current_question_number}."
+        """Вы оказались в разделе, где можете проверить насколько усвоен
+        пройденный теоретический материал.
+        После каждого вопроса я предложу три варианта ответа.
+        Вам надо выбрать единственный правильный ответ.
+        Для ответа просто назовите букву с правильным ответом: А, Б или В.
+        Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'.
+        Сейчас вы остановились на вопросе номер {current_question_number}.
+        """.replace(
+            "\n", " "
+        )
     )
+
     ALREADY_FINISHED: Final = "Викторина уже пройдена."
-    RESET_PROGRESS: Final = (
-        "Чтобы начать викторину заново скажите 'Начать заново'."
-        " Это удалит весь предыдущий прогресс."
-    )
-    CHOICE_HELP: Final = "Чтобы ответить на вопрос назовите букву с правильным вариантом ответа - А, Б или В"
+    RESET_PROGRESS: Final = """
+    Чтобы начать викторину заново скажите 'Начать заново'.
+    Это удалит весь предыдущий прогресс.
+    """
+    CHOICE_HELP: Final = """
+    Чтобы ответить на вопрос назовите букву с
+    правильным вариантом ответа - А, Б или В.
+    """
     CORRECT_ANSWER_FORMAT: Final = "Правильный ответ '{choice}') - {answer}."
-    RESULT_EXCELLENT: Final = "Превосходный результат! Вы ответили на все {total} вопросов без ошибок."
+    RESULT_EXCELLENT: Final = """
+    Превосходный результат!
+    Вы ответили на все {total} вопросов без ошибок.
+    """
     RESULT_GOOD_1: Final = "Неплохой результат, всего одна ошибка."
     RESULT_GOOD_2: Final = "Неплохой результат, всего две ошибки."
-    RESULT_NOT_BAD_3_4: Final = "Вы допустили {mistakes} ошибки. Не плохо, но думаю, стоит еще поучиться."
-    RESULT_BAD: Final = "Вы допустили {mistakes} ошибок, это довольно много. Стоит еще поучиться."
+    RESULT_NOT_BAD_3_4: Final = """
+    Вы допустили {mistakes} ошибки. 
+    Не плохо, но думаю, стоит еще поучиться.
+    """
+    RESULT_BAD: Final = (
+        """Вы допустили {mistakes} ошибок, это довольно много.
+        Стоит еще поучиться.
+        """
+    )
     RESULT_VERY_BAD: Final = (
         "Вы допустили {mistakes} ошибок, это очень много. Стоит еще поучиться."
     )
@@ -88,15 +110,13 @@ class QuizMessages:
         "Не совсем так.",
     ]
     CHEER_UP_VARIANTS: Final = [
-        (
-            "Не страшно, Вы здесь чтобы учиться. "
-            "Попробуйте угадать ответ, а я Вам расскажу какой ответ правильный."
-        ),
-        (
-            "В теории мы это точно проходили, попробуйте вспомнить. "
-            "Ничего страшного, если ошибетесь."
-        ),
-        ("Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю."),
+        """Не страшно, Вы здесь чтобы учиться.
+        Попробуйте угадать ответ, а я Вам расскажу какой ответ правильный.
+        """,
+        """В теории мы это точно проходили, попробуйте вспомнить.
+        Ничего страшного, если ошибетесь.
+        """,
+        "Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю.",
     ]
 
 
@@ -107,7 +127,26 @@ class QuizQuestion:
     question_and_choices: str
 
     def __init__(self, data: dict):
-        """Инициализация вопроса данными из словаря"""
+        """Инициализация вопроса данными из словаря.
+
+        Args:
+            data (dict["str, Any"]): вопрос с вариантами ответа вида::
+
+            {
+                "question": "Текст вопроса 1?",
+                "choices": {
+                    "а": "вариант ответа 1",
+                    "б": "вариант ответа 2",
+                    "в": "вариант ответа 3"
+                },
+                "correct_choice": "а|б|в"
+            }
+
+        Raises:
+            QuizFileWrongFormatAliceException: если отсутствует любой из ключей
+            QuizFileWrongAnswerAliceException: если значение "correct_choice"
+            не содержится в списке ключей choices
+        """
         self.question = data.get("question")
         self.choices = data.get("choices")
         self.correct_choice = data.get("correct_choice")
@@ -171,7 +210,7 @@ class Quiz:
         """Загрузка вопросов викторины из json файла.
 
         Args:
-            file_name (str) наименование файла с вопросами следующего формата::
+            file_name (str): наименование файла вопросов следующего формата::
 
         [
             {
@@ -185,6 +224,8 @@ class Quiz:
             },
             ...
         ]
+        Raises:
+            QuizFileNotFoundAliceException: если файл file_name не найден
         """
         try:
             with open(file_name, mode="r", encoding="utf-8") as in_file:
@@ -221,7 +262,7 @@ class Quiz:
         """Загружает текущее состояние викторины из словаря.
 
         Args:
-            state (dict) - словарь состояния следующего формата::
+            state (dict): словарь состояния следующего формата::
 
             {
                 "questions_order": list[int],
@@ -235,14 +276,12 @@ class Quiz:
             # self._current_question_number = 0
             # self._questions_order = list(range(len(self._questions)))
             return
-        print("Quiz loaded!")
-        print("before:", self._current_question_number)
         self._mistakes_count = state.get("mistakes_count", 0)
         self._current_question_number = state.get("current_question_number", 0)
         order = state.get("questions_order", None)
         if order:
             self._questions_order = order
-        print("after:", self._current_question_number)
+        # print("after:", self._current_question_number)
 
     def restart(self, shuffle: bool = True):
         """Запуск викторины заново.
@@ -259,10 +298,11 @@ class Quiz:
         """Возвращает текущий вопрос викторины.
 
         Returns:
-            QuizQuestion - текущий вопрос викторины
+            QuizQuestion: текущий вопрос викторины
 
         Raises:
-            QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR если викторина завершена
+            QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR: если викторина
+            завершена
         """
         if self.is_finished():
             raise QuizNoActiveQuestionAliceException(
@@ -289,10 +329,10 @@ class Quiz:
         """Анализирует ответ пользователя на текущий вопрос.
 
         Args:
-            user_choice (str) - ответ пользователя
+            user_choice (str): ответ пользователя
 
         Returns:
-            (bool) - True, если ответ соответствует правильному, False - иначе
+            bool: True - если ответ соответствует правильному, False - иначе
         """
         correct_choice = self._get_current_question().correct_choice
         return user_choice == correct_choice
@@ -307,10 +347,10 @@ class Quiz:
         )
 
     def advance_question(self, is_correct_answer: bool) -> str:
-        """Обновляет количество ошибочных ответов и обновляет номер текущего вопроса
+        """Обновляет количество ошибочных ответов и номер текущего вопроса.
 
         Args:
-            is_correct_answer (bool) - признак правильного ответа на текущий вопрос.
+            is_correct_answer (bool): правильность ответа на текущий вопрос.
         """
         if self.is_finished():
             raise QuizIsFinishedAliceException(
@@ -419,12 +459,14 @@ class QuizSkill:
     ) -> tuple[bool, str]:
         """Анализ и исполнение команды/интента.
 
-        :param: command - команда для навыка
-        :param: intents - словарь намерений (intents) для навыка
+        Args:
+            command (str): команда для навыка
+            intents (dict[str]): словарь намерений (intents) для навыка
 
-        :returns: (result, answer)
-        result: bool - True, если команда воспринята викториной
-        answer: str - текстовое сообщение ответа на команду
+        Returns:
+            (result, answer): кортеж ответа, где
+            result (bool): True, если команда воспринята викториной
+            answer (str): текстовое сообщение ответа на команду
         """
         command = command.lower()
         if not self._in_progress and (

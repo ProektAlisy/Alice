@@ -18,8 +18,9 @@ from app.utils import (
     is_completed,
     last_trigger,
 )
-from app.constants.intents import Intents
+from app.constants.quiz.intents import Intents
 from app.machine import FiniteStateMachine
+
 
 class RequestData(BaseModel):
     session: dict
@@ -77,7 +78,7 @@ async def root(data: RequestData):
                 "version": "1.0",
             }
     if Intents.TAKE_QUIZ in intents:
-        skill.machine.set_state("quiz")
+        skill.machine.set_state("take_quiz")
         result, answer = skill.quiz_skill.execute_command(command, intents)
     elif not command and is_new:
         answer = Answers.FULL_GREETINGS
