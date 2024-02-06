@@ -15,11 +15,11 @@ from app.quiz import QuizSkill
 from app.utils import (
     create_trigger,
     get_after_answer_by_trigger,
-    get_trigger_by_command,
-    get_next_trigger,
+    next_trigger_by_progress,
     get_disagree_answer_by_trigger,
     get_answer_by_trigger,
     find_previous_element,
+    next_trigger,
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -47,7 +47,6 @@ class FiniteStateMachine:
         self.message = ""
         self.progress = []
         self.history = []
-        self._saved_state = None
         self.incorrect_answers = 0
         self.command = ""
         self.machine = Machine(
@@ -61,9 +60,6 @@ class FiniteStateMachine:
         self._create_agree_functions()
         self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
-
-    def _save_state(self, current_step):
-        self._saved_state = current_step
 
     def _save_progress(self, current_step: str) -> None:
         """Прогресс прохождения навыка.
@@ -94,23 +90,23 @@ class FiniteStateMachine:
         Args:
             current_step: Текущее состояние (соответствующий триггер).
         """
-
         self.history = list(set(self.progress) - {current_step}) + [
             current_step,
         ]
 
-    def _generate_agree_function(self, name, command, trigger):
+    def _generate_agree_function(self, name, trigger):
         """Создает функции, вызываемые триггерами.
 
         Создаем сразу все функции, которые указаны в transitions класса
         FiniteStateMachine.
         Args:
             name: Имя функции.
-            command: Команда пользователя.
+            trigger: Вызванная триггер.
         """
 
         def _func():
             self._save_progress(trigger)
+            self._save_history(trigger)
             if self.is_agree():
                 after_answer = get_after_answer_by_trigger(
                     trigger,
@@ -126,7 +122,6 @@ class FiniteStateMachine:
                     trigger,
                     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
                 )
-
             self.message = answer + " " + after_answer
             self.incorrect_answers = 0
 
@@ -136,45 +131,47 @@ class FiniteStateMachine:
         """Создает функции, вызываемые триггерами."""
 
         def _func():
-            answer = self.get_next_disagree_answer(
+            self._save_history(trigger)
+            disagree_answer = self.get_next_disagree_answer(
                 trigger,
             )
-            self.message = answer
+            self.message = disagree_answer
             self.incorrect_answers = 0
 
         setattr(self, name, _func)
 
-    def _create_agree_functions(self):
-        result = []
-        for (
-            command,
-            trigger,
-            func_name,
-            answer,
-            _,
-            _,
-        ) in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS:
-            result.append(
-                self._generate_agree_function(
-                    func_name,
-                    command,
-                    trigger,
-                    # answer,
-                )
+    def _create_agree_functions(self) -> None:
+        """Создание функций, обрабатывающих согласие пользователя."""
+        [
+            self._generate_agree_function(
+                func_name,
+                trigger,
             )
+            for (
+                command,
+                trigger,
+                func_name,
+                answer,
+                _,
+                _,
+            ) in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+        ]
 
     def _create_disagree_functions(self) -> None:
-        """Создание функций, обрабатывающих отказы пользователя.
-
-        Args:
-            self: Объект FiniteStateMachine.
-        """
+        """Создание функций, обрабатывающих отказы пользователя."""
         [
             self._generate_disagree_function(
                 func_name + "_disagree",
                 trigger,
             )
-            for command, trigger, func_name, _, _, disagree_answer in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+            for (
+                command,
+                trigger,
+                func_name,
+                _,
+                _,
+                disagree_answer,
+            ) in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
         ]
 
     def get_next_after_answer(self, step: str) -> str:
@@ -188,7 +185,7 @@ class FiniteStateMachine:
             пользователя.
         """
         while step in self.progress:
-            step = get_next_trigger(
+            step = next_trigger_by_progress(
                 self,
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
@@ -209,13 +206,12 @@ class FiniteStateMachine:
             пользователя.
         """
         while step in self.history:
-            step = get_next_trigger(
-                self,
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            step = next_trigger(
+                step,
+                ORDERED_TRIGGERS,
             )
-        pre_step = find_previous_element(step, ORDERED_TRIGGERS)
         return get_disagree_answer_by_trigger(
-            pre_step,
+            step,
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
 

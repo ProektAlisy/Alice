@@ -20,7 +20,7 @@ def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
     return result
 
 
-def get_next_trigger(
+def next_trigger_by_progress(
     skill: "FiniteStateMachine",  # noqa
     triggers: list,
 ) -> str:
@@ -29,13 +29,13 @@ def get_next_trigger(
     Очередность определяется списком состояний STATES в states.py.
 
     Args:
-        triggers: Список все триггеров.
+        triggers: Список всех триггеров.
         skill: Объект навыка.
 
     Returns:
         Следующий триггер.
     """
-    trigger = last_trigger(skill.progress)
+    trigger = last_trigger(skill.history)
     ordered_triggers = get_triggers_by_order(triggers)
     if trigger is None:
         return ordered_triggers[1]
@@ -44,9 +44,19 @@ def get_next_trigger(
     trigger_index = ordered_triggers.index(trigger)
     len_triggers = len(ordered_triggers)
     for index in range(trigger_index, len_triggers + trigger_index):
-        if ordered_triggers[index % len_triggers] in skill.progress:
+        if ordered_triggers[index % len_triggers] in skill.history:
             continue
         return ordered_triggers[index % len_triggers]
+
+
+def next_trigger(element: str, lst: list) -> str | None:
+    index = lst.index(element)
+    if index < len(lst) - 1:
+        return lst[index + 1]
+    elif index == len(lst) - 1:
+        return lst[0]
+    else:
+        return None
 
 
 def find_previous_element(
@@ -89,6 +99,7 @@ def get_disagree_answer_by_trigger(trigger: str, structure: tuple):
     """
     for trig_commands in structure:
         if trig_commands[1] == trigger:
+            ic(trig_commands[5])
             return trig_commands[5]
     return None
 
