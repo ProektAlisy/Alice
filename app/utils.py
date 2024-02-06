@@ -1,8 +1,6 @@
 from icecream import ic
 from pymongo.collection import Collection
 
-from app.constants.commands import ServiceCommands
-
 
 def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
     """Проверяет, завершено ли обучение.
@@ -37,21 +35,28 @@ def get_next_trigger(
     Returns:
         Следующий триггер.
     """
-    trigger = last_trigger(skill.all_steps)
+    trigger = last_trigger(skill.progress)
     ordered_triggers = get_triggers_by_order(triggers)
-
     if trigger is None:
-        return ordered_triggers[
-            1
-        ]  # триггер состояния start ничего не делает, поэтому его
-        # пропускаем и назначаем первый триггер из тех, которые засчитываюсятся в прогрессе.
+        return ordered_triggers[1]
+        # триггер состояния start ничего не делает, поэтому его
+        # пропускаем и назначаем первый триггер из тех, которые засчитываются в прогрессе.
     trigger_index = ordered_triggers.index(trigger)
     len_triggers = len(ordered_triggers)
     for index in range(trigger_index, len_triggers + trigger_index):
         if ordered_triggers[index % len_triggers] in skill.progress:
             continue
-        ic(ordered_triggers[index % len_triggers])
         return ordered_triggers[index % len_triggers]
+
+
+def find_previous_element(
+    trigger: str, ordered_triggers: list[str]
+) -> str | None:
+    index = ordered_triggers.index(trigger)
+    if index > 0:
+        return ordered_triggers[index - 1]
+    else:
+        return None  # Если элемент является первым в списке
 
 
 def get_trigger_by_command(command: str, structure: tuple) -> str | None:
@@ -88,7 +93,9 @@ def get_disagree_answer_by_trigger(trigger: str, structure: tuple):
     return None
 
 
-def get_triggers_by_order(trig_com_ans: list[tuple[str, str]]) -> list[str]:
+def get_triggers_by_order(
+    trig_com_ans: list[tuple[str, str, str, str, str, str]]
+) -> list[str]:
     """Возвращает список триггеров.
 
     Порядок определяется по соответствию триггеру команде из списка
@@ -101,28 +108,6 @@ def get_triggers_by_order(trig_com_ans: list[tuple[str, str]]) -> list[str]:
     for trig_commands in trig_com_ans:
         triggers.append(trig_commands[1])
     return triggers
-
-
-def get_func_answers_command(
-    structure: tuple,
-) -> list[tuple[str, str, str, str, str]]:
-    """
-    Возвращает команды без соответствующих триггеров.
-
-    Returns:
-        Список кортежей (Триггер, Функция, Ответ, Фраза после ответа, Команда).
-    """
-    commands_without_triggers = []
-    for trig_commands in structure:
-        command_tuple = (
-            trig_commands[2],
-            trig_commands[3],
-            trig_commands[4],
-            trig_commands[5],
-            trig_commands[0],
-        )
-        commands_without_triggers.append(command_tuple)
-    return commands_without_triggers
 
 
 def get_all_commands(structure: tuple) -> list[str]:
@@ -171,17 +156,17 @@ def is_alice_commands(command: str) -> bool:
     return command in commands
 
 
-def last_trigger(actions: list) -> str:
+def last_trigger(triggers: list) -> str:
     """Возвращает последний триггер.
 
     Args:
-        skill: Объект навыка.
+        triggers: список триггеров.
 
     Returns:
         Последний триггер.
     """
     try:
-        result = actions[-1]
+        result = triggers[-1]
     except (IndexError, TypeError):
         result = None
     return result
@@ -224,26 +209,12 @@ def create_func(name):
     return "get_" + name
 
 
-def get_basic_triggers(state_names: list[str]) -> list[str]:
-    """Возвращает список базовых триггеров.
-
-    Args:
-        state_names: Список состояний.
-
-    Returns:
-        Список базовых триггеров.
-    """
-    return [create_trigger(state_name) for state_name in state_names]
-
-
 def get_after_answer_by_trigger(
     trigger: str,
     structure: list[tuple[str]],
 ) -> str:
-    ic(trigger)
     for trig_com_ans in structure:
         if trig_com_ans[1] == trigger:
-            ic(trig_com_ans[4])
             return trig_com_ans[4]
     return ""
 
@@ -255,3 +226,29 @@ def get_trigger_by_func_name(
     for trig_com_ans in structure:
         if trig_com_ans[2] == func_name:
             return trig_com_ans[1]
+    return ""
+
+
+def get_answer_by_trigger(
+    trigger: str,
+    structure: list[tuple[str]],
+):
+    for trig_com_ans in structure:
+        if trig_com_ans[1] == trigger:
+            return trig_com_ans[3]
+    return ""
+
+
+def get_answer_by_after_answer(after_answer: str, structure: list[tuple[str]]):
+    for trig_com_ans in structure:
+        if trig_com_ans[4] == after_answer:
+            index = structure.index(trig_com_ans)
+            return structure[index + 1][3]
+    return ""
+
+
+def get_answer_by_command(command: str, structure: list[tuple[str]]):
+    for trig_com_ans in structure:
+        if trig_com_ans[0] == command:
+            return trig_com_ans[3]
+    return ""

@@ -12,35 +12,36 @@ transitions = [
         {
             "trigger": create_trigger(STATES[number + 1]),
             "source": state,
-            "dest": STATES[number + 1],
+            "dest": "=",
             "before": create_func(STATES[number + 1]),
             "conditions": "is_agree",
         },
         # переход из состояния согласия в состояние отказа
         {
             "trigger": create_trigger(STATES[number + 1]),
-            "source": state,
-            "dest": "=",
-            "before": create_func(DISAGREE_STATES[number + 1]),
-            "conditions": "is_disagree",
-        },
-        # переход из любого состояния в состояние отказа
-        {
-            "trigger": create_trigger(STATES[number + 1]),
             "source": "*",
             "dest": "=",
             "before": create_func(DISAGREE_STATES[number + 1]),
             "conditions": "is_disagree",
         },
-        # переход из состояния с отказом в состояние согласия
-        {
-            "trigger": create_trigger(STATES[number + 1]),
-            "source": "*",
-            "dest": state,
-            "before": create_func(STATES[number + 1]),
-            "conditions": "is_agree",
-        },
+        # # переход из любого состояния в состояние отказа
+        # {
+        #     "trigger": create_trigger(STATES[number + 1]),
+        #     "source": "*",
+        #     "dest": "=",
+        #     "before": create_func(DISAGREE_STATES[number + 1]),
+        #     "conditions": "is_disagree",
+        # },
+        # # переход из состояния с отказом в состояние согласия
+        # {
+        #     "trigger": create_trigger(STATES[number + 1]),
+        #     "source": "*",
+        #     "dest": "=",
+        #     "before": create_func(STATES[number + 1]),
+        #     "conditions": "is_agree",
+        # },
         # безусловный переход из любого состояния в любое
+        # используется для выполнения команд вне рамок сценария
         {
             "trigger": create_trigger(STATES[number + 1]),
             "source": "*",
