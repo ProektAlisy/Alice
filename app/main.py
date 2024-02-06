@@ -69,8 +69,16 @@ async def root(data: RequestData):
         }
     command_instance = Action()
     if skill.state == "take_quiz":
+        ic(skill.state, skill.quiz_skill._state, command, intents)
         result, answer = skill.quiz_skill.execute_command(command, intents)
         if result:
+            if skill.quiz_skill.is_finished():
+                # TODO: викторина уже завершилась или прервана и необходимо:
+                # 1. Прицепить что-то в конец answer
+                #    (вроде предложения следующего этапа или просто 'продолжим?'
+                # 2. Каким-то образом включить следующее состояние автомата!
+                #    сейчас просто перехожу на listen_quiz_results
+                skill.machine.set_state("listen_quiz_results")
             return {
                 "response": {
                     "text": answer,

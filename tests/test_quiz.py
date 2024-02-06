@@ -1,5 +1,8 @@
+import json
+
 import pytest
 
+from app.constants.quiz.intents import Intents
 from app.quiz import (
     Quiz,
     QuizFileNotFoundAliceException,
@@ -7,31 +10,96 @@ from app.quiz import (
     QuizFileWrongFormatAliceException,
     QuizIsFinishedAliceException,
     QuizNoActiveQuestionAliceException,
+    QuizSkill,
+    QuizState,
 )
+
+quiz_state_init = {
+    "questions_order": [0, 1, 2],
+    "current_question_number": 0,
+    "mistakes_count": 0,
+    "state": int(QuizState.INIT),
+}
+
+quiz_state_rules = {
+    "questions_order": [0, 1, 2],
+    "current_question_number": 0,
+    "mistakes_count": 0,
+    "state": int(QuizState.RULES),
+}
+
+quiz_state_in_progress = {
+    "questions_order": [2, 1, 0],
+    "current_question_number": 2,
+    "mistakes_count": 1,
+    "state": int(QuizState.IN_PROGRESS),
+}
+
+quiz_state_in_progress_0 = {
+    "questions_order": [2, 1, 0],
+    "current_question_number": 0,
+    "mistakes_count": 0,
+    "state": int(QuizState.IN_PROGRESS),
+}
+
+quiz_state_finished = {
+    "questions_order": [2, 1, 0],
+    "current_question_number": 3,
+    "mistakes_count": 1,
+    "state": int(QuizState.FINISHED),
+}
+
+quiz_state_terminated = {
+    "questions_order": [2, 1, 0],
+    "current_question_number": 2,
+    "mistakes_count": 1,
+    "state": int(QuizState.TERMINATED),
+}
+
+quiz_state_resume = {
+    "questions_order": [2, 1, 0],
+    "current_question_number": 2,
+    "mistakes_count": 1,
+    "state": int(QuizState.RESUME),
+}
+
+quiz_skill_state_fixtures = [
+    quiz_state_init,
+    quiz_state_rules,
+    quiz_state_in_progress_0,
+    quiz_state_in_progress,
+    quiz_state_finished,
+    quiz_state_terminated,
+    quiz_state_resume,
+]
 
 
 def test_load_from_wrong_file_name():
-    """Загрузка из отсутствующего файла взводит QuizFileNotFoundAliceException"""
+    """Загрузка из отсутствующего файла взводит
+    QuizFileNotFoundAliceException.
+    """
     quiz = Quiz()
     with pytest.raises(QuizFileNotFoundAliceException):
         quiz.load_questions("wrong_file_name.json")
 
 
 def test_load_from_file_wrong_format():
-    """При отсутствии нужных ключей взводит QuizFileWrongFormatAliceException"""
+    """При отсутствии нужных ключей взводит
+    QuizFileWrongFormatAliceException.
+    """
     quiz = Quiz()
     with pytest.raises(QuizFileWrongFormatAliceException):
         quiz.load_questions("tests/quiz_patterns/quiz1_no_question.json")
-
     with pytest.raises(QuizFileWrongFormatAliceException):
         quiz.load_questions("tests/quiz_patterns/quiz2_no_choices.json")
-
     with pytest.raises(QuizFileWrongFormatAliceException):
         quiz.load_questions("tests/quiz_patterns/quiz3_no_correct_choice.json")
 
 
 def test_load_from_file_with_wrong_correct_choice():
-    """Если ключ correct_choice ошибочный, взводит QuizFileWrongAnswerAliceException"""
+    """Если ключ correct_choice ошибочный, взводит
+    QuizFileWrongAnswerAliceException.
+    """
     quiz = Quiz()
     with pytest.raises(QuizFileWrongAnswerAliceException):
         quiz.load_questions(
@@ -136,7 +204,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 1.3" in question_1
     )
     answer_1 = quiz.get_current_answer()
-    assert "'А') - Ответ 1.1" in answer_1
+    assert "Ответ 1.1" in answer_1
     quiz.advance_question(is_correct_answer=True)
     # анализ второго вопроса
     question_2 = quiz.get_question()
@@ -147,7 +215,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 2.3" in question_2
     )
     answer_2 = quiz.get_current_answer()
-    assert "'Б') - Ответ 2.2" in answer_2
+    assert "Ответ 2.2" in answer_2
     # обрабатываем второй вопрос как не правильный ответ
     quiz.advance_question(is_correct_answer=False)
     # анализ третьего вопроса
@@ -159,7 +227,7 @@ def test_get_question_and_get_current_answer():
         and "Ответ 3.3" in question_3
     )
     answer_3 = quiz.get_current_answer()
-    assert "'В') - Ответ 3.3" in answer_3
+    assert "Ответ 3.3" in answer_3
     # обрабатываем последний вопрос как правильный ответ
     quiz.advance_question(is_correct_answer=True)
     with pytest.raises(QuizIsFinishedAliceException):
@@ -227,3 +295,168 @@ def test_load_state():
     assert quiz._current_question_number == 2
     assert quiz._mistakes_count == 1
     assert quiz._questions_order == [2, 0, 1]
+
+
+def test_quiz_skill_init():
+    """Проверка инициализации викторины вопросами из заданного файла."""
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    assert quiz_skill._state == QuizState.INIT
+    assert quiz_skill._quiz.current_question_number == 1
+    assert quiz_skill._quiz.mistakes_count == 0
+    assert quiz_skill._quiz.total_questions_count == 3
+
+
+@pytest.mark.parametrize("state", quiz_skill_state_fixtures)
+def test_quiz_skill_load_dump_state(state: dict[str]):
+    """Проверка load_state(), dump_state()"""
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    state_json = json.dumps(state, sort_keys=True)
+    quiz_skill.load_state(state)
+    dump_json = json.dumps(quiz_skill.dump_state(), sort_keys=True)
+    assert state_json == dump_json
+
+
+def test_quiz_skill_init_transitions():
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_init)
+    quiz_skill.execute_command("", {})
+    assert quiz_skill._state == QuizState.RULES, "Ошибка перехода INIT>RULES"
+
+
+@pytest.mark.parametrize(
+    "intent, new_state, expected_result",
+    [
+        (Intents.REPEAT, QuizState.RULES, True),
+        (Intents.TERMINATE_QUIZ, QuizState.INIT, True),
+        (Intents.AGREE, QuizState.IN_PROGRESS, True),
+        ("unknown_intent", QuizState.RULES, False),
+    ],
+)
+def test_quiz_skill_rules_transitions(
+    intent: str,
+    new_state: QuizState,
+    expected_result: bool,
+):
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_rules)
+    result, msg = quiz_skill.execute_command("", {intent: "any"})
+    assert result == expected_result
+    assert (
+        quiz_skill._state == new_state
+    ), f"Ошибка перехода из RULES по команде {intent}"
+
+
+@pytest.mark.parametrize(
+    "command, intent, new_state, expected_result",
+    [
+        ("", Intents.REPEAT, QuizState.IN_PROGRESS, True),
+        ("", Intents.NO_ANSWER, QuizState.IN_PROGRESS, True),
+        ("", Intents.TERMINATE_QUIZ, QuizState.TERMINATED, True),
+        ("а", "а", QuizState.FINISHED, True),
+        ("unknown_command", "unknown_intent", QuizState.IN_PROGRESS, True),
+    ],
+)
+def test_quiz_skill_in_progress_transitions(
+    command: str,
+    intent: str,
+    new_state: QuizState,
+    expected_result: bool,
+):
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_in_progress)
+    result, msg = quiz_skill.execute_command(command, {intent: "any"})
+    assert result == expected_result
+    assert (
+        quiz_skill._state == new_state
+    ), f"Ошибка перехода из IN_PROGRESS по команде {intent}"
+
+
+def test_quiz_skill_in_progress_flow():
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_in_progress_0)
+    assert quiz_skill._quiz.current_question_number == 1
+    # верный ответ
+    result, _ = quiz_skill.execute_command("в", {})
+    assert result
+    assert quiz_skill._quiz.mistakes_count == 0
+    assert quiz_skill._quiz.current_question_number == 2
+    assert quiz_skill._state == QuizState.IN_PROGRESS
+    # неверный ответ
+    result, _ = quiz_skill.execute_command("в", {})
+    assert result
+    assert quiz_skill._quiz.mistakes_count == 1
+    assert quiz_skill._quiz.current_question_number == 3
+    assert quiz_skill._state == QuizState.IN_PROGRESS
+    # неверный ответ
+    result, _ = quiz_skill.execute_command("в", {})
+    assert result
+    assert quiz_skill._quiz.mistakes_count == 2
+    assert quiz_skill._quiz.current_question_number == 4
+    assert quiz_skill._state == QuizState.FINISHED
+
+
+@pytest.mark.parametrize(
+    "intent, new_state, expected_result",
+    [
+        (Intents.TAKE_QUIZ, QuizState.FINISHED, True),
+        (Intents.START_AGAIN, QuizState.RULES, True),
+        ("unknown_intent", QuizState.FINISHED, False),
+    ],
+)
+def test_quiz_skill_finished_transitions(
+    intent: str,
+    new_state: QuizState,
+    expected_result: bool,
+):
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_finished)
+    result, _ = quiz_skill.execute_command("", {intent: "any"})
+    assert result == expected_result
+    assert (
+        quiz_skill._state == new_state
+    ), f"Ошибка перехода из FINISHED по команде {intent}"
+
+
+@pytest.mark.parametrize(
+    "intent, new_state, expected_result",
+    [
+        (Intents.TAKE_QUIZ, QuizState.RESUME, True),
+        ("unknown_intent", QuizState.TERMINATED, False),
+    ],
+)
+def test_quiz_skill_terminated_transitions(
+    intent: str,
+    new_state: QuizState,
+    expected_result: bool,
+):
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_terminated)
+    result, _ = quiz_skill.execute_command("", {intent: "any"})
+    assert result == expected_result
+    assert (
+        quiz_skill._state == new_state
+    ), f"Ошибка перехода из TERMINATED по команде {intent}"
+
+
+@pytest.mark.parametrize(
+    "intent, new_state, expected_result",
+    [
+        (Intents.REPEAT, QuizState.RESUME, True),
+        (Intents.START_AGAIN, QuizState.IN_PROGRESS, True),
+        (Intents.CONTINUE, QuizState.IN_PROGRESS, True),
+        (Intents.TERMINATE_QUIZ, QuizState.TERMINATED, True),
+        ("unknown_intent", QuizState.RESUME, True),
+    ],
+)
+def test_quiz_skill_resume_transitions(
+    intent: str,
+    new_state: QuizState,
+    expected_result: bool,
+):
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_resume)
+    result, _ = quiz_skill.execute_command("", {intent: "any"})
+    assert result == expected_result
+    assert (
+        quiz_skill._state == new_state
+    ), f"Ошибка перехода из RESUME по команде {intent}"

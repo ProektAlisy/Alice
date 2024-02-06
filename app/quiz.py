@@ -1,7 +1,7 @@
 import json
 import logging
 import random
-from enum import Enum
+from enum import IntEnum
 from typing import Final
 
 from app.constants.quiz.intents import Intents
@@ -36,7 +36,7 @@ class QuizMessages:
     def __setattr__(self, key, value):
         raise AttributeError("Messages are immutable")
 
-    CHOICE_FORMAT: Final = "{key}) - {value}."
+    CHOICE_FORMAT: Final = "{key}) sil <[300]> {value}. sil <[300]>"
     QUESTION_AND_CHOICES_FORMAT: Final = "{question}\n{choices}\n"
     FULL_QUESTION_FORMAT: Final = """
     Вопрос номер {current_question_number}.
@@ -72,6 +72,16 @@ class QuizMessages:
             " ",
         )
     )
+    RESUME_REPEAT: Final = (
+        """Сейчас вы остановились на вопросе номер {current_question_number}.
+        Чтобы продолжить викторину скажите 'Продолжим'.
+        Чтобы начать викторину заново скажите 'Начать заново'.
+        Чтобы завершить викторину скажите 'Завершить викторину'.
+        """.replace(
+            "\n",
+            " ",
+        )
+    )
 
     ALREADY_FINISHED: Final = "Викторина уже пройдена."
     RESET_PROGRESS: Final = """
@@ -79,10 +89,12 @@ class QuizMessages:
     Это удалит весь предыдущий прогресс.
     """
     CHOICE_HELP: Final = """
-    Чтобы ответить на вопрос назовите букву с
-    правильным вариантом ответа - А, Б или В.
+    Чтобы ответить на вопрос назовите букву с правильным вариантом ответа
+    А, sil <[200]> Б sil <[200]> или В.
     """
-    CORRECT_ANSWER_FORMAT: Final = "Правильный ответ '{choice}') - {answer}."
+    CORRECT_ANSWER_FORMAT: Final = (
+        "Правильный ответ '{choice}') sil <[200]> {answer}. sil <[500]>"
+    )
     RESULT_EXCELLENT: Final = """
     Превосходный результат!
     Вы ответили на все {total} вопросов без ошибок.
@@ -139,7 +151,9 @@ class QuizMessages:
         """,
         "Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю.",
     ]
-    NO_RESULTS: Final = "Завершаю викторину и жду Вашего возвращения."
+    NO_RESULTS: Final = """
+    Завершаю викторину и жду Вашего возвращения sil <[200]>. 
+    """
     NO_QUIZ: Final = "Викторина временно недоступна!"
     UNKNOWN_COMMAND: Final = "Неизвестная команда!"
     AFTER_QUIZ: Final = "Продолжим?"
@@ -385,7 +399,7 @@ class Quiz:
         self._current_question_number += 1
 
 
-class QuizState(Enum):
+class QuizState(IntEnum):
     """Состояния диалога викторины."""
 
     INIT = 0
@@ -398,21 +412,29 @@ class QuizState(Enum):
 
 class QuizSkill:
 
-    def __init__(self):
+    def __init__(self, filename: str = QUIZ_FILE_PATH):
+        """Инициализация викторины вопросами из файла filename."""
         self._quiz = Quiz()
         self._state = QuizState.INIT
-        # self._in_progress = False  # был начальный запуск
-        # self._terminated = False  # был досрочный выход
         try:
-            self._quiz.load_questions(QUIZ_FILE_PATH)
+            self._quiz.load_questions(filename)
             self._quiz.restart()
         except QuizException as e:
             logging.exception(e)
             # raise e
 
-    # def is_terminated(self) -> bool:
-    #     """Возвращает признак досрочного выхода из викторины."""
-    #     return self._is_terminated
+    def is_finished(self) -> bool:
+        """Возвращает True, если работа с викториной завершена.
+
+        Returns:
+            bool: True - если викторина не начата, или прервана досрочно или
+            завершена и заданы все вопросы.
+        """
+        return self._state in (
+            QuizState.INIT,
+            QuizState.FINISHED,
+            QuizState.TERMINATED,
+        )
 
     def _get_final_result(self) -> str:
         """Возвращает строку результата для завершенной викторины."""
@@ -487,13 +509,11 @@ class QuizSkill:
                 "questions_order": list[int],
                 "current_question_number": int,
                 "mistakes_count": int,
-                "in_progress": bool,
                 "state": int
             }
         """
         state = self._quiz.dump_state()
-        # state["in_progress"] = self._in_progress
-        state["state"] = self._state
+        state["state"] = int(self._state)
         return state
 
     def load_state(self, state: dict[str, str] | None):
@@ -506,16 +526,17 @@ class QuizSkill:
                 "questions_order": list[int],
                 "current_question_number": int,
                 "mistakes_count": int,
-                "in_progress": bool,
                 "state": int
             }
         """
         if not state:
             self._quiz.load_state(None)
+            self._state = QuizState.INIT
             return
-        if "state" in state:
-            self._state = QuizState(state.pop("state"))
-        self._quiz.load_state(state)
+        state_tmp = state.copy()
+        if "state" in state_tmp:
+            self._state = QuizState(state_tmp.pop("state"))
+        self._quiz.load_state(state_tmp)
 
     def _process_init_state(
         self, intents: dict[str], command: str
@@ -617,7 +638,7 @@ class QuizSkill:
         """Обработчик диалога возобновления викторины."""
         if Intents.REPEAT in intents:
             # повторить диалог возобновления викторины
-            return True, QuizMessages.ALREADY_IN_PROGRESS.format(
+            return True, QuizMessages.RESUME_REPEAT.format(
                 current_question_number=self._quiz.current_question_number,
             )
         if Intents.START_AGAIN in intents:
@@ -633,7 +654,10 @@ class QuizSkill:
             # досрочно завершить викторину
             self._state = QuizState.TERMINATED
             return True, self._get_current_result()
-        return False, ""
+        # повторить диалог возобновления викторины
+        return True, QuizMessages.RESUME_REPEAT.format(
+            current_question_number=self._quiz.current_question_number,
+        )
 
     def execute_command(
         self,
