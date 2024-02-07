@@ -17,13 +17,13 @@ from app.constants.commands import ServiceCommands
 from app.constants.quiz.intents import Intents
 from app.utils import (
     get_all_commands,
-    next_trigger_by_progress,
+    get_last_in_history,
     get_trigger_by_command,
     is_alice_commands,
     is_completed,
     last_trigger,
     next_trigger,
-    get_last_in_history,
+    next_trigger_by_progress,
 )
 
 
@@ -72,7 +72,6 @@ async def root(data: RequestData):
             "version": "1.0",
         }
     command_instance = Action()
-    ic(skill.state, "2")
     if skill.state == "take_quiz":
         result, answer = skill.quiz_skill.execute_command(command, intents)
         if result:
@@ -89,8 +88,6 @@ async def root(data: RequestData):
         result, answer = skill.quiz_skill.execute_command(command, intents)
     elif not command and is_new:
         answer = Answers.FULL_GREETINGS
-    elif is_completed(skill):
-        answer = Answers.ALL_COMPLETED
     elif command.lower() == ServiceCommands.REPEAT:
         answer = command_instance.execute(skill, last_trigger(skill.history))
     elif is_alice_commands(command):
@@ -110,7 +107,8 @@ async def root(data: RequestData):
         answer = command_instance.execute(
             skill,
             next_trigger_by_progress(
-                skill, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+                skill,
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
     elif command == ServiceCommands.DISAGREE:
@@ -121,7 +119,10 @@ async def root(data: RequestData):
         )
     else:
         answer = skill.dont_understand()
-    ic(command, skill.state, skill.progress, skill.history)
+    if is_completed(skill):
+        answer = Answers.ALL_COMPLETED
+        skill.progress = []
+    ic(command, skill.state, skill.progress, skill.history, skill.max_progress)
     return {
         "response": {
             "text": answer,

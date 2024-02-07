@@ -14,7 +14,7 @@ def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
         True, если все элементы навыка завершены, иначе False.
     """
     try:
-        result = len(skill.progress) + 1 == skill.max_progress
+        result = len(skill.progress) == skill.max_progress
     except TypeError:
         result = False
     return result
@@ -27,20 +27,23 @@ def next_trigger_by_progress(
     """Возвращает следующий триггер.
 
     Очередность определяется списком состояний STATES в states.py.
+    Учитывается прогресс пользователя.
 
     Args:
         triggers: Список всех триггеров.
         skill: Объект навыка.
 
     Returns:
-        Следующий триггер.
+        Триггер, соответствующий первой непройденной истории/возможности
+        после последнего выполненного действия.
     """
     trigger = last_trigger(skill.history)
     ordered_triggers = get_triggers_by_order(triggers)
     if trigger is None:
-        return ordered_triggers[1]
+        return ordered_triggers[0]
         # триггер состояния start ничего не делает, поэтому его
-        # пропускаем и назначаем первый триггер из тех, которые засчитываются в прогрессе.
+        # пропускаем и назначаем первый триггер из тех, которые засчитываются
+        # в прогрессе.
     trigger_index = ordered_triggers.index(trigger)
     len_triggers = len(ordered_triggers)
     for index in range(trigger_index, len_triggers + trigger_index):
@@ -49,27 +52,44 @@ def next_trigger_by_progress(
         return ordered_triggers[index % len_triggers]
 
 
-def next_trigger(element: str, lst: list) -> str | None:
+def next_trigger(trigger: str, triggers: list) -> str | None:
+    """Находим следующий триггер в списке триггеров после заданного.
+
+    Args:
+        trigger: Текущий триггер.
+        triggers: Список всех триггеров.
+
+    Returns:
+        Следующий триггер или None.
+    """
     try:
-        index = lst.index(element)
+        index = triggers.index(trigger)
     except ValueError:
         return None
-    if index < len(lst) - 1:
-        return lst[index + 1]
-    elif index == len(lst) - 1:
-        return lst[0]
-    else:
-        return None
+    if index < len(triggers) - 1:
+        return triggers[index + 1]
+    if index == len(triggers) - 1:
+        return triggers[0]
+    return None
 
 
 def find_previous_element(
-    trigger: str, ordered_triggers: list[str]
+    trigger: str,
+    ordered_triggers: list[str],
 ) -> str | None:
+    """Возвращает предыдущий триггер.
+
+    Args:
+        trigger: Текущий триггер.
+        ordered_triggers: Список всех триггеров.
+
+    Returns:
+        Предыдущий триггер или None.
+    """
     index = ordered_triggers.index(trigger)
     if index > 0:
         return ordered_triggers[index - 1]
-    else:
-        return None  # Если элемент является первым в списке
+    return None  # Если элемент является первым в списке
 
 
 def get_trigger_by_command(command: str, structure: tuple) -> str | None:
@@ -102,13 +122,12 @@ def get_disagree_answer_by_trigger(trigger: str, structure: tuple):
     """
     for trig_commands in structure:
         if trig_commands[1] == trigger:
-            ic(trig_commands[5])
             return trig_commands[5]
     return None
 
 
 def get_triggers_by_order(
-    trig_com_ans: list[tuple[str, str, str, str, str, str]]
+    trig_com_ans: list[tuple[str, str, str, str, str, str]],
 ) -> list[str]:
     """Возвращает список триггеров.
 
@@ -211,6 +230,16 @@ def get_after_answer_by_trigger(
     trigger: str,
     structure: list[tuple[str]],
 ) -> str:
+    """Возвращает соответствующий направляющий вопрос.
+
+    Args:
+        trigger: Триггер действия.
+        structure: Структура, содержащая соответствующие команды и триггеры.
+
+    Returns:
+        Триггер, соответствующий команде. Если соответствующий триггер
+        не найден, возвращает None.
+    """
     for trig_com_ans in structure:
         if trig_com_ans[1] == trigger:
             return trig_com_ans[4]
@@ -221,6 +250,16 @@ def get_answer_by_trigger(
     trigger: str,
     structure: list[tuple[str]],
 ):
+    """Возвращает соответствующий ответ.
+
+    Args:
+        trigger: Триггер действия.
+        structure: Структура, содержащая соответствующие команды и триггеры.
+
+    Returns:
+        Триггер, соответствующий команде. Если соответствующий триггер
+        не найден, возвращает None.
+    """
     for trig_com_ans in structure:
         if trig_com_ans[1] == trigger:
             return trig_com_ans[3]
@@ -228,8 +267,9 @@ def get_answer_by_trigger(
 
 
 def get_triggers_group_by_trigger(
-    trigger: str, structure: list[tuple[str]]
-) -> tuple[str]:
+    trigger: str,
+    structure: list[tuple[str]],
+) -> tuple[str] | None:
     """Получаем группу триггеров.
 
     Необходимо для пропуска сразу целого раздела, в случае отказа пользователя.
@@ -244,9 +284,18 @@ def get_triggers_group_by_trigger(
     for group_triggers in structure:
         if trigger in group_triggers:
             return group_triggers
+    return None
 
 
 def get_last_in_history(history: list[str]) -> str:
+    """Получить последнее действие из истории.
+
+    Args:
+        history: Список действий (переходов) пользователя в навыке.
+
+    Returns:
+        Последнее действие из истории.
+    """
     try:
         result = history[-1]
     except (IndexError, TypeError):

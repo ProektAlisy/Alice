@@ -1,6 +1,5 @@
 import logging
 
-from icecream import ic
 from transitions import Machine
 
 from app.constants.answers import Answers
@@ -11,21 +10,21 @@ from app.constants.comands_triggers_answers import (
 from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import transitions
 from app.constants.states import (
+    CORE_TRIGGERS,
     HELP_STATES,
     STATES,
     TRIGGERS_BY_GROUP,
-    CORE_TRIGGERS,
 )
 from app.quiz import QuizSkill
 from app.utils import (
     create_trigger,
-    get_after_answer_by_trigger,
-    next_trigger_by_progress,
-    get_disagree_answer_by_trigger,
-    get_answer_by_trigger,
     find_previous_element,
-    next_trigger,
+    get_after_answer_by_trigger,
+    get_answer_by_trigger,
+    get_disagree_answer_by_trigger,
     get_triggers_group_by_trigger,
+    next_trigger,
+    next_trigger_by_progress,
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -62,7 +61,7 @@ class FiniteStateMachine:
             initial="start",
         )
         self.flag = False
-        self.max_progress = len(STATES)
+        self.max_progress = len(STATES) - 1
         self._create_agree_functions()
         self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
@@ -143,7 +142,7 @@ class FiniteStateMachine:
                     get_triggers_group_by_trigger(
                         trigger,
                         TRIGGERS_BY_GROUP,
-                    )
+                    ),
                 )
             else:
                 self._save_history(trigger)
