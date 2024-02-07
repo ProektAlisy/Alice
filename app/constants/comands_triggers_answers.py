@@ -27,7 +27,7 @@ COMMANDS_TRIGGERS_GET_FUNC_ANSWERS = [
         after_answers_documents.get(command_name, ""),
         disagree_answers_documents.get(command_name, ""),
     )
-    for command_name in STATES + HELP_STATES
+    for command_name in STATES[1:] + HELP_STATES
 ]
 
 ORDERED_TRIGGERS = get_triggers_by_order(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)[

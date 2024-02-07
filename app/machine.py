@@ -10,7 +10,12 @@ from app.constants.comands_triggers_answers import (
 )
 from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import transitions
-from app.constants.states import HELP_STATES, STATES
+from app.constants.states import (
+    HELP_STATES,
+    STATES,
+    TRIGGERS_BY_GROUP,
+    CORE_TRIGGERS,
+)
 from app.quiz import QuizSkill
 from app.utils import (
     create_trigger,
@@ -20,6 +25,7 @@ from app.utils import (
     get_answer_by_trigger,
     find_previous_element,
     next_trigger,
+    get_triggers_group_by_trigger,
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -132,6 +138,15 @@ class FiniteStateMachine:
 
         def _func():
             self._save_history(trigger)
+            if trigger in CORE_TRIGGERS:
+                self.history.extend(
+                    get_triggers_group_by_trigger(
+                        trigger,
+                        TRIGGERS_BY_GROUP,
+                    )
+                )
+            else:
+                self._save_history(trigger)
             disagree_answer = self.get_next_disagree_answer(
                 trigger,
             )

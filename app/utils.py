@@ -5,7 +5,7 @@ from pymongo.collection import Collection
 def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
     """Проверяет, завершено ли обучение.
 
-    Обучение считается завершенным, когда выполенны все элементы навыка.
+    Обучение считается завершенным, когда выполнены все элементы навыка.
 
     Args:
         skill: объект навыка.
@@ -50,7 +50,10 @@ def next_trigger_by_progress(
 
 
 def next_trigger(element: str, lst: list) -> str | None:
-    index = lst.index(element)
+    try:
+        index = lst.index(element)
+    except ValueError:
+        return None
     if index < len(lst) - 1:
         return lst[index + 1]
     elif index == len(lst) - 1:
@@ -131,22 +134,6 @@ def get_all_commands(structure: tuple) -> list[str]:
     for trig_commands in structure:
         commands.append(trig_commands[0])
     return commands
-
-
-def transform_string(input_string: str) -> str:
-    """Преобразует строку.
-
-    Из snake_case в CamelCase. Используется для генерации имен классов.
-
-    Args:
-        input_string: Входная строка.
-
-    Returns:
-        Преобразованная строка.
-    """
-    parts = input_string.split("_")
-    transformed_parts = [part.capitalize() for part in parts]
-    return "".join(transformed_parts) + "Command"
 
 
 def is_alice_commands(command: str) -> bool:
@@ -230,16 +217,6 @@ def get_after_answer_by_trigger(
     return ""
 
 
-def get_trigger_by_func_name(
-    func_name: str,
-    structure: list[tuple[str]],
-):
-    for trig_com_ans in structure:
-        if trig_com_ans[2] == func_name:
-            return trig_com_ans[1]
-    return ""
-
-
 def get_answer_by_trigger(
     trigger: str,
     structure: list[tuple[str]],
@@ -250,16 +227,28 @@ def get_answer_by_trigger(
     return ""
 
 
-def get_answer_by_after_answer(after_answer: str, structure: list[tuple[str]]):
-    for trig_com_ans in structure:
-        if trig_com_ans[4] == after_answer:
-            index = structure.index(trig_com_ans)
-            return structure[index + 1][3]
-    return ""
+def get_triggers_group_by_trigger(
+    trigger: str, structure: list[tuple[str]]
+) -> tuple[str]:
+    """Получаем группу триггеров.
+
+    Необходимо для пропуска сразу целого раздела, в случае отказа пользователя.
+
+    Args:
+        trigger: Триггер.
+        structure: Структура.
+
+    Returns:
+        Группа триггеров.
+    """
+    for group_triggers in structure:
+        if trigger in group_triggers:
+            return group_triggers
 
 
-def get_answer_by_command(command: str, structure: list[tuple[str]]):
-    for trig_com_ans in structure:
-        if trig_com_ans[0] == command:
-            return trig_com_ans[3]
-    return ""
+def get_last_in_history(history: list[str]) -> str:
+    try:
+        result = history[-1]
+    except (IndexError, TypeError):
+        result = None
+    return result

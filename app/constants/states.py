@@ -10,7 +10,6 @@ STATES: Final = [
     "about_training_course",
     "take_manual_training",
     "take_quiz",
-    "listen_quiz_results",
     "listen_to_legislation",
     "about_legislation_accessibility",
     "about_guide_dog_transportation",
@@ -34,16 +33,18 @@ HELP_STATES: Final = [
     "help_main",
     "possibilities",
     "help_phrase",
+    "useful_information",
 ]
+
 DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
 
 TRIGGERS_BY_GROUP: Final = [
     ("trigger_about_training_center",),
     ("trigger_about_facility",),
     (
-        "about_staff_1",
-        "about_staff_2",
-        "about_staff_3",
+        "trigger_about_staff_1",
+        "trigger_about_staff_2",
+        "trigger_about_staff_3",
     ),
     ("trigger_about_training_course",),
     ("trigger_take_manual_training",),
@@ -54,7 +55,6 @@ TRIGGERS_BY_GROUP: Final = [
     (
         "trigger_listen_to_legislation",
         "trigger_about_legislation_accessibility",
-        "trigger_about_guide_dog_transportation",
         "trigger_about_transportation_by_land_transport",
         "trigger_about_transportation_by_rail",
         "trigger_about_air_transportation",
@@ -79,7 +79,7 @@ TRIGGERS_BY_GROUP: Final = [
     ),
 ]
 CORE_TRIGGERS: Final = [
-    "about_staff_1",
+    "trigger_about_staff_1",
     "trigger_take_quiz",
     "trigger_listen_to_legislation",
     "trigger_about_discounts_and_free_services",

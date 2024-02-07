@@ -23,6 +23,7 @@ from app.utils import (
     is_completed,
     last_trigger,
     next_trigger,
+    get_last_in_history,
 )
 
 
@@ -41,6 +42,7 @@ application = FastAPI()
     summary="Диалог с Алисой.",
 )
 async def root(data: RequestData):
+    ic(skill.state)
     command = data.request.get("command")
     nlu = data.request.get("nlu")
     intents = []
@@ -70,6 +72,7 @@ async def root(data: RequestData):
             "version": "1.0",
         }
     command_instance = Action()
+    ic(skill.state, "2")
     if skill.state == "take_quiz":
         result, answer = skill.quiz_skill.execute_command(command, intents)
         if result:
@@ -89,7 +92,7 @@ async def root(data: RequestData):
     elif is_completed(skill):
         answer = Answers.ALL_COMPLETED
     elif command.lower() == ServiceCommands.REPEAT:
-        answer = command_instance.execute(skill, last_trigger(skill.progress))
+        answer = command_instance.execute(skill, last_trigger(skill.history))
     elif is_alice_commands(command):
         answer = Answers.STANDARD_ALICE_COMMAND
     elif command.lower() in all_commands:
@@ -114,7 +117,7 @@ async def root(data: RequestData):
         skill.flag = False
         answer = command_instance.execute(
             skill,
-            next_trigger(skill.history[-1], ORDERED_TRIGGERS),
+            next_trigger(get_last_in_history(skill.history), ORDERED_TRIGGERS),
         )
     else:
         answer = skill.dont_understand()

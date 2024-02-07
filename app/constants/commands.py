@@ -61,10 +61,10 @@ class Commands:
     instructions_for_launching_podcast = (
         "узнать инструкцию запуска подкаста " "министерства наших собачьих дел"
     )
-    start = "начинай"
     help_main = "помощь"
     help_phrase = "хочу узнать фразы"
     possibilities = "возможности"
+    useful_information = "полезная информация"
 
 
 class ServiceCommands:

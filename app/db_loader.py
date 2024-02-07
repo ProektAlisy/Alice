@@ -12,14 +12,17 @@ from app.monga_initialize import (
     answers_collection,
     db,
     disagree_answers_collection,
+    another_answers_collection,
 )
 
 
-folders = ["answers", "after_answers", "disagree_answers"]
+folders = ["answers", "after_answers", "disagree_answers", "another_answers"]
 
 answers_collection.create_index("key", unique=True)
 after_answers_collection.create_index("key", unique=True)
 disagree_answers_collection.create_index("key", unique=True)
+another_answers_collection.create_index("key", unique=True)
+
 path = os.path.join("constants")
 paths = [os.path.join(path, folder) for folder in folders]
 
@@ -56,6 +59,7 @@ answers_to_collections = {
     paths[0]: answers_collection,
     paths[1]: after_answers_collection,
     paths[2]: disagree_answers_collection,
+    paths[3]: another_answers_collection,
 }
 
 if __name__ == "__main__":
