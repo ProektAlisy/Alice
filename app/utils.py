@@ -253,3 +253,23 @@ def get_last_in_history(history: list[str]) -> str:
     except (IndexError, TypeError):
         result = None
     return result
+
+
+def disagree_answer_by_trigger(
+    trigger: str,
+    structure: list[tuple[str]],
+):
+    """Возвращает соответствующий ответ.
+
+    Args:
+        trigger: Триггер действия.
+        structure: Структура, содержащая соответствующие команды и триггеры.
+
+    Returns:
+        Триггер, соответствующий команде. Если соответствующий триггер
+        не найден, возвращает None.
+    """
+    for trig_com_ans in structure:
+        if trig_com_ans[1] == trigger:
+            return trig_com_ans[5]
+    return ""

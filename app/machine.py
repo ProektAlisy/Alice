@@ -1,5 +1,6 @@
 import logging
 
+from icecream import ic
 from transitions import Machine
 
 from app.constants.answers import Answers
@@ -26,6 +27,7 @@ from app.utils import (
     get_triggers_group_by_trigger,
     last_trigger,
     next_trigger,
+    disagree_answer_by_trigger,
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -55,6 +57,7 @@ class FiniteStateMachine:
         self.history = []
         self.incorrect_answers = 0
         self.command = ""
+        self.previous_command = ""
         self.machine = Machine(
             model=self,
             states=STATES + HELP_STATES,
@@ -123,11 +126,22 @@ class FiniteStateMachine:
                     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
                 )
             else:
-                after_answer = self.get_next_after_answer(trigger)
-                answer = get_answer_by_trigger(
-                    trigger,
-                    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
-                )
+                if (
+                    self.command == "повтори"
+                    and self.previous_command == "нет"
+                ):
+                    answer = disagree_answer_by_trigger(
+                        trigger,
+                        COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                    )
+                    after_answer = ""
+                else:
+                    answer = get_answer_by_trigger(
+                        trigger,
+                        COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                    )
+                    after_answer = self.get_next_after_answer(trigger)
+
             self.message = answer + " " + after_answer
             self.incorrect_answers = 0
 
