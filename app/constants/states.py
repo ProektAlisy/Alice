@@ -1,168 +1,85 @@
-"""
-Хранятся описания переходов между состояниями и соответствующих действиях.
-"""
+from typing import Final
 
-from app.constants.commands_triggers_functions import GetFunc, Triggers
+STATES: Final = [
+    "start",
+    "about_training_center",
+    "about_facility",
+    "about_staff_1",
+    "about_staff_2",
+    "about_staff_3",
+    "about_training_course",
+    "take_manual_training",
+    "take_quiz",
+    "listen_to_legislation",
+    "about_legislation_accessibility",
+    "about_guide_dog_transportation",
+    "about_transportation_by_land_transport",
+    "about_transportation_by_rail",
+    "about_air_transportation",
+    "about_transportation_by_water",
+    "self_defense_phrase",
+    "about_support_services_for_blind_passengers",
+    "about_discounts_and_free_services",
+    "discounts_for_food",
+    "discounts_for_delicacy",
+    "special_offers_for_veterinaries",
+    "about_services_uniting_blind_people",
+    "about_regional_clubs",
+    "about_special_view_foundation",
+    "about_podcast",
+    "instructions_for_launching_podcast",
+]
+HELP_STATES: Final = [
+    "help_main",
+    "possibilities",
+    "help_phrase",
+    "useful_information",
+]
 
-TRANSITIONS = [
-    {
-        "trigger": Triggers.ABOUT_TRAINING_CENTER,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_TRAINING_CENTER,
-    },
-    {
-        "trigger": Triggers.ABOUT_STAFF,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_STAFF,
-    },
-    {
-        "trigger": Triggers.ABOUT_ACCOMMODATION,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_ACCOMMODATION,
-    },
-    {
-        "trigger": Triggers.ABOUT_FACILITY,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_FACILITY,
-    },
-    {
-        "trigger": Triggers.TAKE_TRAINING,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.TAKE_TRAINING,
-    },
-    {
-        "trigger": Triggers.TAKE_QUIZ,
-        "source": "start",
-        "dest": "start",
-        "before": GetFunc.TAKE_QUIZ,
-    },
-    {
-        "trigger": Triggers.LISTEN_TO_LEGISLATION,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.LISTEN_TO_LEGISLATION,
-    },
-    {
-        "trigger": Triggers.ABOUT_ACCESSIBILITY,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_ACCESSIBILITY,
-    },
-    {
-        "trigger": Triggers.ABOUT_GUIDE_DOG_TRANSPORTATION,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_GUIDE_DOG_TRANSPORTATION,
-    },
-    {
-        "trigger": Triggers.SELF_DEFENSE_PHRASE,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.SELF_DEFENSE_PHRASE,
-    },
-    {
-        "trigger": Triggers.ABOUT_DISCOUNTS_AND_FREE_SERVICES,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_DISCOUNTS_AND_FREE_SERVICES,
-    },
-    {
-        "trigger": Triggers.DISCOUNTS_FOR_FOOD,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.DISCOUNTS_FOR_FOOD,
-    },
-    {
-        "trigger": Triggers.DISCOUNTS_FOR_DELICACY,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.DISCOUNTS_FOR_DELICACY,
-    },
-    {
-        "trigger": Triggers.SPECIAL_OFFERS_FOR_VETERINARIES,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.SPECIAL_OFFERS_FOR_VETERINARIES,
-    },
-    {
-        "trigger": Triggers.ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS,
-    },
-    {
-        "trigger": Triggers.INSTRUCTIONS_FOR_LAUNCHING_PODCAST,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.INSTRUCTIONS_FOR_LAUNCHING_PODCAST,
-    },
-    {
-        "trigger": Triggers.ABOUT_SERVICES_UNITING_BLIND_PEOPLE,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_SERVICES_UNITING_BLIND_PEOPLE,
-    },
-    {
-        "trigger": Triggers.ABOUT_REGIONAL_CLUBS,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_REGIONAL_CLUBS,
-    },
-    {
-        "trigger": Triggers.ABOUT_SPECIAL_VIEW_FOUNDATION,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.ABOUT_SPECIAL_VIEW_FOUNDATION,
-    },
-    {
-        "trigger": Triggers.HELP,
-        "source": "*",
-        "dest": "help",
-        "before": GetFunc.HELP,
-    },
-    {
-        "trigger": Triggers.HELP_PHRASE,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.HELP_PHRASE,
-    },
-    {
-        "trigger": Triggers.HELP_NAVIGATION,
-        "source": "*",
-        "dest": "start",
-        "before": GetFunc.HELP_NAVIGATION,
-    },
-    # {
-    #     "trigger": Triggers.HELP_EXIT,
-    #     "source": "*",
-    #     "dest": "=",
-    #     "before": GetFunc.HELP_EXIT,
-    #     "after": "_return_to_original_state",
-    # },
-    # {
-    #     "trigger": Triggers.EXIT_FROM_LEGISLATION,
-    #     "source": "legislation",
-    #     "dest": "=",
-    #     "before": GetFunc.EXIT_FROM_LEGISLATION,
-    #     "after": "_return_to_original_state",
-    # },
-    # {
-    #     "trigger": Triggers.EXIT_DISCOUNTS_AND_FREE_SERVICES,
-    #     "source": "discounts_free_services",
-    #     "dest": "=",
-    #     "before": GetFunc.EXIT_DISCOUNTS_AND_FREE_SERVICES,
-    #     "after": "_return_to_original_state",
-    # },
-    # {
-    #     "trigger": Triggers.EXIT_SERVICES_FOR_BLIND,
-    #     "source": "services_for_blind",
-    #     "dest": "=",
-    #     "before": GetFunc.EXIT_SERVICES_FOR_BLIND,
-    #     "after": "_return_to_original_state",
-    # },
+DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
+
+TRIGGERS_BY_GROUP: Final = [
+    ("trigger_about_training_center",),
+    ("trigger_about_facility",),
+    (
+        "trigger_about_staff_1",
+        "trigger_about_staff_2",
+        "trigger_about_staff_3",
+    ),
+    ("trigger_about_training_course",),
+    ("trigger_take_manual_training",),
+    ("trigger_take_quiz",),
+    (
+        "trigger_listen_to_legislation",
+        "trigger_about_legislation_accessibility",
+        "trigger_about_transportation_by_land_transport",
+        "trigger_about_transportation_by_rail",
+        "trigger_about_air_transportation",
+        "trigger_about_transportation_by_water",
+        "trigger_self_defense_phrase",
+    ),
+    ("trigger_about_support_services_for_blind_passengers",),
+    (
+        "trigger_about_discounts_and_free_services",
+        "trigger_discounts_for_food",
+        "trigger_discounts_for_delicacy",
+        "trigger_special_offers_for_veterinaries",
+    ),
+    (
+        "trigger_about_services_uniting_blind_people",
+        "trigger_about_regional_clubs",
+        "trigger_about_special_view_foundation",
+    ),
+    (
+        "trigger_about_podcast",
+        "trigger_instructions_for_launching_podcast",
+    ),
+]
+CORE_TRIGGERS: Final = [
+    "trigger_about_staff_1",
+    "trigger_take_quiz",
+    "trigger_listen_to_legislation",
+    "trigger_about_discounts_and_free_services",
+    "trigger_about_services_uniting_blind_people",
+    "trigger_about_podcast",
 ]

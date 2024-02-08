@@ -1,10 +1,3 @@
-# from app.monga_initialize import (
-#     after_answers_collection, answers_collection,
-#     disagree_answers_collection)
-
-# from app.utils import read_from_db
-
-
 class Answers:
     def __setattr__(self, key, value):
         raise AttributeError("Messages is immutable")
@@ -19,12 +12,9 @@ class Answers:
     DONT_UNDERSTAND_THE_FIRST_TIME = (
         "Извините, не поняла. Повторите, пожалуйста."
     )
-    DONT_UNDERSTAND_THE_SECOND_TIME = (
-        "Извините, все еще не понимаю вас. Я жду от вас ответа на вопрос "
-    )
-    DONT_UNDERSTAND_MORE_THAN_TWICE = (
+    DONT_UNDERSTAND_MORE_THAN_ONCE = (
         "Извините, боюсь, не могу помочь. Если есть сложности "
-        "с навигацией по навыку, то скажите помоги мне."
+        "с навигацией по навыку, то скажите помощь."
     )
     SMALL_GREETINGS = """
     Вы приехали к нам на обучение, чтобы получить
@@ -121,11 +111,3 @@ class Answers:
         "\n    ",
         " ",
     )
-    # ANSWERS_STRUCTURE = [
-    #     (read_from_db(name, answers_collection),
-    #     read_from_db(name, after_answers_collection),
-    #     read_from_db(name, disagree_answers_collection)) for name in ,
-    # ]
-
-
-# read_from_db({"key": "key"}, "answers")

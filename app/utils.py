@@ -1,65 +1,83 @@
-from app.constants.commands_triggers_functions import TrigComAns
-# from app.monga_initialize import db
+from pymongo.collection import Collection
 
 
-def is_completed(skill: "FiniteStateMachine") -> bool: # noqa
-    """Проверяет, завершено ли обучение.
-
-    Обучение считается завершенным, когда выполенные все элементы навыка.
+def next_trigger(trigger: str, triggers: list) -> str | None:
+    """Находим следующий триггер в списке триггеров после заданного.
 
     Args:
-        skill: объект навыка.
+        trigger: Текущий триггер.
+        triggers: Список всех триггеров.
 
     Returns:
-        True, если все элементы навыка завершены, иначе False.
+        Следующий триггер или None.
     """
     try:
-        result = len(skill.progress) == skill.max_progress
-    except TypeError:
-        result = False
-    return result
+        index = triggers.index(trigger)
+    except ValueError:
+        return None
+    if index < len(triggers) - 1:
+        return triggers[index + 1]
+    if index == len(triggers) - 1:
+        return triggers[0]
+    return None
 
 
-def get_next_trigger(skill: "FiniteStateMachine") -> str: # noqa
-    """Возвращает следующий триггер.
-
-    Очередность определяется списком TrigComAns.COMMANDS_NAMES.
+def find_previous_element(
+    trigger: str,
+    ordered_triggers: list[str],
+) -> str | None:
+    """Возвращает предыдущий триггер.
 
     Args:
-        skill: Объект навыка.
+        trigger: Текущий триггер.
+        ordered_triggers: Список всех триггеров.
 
     Returns:
-        Следующий триггер.
+        Предыдущий триггер или None.
     """
-    trigger = last_trigger(skill)
-    if last_trigger(skill) is None:
-        return TrigComAns.COMMANDS_TRIGGERS_GET_FUNC_ANSWERS[0][1]
-    ordered_triggers = get_triggers_by_order()
-    trigger_index = ordered_triggers.index(trigger)
-    len_triggers = len(ordered_triggers)
-    for index in range(trigger_index, len_triggers + trigger_index):
-        if ordered_triggers[index % len_triggers] in skill.progress:
-            continue
-        return ordered_triggers[index % len_triggers]
+    index = ordered_triggers.index(trigger)
+    if index > 0:
+        return ordered_triggers[index - 1]
+    return None  # Если элемент является первым в списке
 
 
-def get_trigger_by_command(command: str) -> str | None:
+def get_trigger_by_command(command: str, structure: tuple) -> str | None:
     """Возвращает триггер, соответствующий заданной команде.
 
     Args:
         command: Команда.
+        structure: Структура, содержащая соответствующие команды и триггеры.
 
     Returns:
         Триггер, соответствующий команде. Если соответствующий триггер
         не найден, возвращает None.
     """
-    for trig_commands in TrigComAns.COMMANDS_TRIGGERS_GET_FUNC_ANSWERS:
+    for trig_commands in structure:
         if trig_commands[0] == command:
             return trig_commands[1]
     return None
 
 
-def get_triggers_by_order() -> list[str]:
+def get_disagree_answer_by_trigger(trigger: str, structure: tuple):
+    """Возвращает соответствующий отрицательный ответ.
+
+    Args:
+        trigger: Триггер действия.
+        structure: Структура, содержащая соответствующие команды и триггеры.
+
+    Returns:
+        Триггер, соответствующий команде. Если соответствующий триггер
+        не найден, возвращает None.
+    """
+    for trig_commands in structure:
+        if trig_commands[1] == trigger:
+            return trig_commands[5]
+    return None
+
+
+def get_triggers_by_order(
+    trig_com_ans: list[tuple[str, str, str, str, str, str]],
+) -> list[str]:
     """Возвращает список триггеров.
 
     Порядок определяется по соответствию триггеру команде из списка
@@ -69,54 +87,32 @@ def get_triggers_by_order() -> list[str]:
         Список триггеров.
     """
     triggers = []
-    for trig_commands in TrigComAns.COMMANDS_TRIGGERS_GET_FUNC_ANSWERS:
+    for trig_commands in trig_com_ans:
         triggers.append(trig_commands[1])
     return triggers
 
 
-def get_func_answers_command() -> list[tuple[str, str, str]]:
-    """
-    Возвращает команды без соответствующих триггеров.
-
-    Returns:
-        Список кортежей (Триггер, Функция, Ответ).
-    """
-    commands_without_triggers = []
-    for trig_commands in TrigComAns.COMMANDS_TRIGGERS_GET_FUNC_ANSWERS:
-        command_tuple = (trig_commands[2], trig_commands[3], trig_commands[0])
-        commands_without_triggers.append(command_tuple)
-    return commands_without_triggers
-
-
-def get_all_commands() -> list[str]:
+def get_all_commands(structure: tuple) -> list[str]:
     """Возвращает список команд.
 
     Returns:
         Список команд.
     """
     commands = []
-    for trig_commands in TrigComAns.COMMANDS_TRIGGERS_GET_FUNC_ANSWERS:
+    for trig_commands in structure:
         commands.append(trig_commands[0])
     return commands
 
 
-def transform_string(input_string: str) -> str:
-    """Преобразует строку.
-
-    Из snake_case в CamelCase. Используется для генерации имен классов.
+def is_alice_commands(command: str) -> bool:
+    """Проверяет, является ли команда командами Алисы.
 
     Args:
-        input_string: Входная строка.
+        command: Команда пользователя.
 
     Returns:
-        Преобразованная строка.
+        True, если команда является командой Алисы, иначе False.
     """
-    parts = input_string.split("_")
-    transformed_parts = [part.capitalize() for part in parts]
-    return "".join(transformed_parts) + "Command"
-
-
-def is_alice_commands(command: str) -> bool:
     with open(
         "app/constants/alice_commands.txt",
         "r",
@@ -126,22 +122,134 @@ def is_alice_commands(command: str) -> bool:
     return command in commands
 
 
-def last_trigger(skill) -> str:
+def last_trigger(triggers: list) -> str:
     """Возвращает последний триггер.
 
     Args:
-        skill: Объект навыка.
+        triggers: список триггеров.
 
     Returns:
         Последний триггер.
     """
     try:
-        result = skill.progress[-1]
+        result = triggers[-1]
     except (IndexError, TypeError):
         result = None
     return result
 
 
-# def read_from_db(query, collection):
-#     # print(db[collection].find_one(query, {"_id": 0}))
-#     return db[collection].find_one(query, {"_id": 0})
+def read_from_db(collection: Collection):
+    """Считываем из БД.
+
+    Считываем ключи(название возможности) и ответы, которые преобразует в
+    словарь.
+
+    Args:
+        collection: Коллекция в БД.
+
+    Returns:
+        Словарь вида {key: answer}
+    """
+    documents = collection.find({}, projection={"_id": False})
+    return {doc["key"]: doc["answer"] for doc in documents}
+
+
+def create_trigger(name: str) -> str:
+    """Создает имя триггера.
+
+    Args:
+        name: Имя состояния.
+
+    Returns:
+        Имя триггера
+    """
+    return "trigger_" + name
+
+
+def create_func(name):
+    """Создает имя функции.
+
+    Args:
+        name: Имя состояния.
+
+    Returns:
+        Имя функции
+    """
+    return "get_" + name
+
+
+def get_after_answer_by_trigger(
+    trigger: str,
+    structure: list[tuple[str]],
+) -> str:
+    """Возвращает соответствующий направляющий вопрос.
+
+    Args:
+        trigger: Триггер действия.
+        structure: Структура, содержащая соответствующие команды и триггеры.
+
+    Returns:
+        Триггер, соответствующий команде. Если соответствующий триггер
+        не найден, возвращает None.
+    """
+    for trig_com_ans in structure:
+        if trig_com_ans[1] == trigger:
+            return trig_com_ans[4]
+    return ""
+
+
+def get_answer_by_trigger(
+    trigger: str,
+    structure: list[tuple[str]],
+):
+    """Возвращает соответствующий ответ.
+
+    Args:
+        trigger: Триггер действия.
+        structure: Структура, содержащая соответствующие команды и триггеры.
+
+    Returns:
+        Триггер, соответствующий команде. Если соответствующий триггер
+        не найден, возвращает None.
+    """
+    for trig_com_ans in structure:
+        if trig_com_ans[1] == trigger:
+            return trig_com_ans[3]
+    return ""
+
+
+def get_triggers_group_by_trigger(
+    trigger: str,
+    structure: list[tuple[str]],
+) -> tuple[str] | None:
+    """Получаем группу триггеров.
+
+    Необходимо для пропуска сразу целого раздела, в случае отказа пользователя.
+
+    Args:
+        trigger: Триггер.
+        structure: Структура.
+
+    Returns:
+        Группа триггеров.
+    """
+    for group_triggers in structure:
+        if trigger in group_triggers:
+            return group_triggers
+    return None
+
+
+def get_last_in_history(history: list[str]) -> str:
+    """Получить последнее действие из истории.
+
+    Args:
+        history: Список действий (переходов) пользователя в навыке.
+
+    Returns:
+        Последнее действие из истории.
+    """
+    try:
+        result = history[-1]
+    except (IndexError, TypeError):
+        result = None
+    return result

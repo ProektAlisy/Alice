@@ -22,8 +22,20 @@
     ```
 
 - Установить зависимости:
+```
+pip install -r requirements.txt
+```
 
-`pip install -r requirements.txt`
+- Создать туннель ngrok:
+```
+ngrok http 8000
+```
+- Запустить MongoDB.
+
+- Наполнить БД ответами пользователю:
+```
+python db_loader.py
+```
 
 - Запустить проект:
 ```
@@ -34,8 +46,7 @@ uvicorn app.main:application --reload
 ```
 docker-compose up -d --build
 ```
-
-- Копирование docker-compose.yaml и nginx config файлов на сервер:
+- Скопировать временный URL из ngrok и вставить его в настройки навыка Яндекс.Диалоги(Webhook URL)
 ```
 scp -r infra/* root@80.87.108.69:/home/alice_app/
 ```

@@ -1,0 +1,36 @@
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+#  force_grid_wrap = 0
+line_length = 79
+known_local_folder = ["constants", ]
+skip_gitignore = true
+skip_glob = ["**/migrations/*", "**/settings/*"]
+# src_paths = ["<your_code_dir>"]
+
+[tool.black]
+line-length = 79
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | tests
+    | \tests
+    | migrations
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
