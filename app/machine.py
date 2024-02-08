@@ -24,7 +24,8 @@ from app.utils import (
     get_disagree_answer_by_trigger,
     get_triggers_group_by_trigger,
     next_trigger,
-    next_trigger_by_progress,
+    last_trigger,
+    get_triggers_by_order,
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -199,8 +200,7 @@ class FiniteStateMachine:
             пользователя.
         """
         while step in self.progress:
-            step = next_trigger_by_progress(
-                self,
+            step = self.next_trigger_by_progress(
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
         pre_step = find_previous_element(step, ORDERED_TRIGGERS)
@@ -286,3 +286,47 @@ class FiniteStateMachine:
           True, если пользователь отказался.
         """
         return self.command == ServiceCommands.DISAGREE
+
+    def is_completed(self) -> bool:  # noqa
+        """Проверяет, завершено ли обучение.
+
+        Обучение считается завершенным, когда выполнены все элементы навыка.
+
+        Returns:
+            True, если все элементы навыка завершены, иначе False.
+        """
+        try:
+            result = len(self.progress) == self.max_progress
+        except TypeError:
+            result = False
+        return result
+
+    def next_trigger_by_progress(
+        self,  # noqa
+        triggers: list,
+    ) -> str:
+        """Возвращает следующий триггер.
+
+        Очередность определяется списком состояний STATES в states.py.
+        Учитывается прогресс пользователя.
+
+        Args:
+            triggers: Список всех триггеров.
+
+        Returns:
+            Триггер, соответствующий первой непройденной истории/возможности
+            после последнего выполненного действия.
+        """
+        trigger = last_trigger(self.history)
+        ordered_triggers = get_triggers_by_order(triggers)
+        if trigger is None:
+            return ordered_triggers[0]
+            # триггер состояния start ничего не делает, поэтому его
+            # пропускаем и назначаем первый триггер из тех, которые засчитываются
+            # в прогрессе.
+        trigger_index = ordered_triggers.index(trigger)
+        len_triggers = len(ordered_triggers)
+        for index in range(trigger_index, len_triggers + trigger_index):
+            if ordered_triggers[index % len_triggers] in self.history:
+                continue
+            return ordered_triggers[index % len_triggers]

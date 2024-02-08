@@ -1,55 +1,4 @@
-from icecream import ic
 from pymongo.collection import Collection
-
-
-def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
-    """Проверяет, завершено ли обучение.
-
-    Обучение считается завершенным, когда выполнены все элементы навыка.
-
-    Args:
-        skill: объект навыка.
-
-    Returns:
-        True, если все элементы навыка завершены, иначе False.
-    """
-    try:
-        result = len(skill.progress) == skill.max_progress
-    except TypeError:
-        result = False
-    return result
-
-
-def next_trigger_by_progress(
-    skill: "FiniteStateMachine",  # noqa
-    triggers: list,
-) -> str:
-    """Возвращает следующий триггер.
-
-    Очередность определяется списком состояний STATES в states.py.
-    Учитывается прогресс пользователя.
-
-    Args:
-        triggers: Список всех триггеров.
-        skill: Объект навыка.
-
-    Returns:
-        Триггер, соответствующий первой непройденной истории/возможности
-        после последнего выполненного действия.
-    """
-    trigger = last_trigger(skill.history)
-    ordered_triggers = get_triggers_by_order(triggers)
-    if trigger is None:
-        return ordered_triggers[0]
-        # триггер состояния start ничего не делает, поэтому его
-        # пропускаем и назначаем первый триггер из тех, которые засчитываются
-        # в прогрессе.
-    trigger_index = ordered_triggers.index(trigger)
-    len_triggers = len(ordered_triggers)
-    for index in range(trigger_index, len_triggers + trigger_index):
-        if ordered_triggers[index % len_triggers] in skill.history:
-            continue
-        return ordered_triggers[index % len_triggers]
 
 
 def next_trigger(trigger: str, triggers: list) -> str | None:
@@ -190,7 +139,10 @@ def last_trigger(triggers: list) -> str:
 
 
 def read_from_db(collection: Collection):
-    """Читает из БД и преобразует в словарь.
+    """Считываем из БД.
+
+    Считываем ключи(название возможности) и ответы, которые преобразует в
+    словарь.
 
     Args:
         collection: Коллекция в БД.

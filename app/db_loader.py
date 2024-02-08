@@ -1,7 +1,6 @@
 """
 Загружаем в БД ответы пользователю из файлов в папке constants/answers
 """
-import logging
 import os
 
 from pymongo.errors import DuplicateKeyError
@@ -9,12 +8,11 @@ from pymongo.errors import DuplicateKeyError
 from app.logger_initialize import logger
 from app.monga_initialize import (
     after_answers_collection,
+    another_answers_collection,
     answers_collection,
     db,
     disagree_answers_collection,
-    another_answers_collection,
 )
-
 
 folders = ["answers", "after_answers", "disagree_answers", "another_answers"]
 

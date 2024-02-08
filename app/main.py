@@ -20,10 +20,8 @@ from app.utils import (
     get_last_in_history,
     get_trigger_by_command,
     is_alice_commands,
-    is_completed,
     last_trigger,
     next_trigger,
-    next_trigger_by_progress,
 )
 
 
@@ -42,7 +40,6 @@ application = FastAPI()
     summary="Диалог с Алисой.",
 )
 async def root(data: RequestData):
-    ic(skill.state)
     command = data.request.get("command")
     nlu = data.request.get("nlu")
     intents = []
@@ -93,7 +90,7 @@ async def root(data: RequestData):
     elif is_alice_commands(command):
         answer = Answers.STANDARD_ALICE_COMMAND
     elif command.lower() in all_commands:
-        skill.flag = True
+        skill.is_to_progress = True
         greetings = Answers.SMALL_GREETINGS if is_new else ""
         answer = greetings + command_instance.execute(
             skill,
@@ -103,26 +100,26 @@ async def root(data: RequestData):
             ),
         )
     elif command == ServiceCommands.AGREE:
-        skill.flag = True
+        skill.is_to_progress = True
         answer = command_instance.execute(
             skill,
-            next_trigger_by_progress(
-                skill,
+            skill.next_trigger_by_progress(
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
     elif command == ServiceCommands.DISAGREE:
-        skill.flag = False
+        skill.is_to_progress = False
         answer = command_instance.execute(
             skill,
             next_trigger(get_last_in_history(skill.history), ORDERED_TRIGGERS),
         )
     else:
         answer = skill.dont_understand()
-    if is_completed(skill):
+    if skill.is_completed():
         answer = Answers.ALL_COMPLETED
         skill.progress = []
     ic(command, skill.state, skill.progress, skill.history, skill.max_progress)
+
     return {
         "response": {
             "text": answer,

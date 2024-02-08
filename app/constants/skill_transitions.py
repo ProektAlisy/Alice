@@ -3,7 +3,7 @@
 """
 import itertools
 
-from app.constants.states import DISAGREE_STATES, STATES, HELP_STATES
+from app.constants.states import DISAGREE_STATES, HELP_STATES, STATES
 from app.utils import create_func, create_trigger
 
 transitions = [

@@ -48,10 +48,7 @@ TRIGGERS_BY_GROUP: Final = [
     ),
     ("trigger_about_training_course",),
     ("trigger_take_manual_training",),
-    (
-        "trigger_take_quiz",
-        "trigger_listen_quiz_results",
-    ),
+    ("trigger_take_quiz",),
     (
         "trigger_listen_to_legislation",
         "trigger_about_legislation_accessibility",

@@ -1,6 +1,3 @@
-import logging
-
-from icecream import ic
 from transitions import MachineError
 
 from app.constants.answers import Answers
@@ -15,7 +12,7 @@ class Command:
     def execute(
         skill_obj: FiniteStateMachine,
         trigger_name: str | None = None,
-    ) -> str:
+    ) -> None:
         raise NotImplementedError
 
 
