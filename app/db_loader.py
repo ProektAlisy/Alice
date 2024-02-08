@@ -1,29 +1,26 @@
 """
 Загружаем в БД ответы пользователю из файлов в папке constants/answers
 """
-import logging
 import os
 
 from pymongo.errors import DuplicateKeyError
 
+from app.logger_initialize import logger
 from app.monga_initialize import (
     after_answers_collection,
+    another_answers_collection,
     answers_collection,
     db,
     disagree_answers_collection,
 )
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s, %(levelname)s, %(message)s",
-)
-logger = logging.getLogger(__name__)
-
-folders = ["answers", "after_answers", "disagree_answers"]
+folders = ["answers", "after_answers", "disagree_answers", "another_answers"]
 
 answers_collection.create_index("key", unique=True)
 after_answers_collection.create_index("key", unique=True)
 disagree_answers_collection.create_index("key", unique=True)
+another_answers_collection.create_index("key", unique=True)
+
 path = os.path.join("constants")
 paths = [os.path.join(path, folder) for folder in folders]
 
@@ -60,9 +57,11 @@ answers_to_collections = {
     paths[0]: answers_collection,
     paths[1]: after_answers_collection,
     paths[2]: disagree_answers_collection,
+    paths[3]: another_answers_collection,
 }
 
 if __name__ == "__main__":
     for path in paths:
         db[answers_to_collections.get(path).name].drop()
-        write_to_db(path, answers_to_collections.get(path))
+
+    logger.info("Запись ответов в БД завершена")

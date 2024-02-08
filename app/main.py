@@ -4,22 +4,24 @@
 from typing import Optional
 
 from fastapi import FastAPI
+from icecream import ic
 from pydantic import BaseModel
 
 from app.command_classes import Action, skill
 from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+    ORDERED_TRIGGERS,
 )
 from app.constants.commands import ServiceCommands
 from app.constants.quiz.intents import Intents
 from app.utils import (
     get_all_commands,
-    get_next_trigger,
+    get_last_in_history,
     get_trigger_by_command,
     is_alice_commands,
-    is_completed,
     last_trigger,
+    next_trigger,
 )
 
 
@@ -83,14 +85,12 @@ async def root(data: RequestData):
         result, answer = skill.quiz_skill.execute_command(command, intents)
     elif not command and is_new:
         answer = Answers.FULL_GREETINGS
-    elif is_completed(skill):
-        answer = Answers.ALL_COMPLETED
     elif command.lower() == ServiceCommands.REPEAT:
-        answer = command_instance.execute(skill, last_trigger(skill))
+        answer = command_instance.execute(skill, last_trigger(skill.history))
     elif is_alice_commands(command):
         answer = Answers.STANDARD_ALICE_COMMAND
     elif command.lower() in all_commands:
-        skill.flag = True
+        skill.is_to_progress = True
         greetings = Answers.SMALL_GREETINGS if is_new else ""
         answer = greetings + command_instance.execute(
             skill,
@@ -99,14 +99,27 @@ async def root(data: RequestData):
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
-    elif command in (ServiceCommands.AGREE, ServiceCommands.DISAGREE):
-        skill.flag = True if command == ServiceCommands.AGREE else False
+    elif command == ServiceCommands.AGREE:
+        skill.is_to_progress = True
         answer = command_instance.execute(
             skill,
-            get_next_trigger(skill, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS),
+            skill.next_trigger_by_progress(
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            ),
+        )
+    elif command == ServiceCommands.DISAGREE:
+        skill.is_to_progress = False
+        answer = command_instance.execute(
+            skill,
+            next_trigger(get_last_in_history(skill.history), ORDERED_TRIGGERS),
         )
     else:
         answer = skill.dont_understand()
+    if skill.is_completed():
+        answer = Answers.ALL_COMPLETED
+        skill.progress = []
+    ic(command, skill.state, skill.progress, skill.history, skill.max_progress)
+
     return {
         "response": {
             "text": answer,
