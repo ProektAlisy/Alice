@@ -1,3 +1,4 @@
+from icecream import ic
 from transitions import MachineError
 
 from app.constants.answers import Answers
@@ -42,6 +43,7 @@ class Action(BaseAction):
         if trigger_name is None:
             return Answers.HELP_MAIN
         try:
+            ic(trigger_name)
             skill_obj.trigger(trigger_name)
         except MachineError:
             logger.debug(f"Команда вызвана из состояния {skill_obj.state}")

@@ -151,7 +151,6 @@ class FiniteStateMachine:
         """Создает функции, вызываемые триггерами."""
 
         def _func():
-            self._save_history(trigger)
             if trigger in CORE_TRIGGERS:
                 self.history.extend(
                     get_triggers_group_by_trigger(
@@ -331,7 +330,7 @@ class FiniteStateMachine:
             Триггер, соответствующий первой непройденной истории/возможности
             после последнего выполненного действия.
         """
-        trigger = last_trigger(self.history)
+        trigger = last_trigger(self.progress)
         ordered_triggers = get_triggers_by_order(triggers)
         if trigger is None:
             return ordered_triggers[0]
