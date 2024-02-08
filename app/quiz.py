@@ -60,6 +60,16 @@ class QuizMessages:
         )
     )
 
+    RULES_CHOICES: Final = (
+        """Если хотите начать викторину, скажите sil <[300]> 'Приступаем', 
+        иначе скажите sil <[300]> 'Заверши викторину'. sil <[300]> 
+        Что вы решили, приступаем?
+        """.replace(
+            "\n",
+            " ",
+        )
+    )
+
     ALREADY_IN_PROGRESS: Final = (
         """Вы вернулись. Как здорово! Напоминаю правила: Я задаю вопрос и
         предлагаю Вам на выбор три варианта ответа. Для ответа просто назовите
@@ -152,11 +162,11 @@ class QuizMessages:
         "Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю.",
     ]
     NO_RESULTS: Final = """
-    Завершаю викторину и жду Вашего возвращения sil <[200]>. 
+    Завершаю викторину и жду Вашего возвращения sil <[200]>.
     """
     NO_QUIZ: Final = "Викторина временно недоступна!"
     UNKNOWN_COMMAND: Final = "Неизвестная команда!"
-    AFTER_QUIZ: Final = "Продолжим?"
+    AFTER_QUIZ: Final = "."
 
 
 class QuizQuestion:
@@ -320,7 +330,6 @@ class Quiz:
         order = state.get("questions_order", None)
         if order:
             self._questions_order = order
-        # print("after:", self._current_question_number)
 
     def restart(self, shuffle: bool = True):
         """Запуск викторины заново.
@@ -567,7 +576,9 @@ class QuizSkill:
             if not self._quiz.is_finished():
                 return True, self._get_full_question()
             return True, QuizMessages.NO_QUIZ
-        return False, QuizMessages.UNKNOWN_COMMAND
+        # return False, QuizMessages.UNKNOWN_COMMAND
+        # при нераспознанной команде подсказка для выбора
+        return True, QuizMessages.RULES_CHOICES
 
     def _process_in_progress_state(
         self, intents: dict[str], command: str

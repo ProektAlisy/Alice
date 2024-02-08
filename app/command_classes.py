@@ -4,20 +4,20 @@ from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
     ORDERED_TRIGGERS,
+    after_answers_documents,
 )
 from app.constants.commands import ServiceCommands
 from app.constants.quiz.intents import Intents
 from app.logger_initialize import logger
 from app.machine import FiniteStateMachine
 from app.utils import (
-    last_trigger,
     get_all_commands,
-    is_alice_commands,
-    get_trigger_by_command,
-    next_trigger,
     get_last_in_history,
+    get_trigger_by_command,
+    is_alice_commands,
+    last_trigger,
+    next_trigger,
 )
-
 
 skill = FiniteStateMachine()
 all_commands = get_all_commands(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
@@ -63,7 +63,11 @@ class Command:
 
 class QuizCommand(Command):
     def condition(self, intents, command, is_new):
-        return Intents.TAKE_QUIZ in intents
+        return (
+            Intents.TAKE_QUIZ in intents
+            or self.skill.progress
+            and self.skill.progress[-1] == "trigger_take_quiz"
+        )
 
     def execute(self, intents, command, is_new):
         self.skill.machine.set_state("take_quiz")
@@ -76,8 +80,23 @@ class QuizSetState(Command):
 
     def execute(self, intents, command, is_new):
         result, answer = skill.quiz_skill.execute_command(command, intents)
+        after_quiz_message = ""
+        if skill.quiz_skill.is_finished():
+            # или надо сделать state = "after_quiz" c выбором след. пункта
+            skill.state = "start"
+            self.skill.is_to_progress = True
+            after_quiz_message = (
+                self.command_instance.execute(
+                    self.skill,
+                    None,
+                    # self.skill.next_trigger_by_progress(
+                    #     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+                    # ),
+                )
+                + "Продолжим?"
+            )
         if result:
-            return answer
+            return answer + after_quiz_message
 
 
 class GreetingsCommand(Command):
