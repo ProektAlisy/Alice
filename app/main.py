@@ -4,6 +4,7 @@
 from typing import Optional
 
 from fastapi import FastAPI
+from icecream import ic
 from pydantic import BaseModel
 
 from app.command_classes import Action, skill

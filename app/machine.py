@@ -22,10 +22,10 @@ from app.utils import (
     get_after_answer_by_trigger,
     get_answer_by_trigger,
     get_disagree_answer_by_trigger,
-    get_triggers_group_by_trigger,
-    next_trigger,
-    last_trigger,
     get_triggers_by_order,
+    get_triggers_group_by_trigger,
+    last_trigger,
+    next_trigger,
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -302,7 +302,7 @@ class FiniteStateMachine:
         return result
 
     def next_trigger_by_progress(
-        self,  # noqa
+        self,
         triggers: list,
     ) -> str:
         """Возвращает следующий триггер.
@@ -322,8 +322,8 @@ class FiniteStateMachine:
         if trigger is None:
             return ordered_triggers[0]
             # триггер состояния start ничего не делает, поэтому его
-            # пропускаем и назначаем первый триггер из тех, которые засчитываются
-            # в прогрессе.
+            # пропускаем и назначаем первый триггер из тех, которые
+            # засчитываются в прогрессе.
         trigger_index = ordered_triggers.index(trigger)
         len_triggers = len(ordered_triggers)
         for index in range(trigger_index, len_triggers + trigger_index):

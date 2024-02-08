@@ -65,4 +65,3 @@ if __name__ == "__main__":
         db[answers_to_collections.get(path).name].drop()
 
     logger.info("Запись ответов в БД завершена")
-
