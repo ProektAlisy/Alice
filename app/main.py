@@ -1,6 +1,7 @@
 """
 Точка входа в приложение.
 """
+
 from typing import Optional
 
 from fastapi import FastAPI
@@ -9,16 +10,16 @@ from pydantic import BaseModel
 
 from app.command_classes import (
     Action,
-    skill,
-    QuizCommand,
-    GreetingsCommand,
-    RepeatCommand,
+    AgreeCommand,
     AliceCommandsCommand,
     AllCommandsCommand,
-    AgreeCommand,
     DisagreeCommand,
-    QuizSetState,
     ExitCommand,
+    GreetingsCommand,
+    QuizCommand,
+    QuizSetState,
+    RepeatCommand,
+    skill,
 )
 from app.constants.answers import Answers
 
