@@ -1,4 +1,5 @@
 from icecream import ic
+
 from pymongo.collection import Collection
 
 
@@ -14,7 +15,7 @@ def is_completed(skill: "FiniteStateMachine") -> bool:  # noqa
         True, если все элементы навыка завершены, иначе False.
     """
     try:
-        result = len(skill.progress) == skill.max_progress
+        result = len(skill.progress) + 1 == skill.max_progress
     except TypeError:
         result = False
     return result

@@ -8,6 +8,7 @@ from app.constants.comands_triggers_answers import (
     ORDERED_TRIGGERS,
 )
 from app.constants.commands import ServiceCommands
+
 from app.constants.skill_transitions import transitions
 from app.constants.states import (
     CORE_TRIGGERS,
@@ -25,7 +26,7 @@ from app.utils import (
     get_triggers_group_by_trigger,
     next_trigger,
     next_trigger_by_progress,
-)
+
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
 
@@ -50,8 +51,10 @@ class FiniteStateMachine:
 
     def __init__(self):
         self.message = ""
+
         self.progress = []
         self.history = []
+        self.progress = None
         self.incorrect_answers = 0
         self.command = ""
         self.machine = Machine(
@@ -62,6 +65,8 @@ class FiniteStateMachine:
         )
         self.flag = False
         self.max_progress = len(STATES) - 1
+        self.flag = False
+        self.max_progress = len(self.machine.states)
         self._create_agree_functions()
         self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
@@ -158,6 +163,7 @@ class FiniteStateMachine:
         """Создание функций, обрабатывающих согласие пользователя."""
         [
             self._generate_agree_function(
+
                 func_name,
                 trigger,
             )
@@ -188,6 +194,7 @@ class FiniteStateMachine:
             ) in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
         ]
 
+
     def get_next_after_answer(self, step: str) -> str:
         """Возвращает следующий ответ с вариантами действия пользователя.
 
@@ -200,7 +207,6 @@ class FiniteStateMachine:
         """
         while step in self.progress:
             step = next_trigger_by_progress(
-                self,
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
         pre_step = find_previous_element(step, ORDERED_TRIGGERS)
@@ -228,6 +234,29 @@ class FiniteStateMachine:
             step,
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
+
+    def get_next_after_answer(self, step: str) -> str:
+        """Возвращает следующий ответ с вариантами действия пользователя.
+
+        Args:
+            step: Список пройденных состояний.
+
+        Returns:
+            Добавленный ответ к основному, содержит варианты действия
+            пользователя.
+        """
+        remaining_progress = self.get_remaining_answer(self.progress)
+        try:
+            index = remaining_progress.index(step)
+        except ValueError:
+            raise ValueError(
+                f"Step {step} not found in progress {self.progress}",
+            )
+        try:
+            next_trigger = remaining_progress[index + 1]
+            get_after_answer_by_trigger(next_trigger)
+        except IndexError:
+            return "Вы закончили. Заглушка."
 
     def dont_understand(self) -> str:
         """Обработка ответов, когда система не понимает пользователя.
@@ -286,3 +315,6 @@ class FiniteStateMachine:
           True, если пользователь отказался.
         """
         return self.command == ServiceCommands.DISAGREE
+
+    def get_remaining_answer(self, progress: list[str]) -> list[str]:
+        return [step for step in progress if step not in self.machine.states]
