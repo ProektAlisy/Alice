@@ -27,7 +27,12 @@
 
 - Запустить проект:
 ```
-uvicorn app.main:app --reload
+uvicorn app.main:application --reload
+```
+
+- Создание и запуск проект через Docker-Compose:
+```
+docker-compose up -d --build
 ```
 
 - Копирование docker-compose.yaml и nginx config файлов на сервер:
