@@ -44,7 +44,7 @@ class FiniteStateMachine:
         incorrect_answers(int): Количество неправильных ответов.
         command(str): Команда пользователя (в дальнейшем заменим на интенты).
         machine(Machine): Машина состояний навыка.
-        flag(boolean): Флаг согласия/отказа.
+        is_to_progress(boolean): Флаг согласия/отказа.
         max_progress(int): Максимальное количество состояний навыка.
         quiz_skill: Объект `QuizSkill` (викторина).
     """
@@ -61,7 +61,7 @@ class FiniteStateMachine:
             transitions=transitions,
             initial="start",
         )
-        self.flag = False
+        self.is_to_progress = False
         self.max_progress = len(STATES) - 1
         self._create_agree_functions()
         self._create_disagree_functions()
@@ -76,13 +76,13 @@ class FiniteStateMachine:
             self: Объект FiniteStateMachine.
             current_step: Состояние навыка.
         """
-        if self.flag and current_step in [
+        if self.is_to_progress and current_step in [
             create_trigger(state) for state in STATES[1:]
         ]:
             self.progress = list(set(self.progress) - {current_step}) + [
                 current_step,
             ]
-            self.flag = False
+            self.is_to_progress = False
 
     def _save_history(self, current_step: str) -> None:
         """История прохождения навыка.

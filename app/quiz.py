@@ -110,7 +110,7 @@ class QuizMessages:
             "В теории мы это точно проходили, попробуйте вспомнить. "
             "Ничего страшного, если ошибетесь."
         ),
-        ("Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю."),
+        "Давайте проверим вашу интуицию! Если не угадаете, я Вас поправлю.",
     ]
 
 
@@ -181,7 +181,7 @@ class Quiz:
     def current_question_number(self) -> int:
         return self._current_question_number + 1
 
-    def load_questions(self, file_name: str):
+    def load_questions(self, file_name: str) -> None:
         """Загрузка вопросов викторины из json файла.
 
         Args:
@@ -213,7 +213,7 @@ class Quiz:
             self._questions_order = []
             raise QuizFileNotFoundAliceException(e.filename)
 
-    def dump_state(self) -> dict[str, str]:
+    def dump_state(self) -> dict[str, str:int]:
         """Возвращает текущее состояние викторины в виде словаря.
 
         Returns:
