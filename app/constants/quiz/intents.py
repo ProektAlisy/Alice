@@ -11,3 +11,5 @@ class Intents:
     CONTINUE = "continue"  # продолжим, дальше, давай
     NO_ANSWER = "no_answer"  # 'не знаю', 'забыл', 'затрудняюсь ответить'
     TERMINATE_QUIZ = "terminate_quiz"  # 'остановить викторину', 'завершить...'
+    CONFIRM = "YANDEX.CONFIRM"
+    REJECT = "YANDEX.REJECT"

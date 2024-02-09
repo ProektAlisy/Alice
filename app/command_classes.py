@@ -69,13 +69,12 @@ class QuizCommand(Command):
         return Intents.TAKE_QUIZ in intents
 
     def execute(self, intents, command, is_new):
-        self.skill.machine.set_state("take_quiz")
         return self.skill.quiz_skill.execute_command(command, intents)[1]
 
 
 class QuizSetState(Command):
     def condition(self, intents, command, is_new):
-        return skill.state == QUIZ_STATE
+        return not skill.quiz_skill.is_finished()
 
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = True
@@ -83,7 +82,6 @@ class QuizSetState(Command):
         skill.save_history(QUIZ_TRIGGER_STATE)
         result, answer = skill.quiz_skill.execute_command(command, intents)
         if skill.quiz_skill.is_finished():
-            skill.state = "start"
             if skill.is_agree():
                 after_answer = get_after_answer_by_trigger(
                     QUIZ_TRIGGER_STATE,

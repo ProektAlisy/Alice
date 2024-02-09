@@ -43,7 +43,8 @@ class QuizMessages:
     {question_and_choices}
     Ваш вариант ответа:
     """
-    RULES: Final = """Вы оказались в разделе, где можете проверить насколько
+    RULES: Final = (
+        """Вы оказались в разделе, где можете проверить насколько
         усвоен пройденный теоретический материал.
         Я задам Вам {total_questions_count} вопросов, и после каждого вопроса
         предложу три варианта ответа.
@@ -54,43 +55,48 @@ class QuizMessages:
         Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'.
         Приступаем?
         """.replace(
-        "\n",
-        " ",
+            "\n",
+            " ",
+        )
     )
 
-    RULES_CHOICES: Final = """Если хотите начать викторину, скажите sil <[300]>
+    RULES_CHOICES: Final = (
+        """Если хотите начать викторину, скажите sil <[300]>
         'Приступаем', иначе скажите sil <[300]> 'Заверши викторину'.
         sil <[300]> Что вы решили, приступаем?
         """.replace(
-        "\n",
-        " ",
+            "\n",
+            " ",
+        )
     )
 
-    ALREADY_IN_PROGRESS: Final = """Вы вернулись. Как здорово!
-        Напоминаю правила: Я задаю вопрос и
+    ALREADY_IN_PROGRESS: Final = (
+        """Вы вернулись. Как здорово! Напоминаю правила: Я задаю вопрос и
         предлагаю Вам на выбор три варианта ответа. Для ответа просто назовите
         букву с правильным ответом: А, Б или В. Правильный ответ может быть
         только один. У Вас есть незаконченная викторина. Сейчас вы остановились
         на вопросе номер {current_question_number}. Продолжим ее?
         Чтобы начать викторину заново скажите 'Начать заново'.
         """.replace(
-        "\n",
-        " ",
+            "\n",
+            " ",
+        )
     )
-    RESUME_REPEAT: Final = """Сейчас вы остановились на вопросе номер
-    {current_question_number}.
+    RESUME_REPEAT: Final = (
+        """Сейчас вы остановились на вопросе номер {current_question_number}.
         Чтобы продолжить викторину скажите 'Продолжим'.
         Чтобы начать викторину заново скажите 'Начать заново'.
         Чтобы завершить викторину скажите 'Завершить викторину'.
         """.replace(
-        "\n",
-        " ",
+            "\n",
+            " ",
+        )
     )
 
     ALREADY_FINISHED: Final = "Викторина уже пройдена."
     RESET_PROGRESS: Final = """
     Чтобы начать викторину заново скажите 'Начать заново'.
-    Это удалит весь предыдущий прогресс.
+    Это удалит весь предыдущий прогресс. Начать заново?
     """
     CHOICE_HELP: Final = """
     Чтобы ответить на вопрос назовите букву с правильным вариантом ответа
@@ -409,6 +415,7 @@ class QuizState(IntEnum):
     FINISHED = 3
     TERMINATED = 4
     RESUME = 5
+    RESTART = 6
 
 
 class QuizSkill:
@@ -541,6 +548,7 @@ class QuizSkill:
 
     def _process_init_state(
         self,
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик начального запуска до показа правил."""
         self._state = QuizState.RULES
@@ -551,6 +559,7 @@ class QuizSkill:
     def _process_rules_state(
         self,
         intents: dict[str],
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик первоначального показа правил."""
         if Intents.TAKE_QUIZ in intents or Intents.REPEAT in intents:
@@ -562,7 +571,7 @@ class QuizSkill:
             # выход до показа первого вопроса
             self._state = QuizState.INIT
             return True, QuizMessages.NO_RESULTS + QuizMessages.AFTER_QUIZ
-        if Intents.AGREE in intents:
+        if Intents.AGREE in intents or Intents.CONFIRM in intents:
             # получено согласие на запуск викторины
             self._state = QuizState.IN_PROGRESS
             if not self._quiz.is_finished():
@@ -604,31 +613,49 @@ class QuizSkill:
 
     def _process_finished_state(
         self,
-        intents: dict[str],
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик в режиме завершенной викторины."""
-        if Intents.TAKE_QUIZ in intents:
-            # викторина уже завершена
-            result = " ".join(
-                [
-                    QuizMessages.ALREADY_FINISHED,
-                    self._get_final_result(),
-                    QuizMessages.RESET_PROGRESS,
-                ],
-            )
-            return True, result
-        if Intents.START_AGAIN in intents:
+        # викторина уже завершена
+        self._state = QuizState.RESTART
+        result = " ".join(
+            [
+                QuizMessages.ALREADY_FINISHED,
+                self._get_final_result(),
+                QuizMessages.RESET_PROGRESS,
+            ],
+        )
+        return True, result
+
+    def _process_restart_state(
+        self,
+        intents: dict[str],
+        command: str,
+    ) -> tuple[bool, str]:
+        """Обработчик диалога викторины 'начать заново'."""
+        if Intents.START_AGAIN in intents or Intents.CONFIRM in intents:
             # запустить заново
             self._state = QuizState.RULES
             self._quiz.restart()
             return True, QuizMessages.RULES.format(
                 total_questions_count=self._quiz.total_questions_count,
             )
-        return False, QuizMessages.UNKNOWN_COMMAND
+        if Intents.REJECT in intents or Intents.TERMINATE_QUIZ in intents:
+            self._state = QuizState.FINISHED
+            return True, QuizMessages.NO_RESULTS
+
+        return True, " ".join(
+            [
+                QuizMessages.ALREADY_FINISHED,
+                self._get_final_result(),
+                QuizMessages.RESET_PROGRESS,
+            ],
+        )
 
     def _process_terminated_state(
         self,
         intents: dict[str],
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик досрочно завершенной викторины."""
         if Intents.TAKE_QUIZ in intents:
@@ -642,6 +669,7 @@ class QuizSkill:
     def _process_resume_state(
         self,
         intents: dict[str],
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик диалога возобновления викторины."""
         if Intents.REPEAT in intents:
@@ -691,6 +719,7 @@ class QuizSkill:
             QuizState.FINISHED: self._process_finished_state,
             QuizState.TERMINATED: self._process_terminated_state,
             QuizState.RESUME: self._process_resume_state,
+            QuizState.RESTART: self._process_restart_state,
         }
         if self._state in state_processors:
             return state_processors[self._state](intents, command)
