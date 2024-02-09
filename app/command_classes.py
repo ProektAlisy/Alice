@@ -8,17 +8,17 @@ from app.constants.comands_triggers_answers import (
 )
 from app.constants.commands import ServiceCommands
 from app.constants.quiz.intents import Intents
-from app.constants.states import QUIZ_TRIGGER_STATE, QUIZ_STATE
+from app.constants.states import QUIZ_STATE, QUIZ_TRIGGER_STATE
 from app.logger_initialize import logger
 from app.machine import FiniteStateMachine
 from app.utils import (
+    get_after_answer_by_trigger,
     get_all_commands,
     get_last_in_history,
     get_trigger_by_command,
     is_alice_commands,
     last_trigger,
     next_trigger,
-    get_after_answer_by_trigger,
 )
 
 skill = FiniteStateMachine()
@@ -113,7 +113,8 @@ class RepeatCommand(Command):
 
     def execute(self, intents, command, is_new):
         return self.command_instance.execute(
-            self.skill, last_trigger(self.skill.history)
+            self.skill,
+            last_trigger(self.skill.history),
         )
 
 
@@ -149,18 +150,18 @@ class AgreeCommand(Command):
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = True
         trigger = self.skill.next_trigger_by_progress(
-            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
         if trigger == QUIZ_TRIGGER_STATE:
             self.skill.machine.set_state(QUIZ_STATE)
             return self.skill.quiz_skill.execute_command(
-                "запусти викторину", Intents.TAKE_QUIZ
+                "запусти викторину",
+                Intents.TAKE_QUIZ,
             )[1]
-        else:
-            return self.command_instance.execute(
-                self.skill,
-                trigger,
-            )
+        return self.command_instance.execute(
+            self.skill,
+            trigger,
+        )
 
 
 class DisagreeCommand(Command):
@@ -172,7 +173,8 @@ class DisagreeCommand(Command):
         return self.command_instance.execute(
             self.skill,
             next_trigger(
-                get_last_in_history(self.skill.history), ORDERED_TRIGGERS
+                get_last_in_history(self.skill.history),
+                ORDERED_TRIGGERS,
             ),
         )
 

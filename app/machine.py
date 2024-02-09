@@ -15,11 +15,11 @@ from app.constants.states import (
     HELP_STATES,
     STATES,
     TRIGGERS_BY_GROUP,
-    QUIZ_TRIGGER_STATE,
 )
 from app.quiz import QuizSkill
 from app.utils import (
     create_trigger,
+    disagree_answer_by_trigger,
     find_previous_element,
     get_after_answer_by_trigger,
     get_answer_by_trigger,
@@ -28,7 +28,6 @@ from app.utils import (
     get_triggers_group_by_trigger,
     last_trigger,
     next_trigger,
-    disagree_answer_by_trigger,
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"

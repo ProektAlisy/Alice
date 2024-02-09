@@ -43,8 +43,8 @@ class QuizMessages:
     {question_and_choices}
     Ваш вариант ответа:
     """
-    RULES: Final = """Вы оказались в разделе, где можете проверить насколько усвоен
-        пройденный теоретический материал.
+    RULES: Final = """Вы оказались в разделе, где можете проверить насколько
+        усвоен пройденный теоретический материал.
         Я задам Вам {total_questions_count} вопросов, и после каждого вопроса
         предложу три варианта ответа.
         Вам надо выбрать единственный правильный ответ.
@@ -58,15 +58,16 @@ class QuizMessages:
         " ",
     )
 
-    RULES_CHOICES: Final = """Если хотите начать викторину, скажите sil <[300]> 'Приступаем', 
-        иначе скажите sil <[300]> 'Заверши викторину'. sil <[300]> 
-        Что вы решили, приступаем?
+    RULES_CHOICES: Final = """Если хотите начать викторину, скажите sil <[300]>
+        'Приступаем', иначе скажите sil <[300]> 'Заверши викторину'.
+        sil <[300]> Что вы решили, приступаем?
         """.replace(
         "\n",
         " ",
     )
 
-    ALREADY_IN_PROGRESS: Final = """Вы вернулись. Как здорово! Напоминаю правила: Я задаю вопрос и
+    ALREADY_IN_PROGRESS: Final = """Вы вернулись. Как здорово!
+        Напоминаю правила: Я задаю вопрос и
         предлагаю Вам на выбор три варианта ответа. Для ответа просто назовите
         букву с правильным ответом: А, Б или В. Правильный ответ может быть
         только один. У Вас есть незаконченная викторина. Сейчас вы остановились
@@ -76,7 +77,8 @@ class QuizMessages:
         "\n",
         " ",
     )
-    RESUME_REPEAT: Final = """Сейчас вы остановились на вопросе номер {current_question_number}.
+    RESUME_REPEAT: Final = """Сейчас вы остановились на вопросе номер
+    {current_question_number}.
         Чтобы продолжить викторину скажите 'Продолжим'.
         Чтобы начать викторину заново скажите 'Начать заново'.
         Чтобы завершить викторину скажите 'Завершить викторину'.
@@ -344,7 +346,7 @@ class Quiz:
         """
         if self.is_finished():
             raise QuizNoActiveQuestionAliceException(
-                QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR
+                QuizExceptionMessages.NO_ACTIVE_QUESTION_ERROR,
             )
         return self._questions[
             self._questions_order[self._current_question_number]
@@ -456,6 +458,7 @@ class QuizSkill:
                 return QuizMessages.RESULT_VERY_BAD.format(
                     mistakes=self._quiz.mistakes_count,
                 )
+        return ""
 
     def _get_partial_result(self) -> str:
         """Возвращает строку промежуточного результата прерванной викторины."""
@@ -472,6 +475,7 @@ class QuizSkill:
                 return QuizMessages.PARTIAL_RESULT_BAD.format(
                     mistakes=self._quiz.mistakes_count,
                 )
+        return ""
 
     def _get_current_result(self) -> str:
         """Возвращает строку текущего результата викторины."""
@@ -536,17 +540,17 @@ class QuizSkill:
         self._quiz.load_state(state_tmp)
 
     def _process_init_state(
-        self, intents: dict[str], command: str
+        self,
     ) -> tuple[bool, str]:
         """Обработчик начального запуска до показа правил."""
-        # if Intents.TAKE_QUIZ in intents:
         self._state = QuizState.RULES
         return True, QuizMessages.RULES.format(
             total_questions_count=self._quiz.total_questions_count,
         )
 
     def _process_rules_state(
-        self, intents: dict[str], command: str
+        self,
+        intents: dict[str],
     ) -> tuple[bool, str]:
         """Обработчик первоначального показа правил."""
         if Intents.TAKE_QUIZ in intents or Intents.REPEAT in intents:
@@ -569,7 +573,9 @@ class QuizSkill:
         return True, QuizMessages.RULES_CHOICES
 
     def _process_in_progress_state(
-        self, intents: dict[str], command: str
+        self,
+        intents: dict[str],
+        command: str,
     ) -> tuple[bool, str]:
         """Обработчик в режиме прогресса викторины."""
         if Intents.REPEAT in intents:
@@ -597,7 +603,8 @@ class QuizSkill:
         return True, QuizMessages.CHOICE_HELP
 
     def _process_finished_state(
-        self, intents: dict[str], command: str
+        self,
+        intents: dict[str],
     ) -> tuple[bool, str]:
         """Обработчик в режиме завершенной викторины."""
         if Intents.TAKE_QUIZ in intents:
@@ -620,7 +627,8 @@ class QuizSkill:
         return False, QuizMessages.UNKNOWN_COMMAND
 
     def _process_terminated_state(
-        self, intents: dict[str], command: str
+        self,
+        intents: dict[str],
     ) -> tuple[bool, str]:
         """Обработчик досрочно завершенной викторины."""
         if Intents.TAKE_QUIZ in intents:
@@ -632,7 +640,8 @@ class QuizSkill:
         return False, ""
 
     def _process_resume_state(
-        self, intents: dict[str], command: str
+        self,
+        intents: dict[str],
     ) -> tuple[bool, str]:
         """Обработчик диалога возобновления викторины."""
         if Intents.REPEAT in intents:

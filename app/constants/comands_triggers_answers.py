@@ -1,5 +1,3 @@
-from icecream import ic
-
 from app.constants.commands import Commands
 from app.constants.states import HELP_STATES, STATES
 from app.monga_initialize import (
