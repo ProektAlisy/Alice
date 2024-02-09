@@ -541,6 +541,7 @@ class QuizSkill:
 
     def _process_init_state(
         self,
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик начального запуска до показа правил."""
         self._state = QuizState.RULES
@@ -551,6 +552,7 @@ class QuizSkill:
     def _process_rules_state(
         self,
         intents: dict[str],
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик первоначального показа правил."""
         if Intents.TAKE_QUIZ in intents or Intents.REPEAT in intents:
@@ -605,6 +607,7 @@ class QuizSkill:
     def _process_finished_state(
         self,
         intents: dict[str],
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик в режиме завершенной викторины."""
         if Intents.TAKE_QUIZ in intents:
@@ -629,6 +632,7 @@ class QuizSkill:
     def _process_terminated_state(
         self,
         intents: dict[str],
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик досрочно завершенной викторины."""
         if Intents.TAKE_QUIZ in intents:
@@ -642,6 +646,7 @@ class QuizSkill:
     def _process_resume_state(
         self,
         intents: dict[str],
+        *args,
     ) -> tuple[bool, str]:
         """Обработчик диалога возобновления викторины."""
         if Intents.REPEAT in intents:
