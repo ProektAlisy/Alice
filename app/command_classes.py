@@ -4,13 +4,13 @@ from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
     ORDERED_TRIGGERS,
-    after_answers_documents,
 )
 from app.constants.commands import ServiceCommands
 from app.constants.quiz.intents import Intents
 from app.logger_initialize import logger
 from app.machine import FiniteStateMachine
 from app.utils import (
+    get_after_answer_by_trigger,
     get_all_commands,
     get_last_in_history,
     get_trigger_by_command,
@@ -63,40 +63,27 @@ class Command:
 
 class QuizCommand(Command):
     def condition(self, intents, command, is_new):
-        return (
-            Intents.TAKE_QUIZ in intents
-            or self.skill.progress
-            and self.skill.progress[-1] == "trigger_take_quiz"
-        )
+        return Intents.TAKE_QUIZ in intents
 
     def execute(self, intents, command, is_new):
-        self.skill.machine.set_state("take_quiz")
         return self.skill.quiz_skill.execute_command(command, intents)[1]
 
 
 class QuizSetState(Command):
     def condition(self, intents, command, is_new):
-        return skill.state == "take_quiz"
+        return not skill.quiz_skill.is_finished()
 
     def execute(self, intents, command, is_new):
         result, answer = skill.quiz_skill.execute_command(command, intents)
-        after_quiz_message = ""
+        after_answer = ""
         if skill.quiz_skill.is_finished():
-            # или надо сделать state = "after_quiz" c выбором след. пункта
-            skill.state = "start"
             self.skill.is_to_progress = True
-            after_quiz_message = (
-                self.command_instance.execute(
-                    self.skill,
-                    None,
-                    # self.skill.next_trigger_by_progress(
-                    #     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-                    # ),
-                )
-                + "Продолжим?"
+            after_answer = get_after_answer_by_trigger(
+                "trigger_take_quiz",
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
         if result:
-            return answer + after_quiz_message
+            return answer + after_answer
 
 
 class GreetingsCommand(Command):

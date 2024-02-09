@@ -8,7 +8,8 @@ from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
     ORDERED_TRIGGERS,
 )
-from app.constants.commands import ServiceCommands
+from app.constants.commands import Commands, ServiceCommands
+from app.constants.quiz.intents import Intents
 from app.constants.skill_transitions import transitions
 from app.constants.states import (
     CORE_TRIGGERS,
@@ -19,6 +20,7 @@ from app.constants.states import (
 from app.quiz import QuizSkill
 from app.utils import (
     create_trigger,
+    disagree_answer_by_trigger,
     find_previous_element,
     get_after_answer_by_trigger,
     get_answer_by_trigger,
@@ -27,7 +29,6 @@ from app.utils import (
     get_triggers_group_by_trigger,
     last_trigger,
     next_trigger,
-    disagree_answer_by_trigger,
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -69,6 +70,11 @@ class FiniteStateMachine:
         self._create_agree_functions()
         self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
+        # подменяем функцию callback для take_quiz
+        self._generate_agree_take_quiz_function(
+            "get_take_quiz",
+            "trigger_take_quiz",
+        )
 
     def _save_progress(self, current_step: str) -> None:
         """Прогресс прохождения навыка.
@@ -142,6 +148,44 @@ class FiniteStateMachine:
                     )
                     after_answer = self.get_next_after_answer(trigger)
 
+            self.message = answer + " " + after_answer
+            self.incorrect_answers = 0
+
+        setattr(self, name, _func)
+
+    def _generate_agree_take_quiz_function(self, name, trigger):
+        """Создает спец функцию, вызываемую триггером захода в викторину.
+
+        Args:
+            name: Имя функции.
+            trigger: Вызванная триггер.
+        """
+
+        def _func():
+            self._save_progress(trigger)
+            self._save_history(trigger)
+            after_answer = ""
+            if self.is_agree():
+                _, answer = self.quiz_skill.execute_command(
+                    Commands.TAKE_QUIZ,
+                    {Intents.TAKE_QUIZ: "Any"},
+                )
+            else:
+                if (
+                    self.command == "повтори"
+                    and self.previous_command == "нет"
+                ):
+                    answer = disagree_answer_by_trigger(
+                        trigger,
+                        COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                    )
+                    after_answer = ""
+                else:
+                    answer = get_answer_by_trigger(
+                        trigger,
+                        COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                    )
+                    after_answer = self.get_next_after_answer(trigger)
             self.message = answer + " " + after_answer
             self.incorrect_answers = 0
 
