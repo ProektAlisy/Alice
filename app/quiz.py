@@ -419,7 +419,6 @@ class QuizSkill:
             self._quiz.restart()
         except QuizException as e:
             logging.exception(e)
-            # raise e
 
     def is_finished(self) -> bool:
         """Возвращает True, если работа с викториной завершена.
@@ -667,13 +666,13 @@ class QuizSkill:
         """Анализ и исполнение команды/интента.
 
         Args:
-            command (str): команда для навыка
-            intents (dict[str]): словарь намерений (intents) для навыка
+            command (str): Команда для навыка.
+            intents (dict[str]): Словарь намерений (intents) для навыка.
 
         Returns:
-            (result, answer): кортеж ответа, где
-            result (bool): True, если команда воспринята викториной
-            answer (str): текстовое сообщение ответа на команду
+            (result, answer): Кортеж ответа, где.
+            result (bool): True, если команда воспринята викториной.
+            answer (str): Текстовое сообщение ответа на команду.
         """
         command = command.lower()
         state_processors = {
@@ -684,7 +683,6 @@ class QuizSkill:
             QuizState.TERMINATED: self._process_terminated_state,
             QuizState.RESUME: self._process_resume_state,
         }
-        # print("self._state", self._state)
         if self._state in state_processors:
             return state_processors[self._state](intents, command)
         return False, ""

@@ -15,6 +15,7 @@ from app.constants.states import (
     HELP_STATES,
     STATES,
     TRIGGERS_BY_GROUP,
+    QUIZ_TRIGGER_STATE,
 )
 from app.quiz import QuizSkill
 from app.utils import (
@@ -216,9 +217,7 @@ class FiniteStateMachine:
             step = self.next_trigger_by_progress(
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
-        ic(step, "get_next_after_answer")
         pre_step = find_previous_element(step, ORDERED_TRIGGERS)
-        ic(pre_step, "get_next_after_answer pre_step")
         return get_after_answer_by_trigger(
             pre_step,
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,

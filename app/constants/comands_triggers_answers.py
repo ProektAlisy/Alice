@@ -18,7 +18,6 @@ answers_documents = read_from_db(answers_collection)
 after_answers_documents = read_from_db(after_answers_collection)
 disagree_answers_documents = read_from_db(disagree_answers_collection)
 
-
 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS = [
     (
         getattr(Commands, command_name.upper()),

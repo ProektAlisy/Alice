@@ -5,7 +5,6 @@ from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
     ORDERED_TRIGGERS,
-    after_answers_documents,
 )
 from app.constants.commands import ServiceCommands
 from app.constants.quiz.intents import Intents
@@ -67,11 +66,7 @@ class Command:
 
 class QuizCommand(Command):
     def condition(self, intents, command, is_new):
-        return (
-            Intents.TAKE_QUIZ in intents
-            or self.skill.progress
-            and self.skill.progress[-1] == QUIZ_TRIGGER_STATE
-        )
+        return Intents.TAKE_QUIZ in intents
 
     def execute(self, intents, command, is_new):
         self.skill.machine.set_state("take_quiz")
@@ -88,7 +83,6 @@ class QuizSetState(Command):
         skill.save_history(QUIZ_TRIGGER_STATE)
         result, answer = skill.quiz_skill.execute_command(command, intents)
         if skill.quiz_skill.is_finished():
-            # или надо сделать state = "after_quiz" c выбором след. пункта
             skill.state = "start"
             if skill.is_agree():
                 after_answer = get_after_answer_by_trigger(
@@ -137,13 +131,6 @@ class AllCommandsCommand(Command):
 
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = True
-        ic(
-            command,
-            get_trigger_by_command(
-                command,
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
-            ),
-        )
         return (
             Answers.SMALL_GREETINGS if is_new else ""
         ) + self.command_instance.execute(
@@ -161,12 +148,19 @@ class AgreeCommand(Command):
 
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = True
-        return self.command_instance.execute(
-            self.skill,
-            self.skill.next_trigger_by_progress(
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-            ),
+        trigger = self.skill.next_trigger_by_progress(
+            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
         )
+        if trigger == QUIZ_TRIGGER_STATE:
+            self.skill.machine.set_state(QUIZ_STATE)
+            return self.skill.quiz_skill.execute_command(
+                "запусти викторину", Intents.TAKE_QUIZ
+            )[1]
+        else:
+            return self.command_instance.execute(
+                self.skill,
+                trigger,
+            )
 
 
 class DisagreeCommand(Command):

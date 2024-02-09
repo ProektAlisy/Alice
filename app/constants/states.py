@@ -1,6 +1,6 @@
 from typing import Final
 
-QUIZ_STATE: Final = "quiz_state"
+QUIZ_STATE: Final = "take_quiz"
 STATES: Final = [
     "start",
     "about_training_center",
@@ -77,7 +77,6 @@ TRIGGERS_BY_GROUP: Final = [
 ]
 CORE_TRIGGERS: Final = [
     "trigger_about_staff_1",
-    "trigger_take_quiz",
     "trigger_listen_to_legislation",
     "trigger_about_discounts_and_free_services",
     "trigger_about_services_uniting_blind_people",
