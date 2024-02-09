@@ -63,6 +63,14 @@ quiz_state_resume = {
     "state": int(QuizState.RESUME),
 }
 
+quiz_state_restart = {
+    "questions_order": [2, 1, 0],
+    "current_question_number": 3,
+    "mistakes_count": 1,
+    "state": int(QuizState.RESTART),
+}
+
+
 quiz_skill_state_fixtures = [
     quiz_state_init,
     quiz_state_rules,
@@ -103,7 +111,7 @@ def test_load_from_file_with_wrong_correct_choice():
     quiz = Quiz()
     with pytest.raises(QuizFileWrongAnswerAliceException):
         quiz.load_questions(
-            "tests/quiz_patterns/quiz4_wrong_correct_choice.json"
+            "tests/quiz_patterns/quiz4_wrong_correct_choice.json",
         )
 
 
@@ -329,7 +337,7 @@ def test_quiz_skill_init_transitions():
         (Intents.REPEAT, QuizState.RULES, True),
         (Intents.TERMINATE_QUIZ, QuizState.INIT, True),
         (Intents.AGREE, QuizState.IN_PROGRESS, True),
-        ("unknown_intent", QuizState.RULES, False),
+        ("unknown_intent", QuizState.RULES, True),
     ],
 )
 def test_quiz_skill_rules_transitions(
@@ -398,9 +406,7 @@ def test_quiz_skill_in_progress_flow():
 @pytest.mark.parametrize(
     "intent, new_state, expected_result",
     [
-        (Intents.TAKE_QUIZ, QuizState.FINISHED, True),
-        (Intents.START_AGAIN, QuizState.RULES, True),
-        ("unknown_intent", QuizState.FINISHED, False),
+        ("any_intent", QuizState.RESTART, True),
     ],
 )
 def test_quiz_skill_finished_transitions(
@@ -415,6 +421,30 @@ def test_quiz_skill_finished_transitions(
     assert (
         quiz_skill._state == new_state
     ), f"Ошибка перехода из FINISHED по команде {intent}"
+
+
+@pytest.mark.parametrize(
+    "intent, new_state, expected_result",
+    [
+        (Intents.START_AGAIN, QuizState.RULES, True),
+        (Intents.CONFIRM, QuizState.RULES, True),
+        (Intents.REJECT, QuizState.FINISHED, True),
+        (Intents.TERMINATE_QUIZ, QuizState.FINISHED, True),
+        ("unknown_intent", QuizState.RESTART, True),
+    ],
+)
+def test_quiz_skill_restart_transitions(
+    intent: str,
+    new_state: QuizState,
+    expected_result: bool,
+):
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_restart)
+    result, _ = quiz_skill.execute_command("", {intent: "any"})
+    assert result == expected_result
+    assert (
+        quiz_skill._state == new_state
+    ), f"Ошибка перехода из RESTART по команде {intent}"
 
 
 @pytest.mark.parametrize(
