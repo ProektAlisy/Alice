@@ -116,14 +116,13 @@ class FiniteStateMachine:
         def _func():
             self.save_progress(trigger)
             self.save_history(trigger)
+
             if self.is_agree():
                 after_answer = get_after_answer_by_trigger(
-                    trigger,
-                    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                    trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
                 )
                 answer = get_answer_by_trigger(
-                    trigger,
-                    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                    trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
                 )
             else:
                 if (
@@ -131,14 +130,12 @@ class FiniteStateMachine:
                     and self.previous_command == "нет"
                 ):
                     answer = disagree_answer_by_trigger(
-                        trigger,
-                        COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                        trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
                     )
                     after_answer = ""
                 else:
                     answer = get_answer_by_trigger(
-                        trigger,
-                        COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                        trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
                     )
                     after_answer = self.get_next_after_answer(trigger)
 
