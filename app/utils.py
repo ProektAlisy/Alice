@@ -1,5 +1,7 @@
 from pymongo.collection import Collection
 
+from app.constants.states import POSSIBILITIES_TRIGGER
+
 
 def next_trigger(trigger: str, triggers: list) -> str | None:
     """Находим следующий триггер в списке триггеров после заданного.
@@ -14,7 +16,7 @@ def next_trigger(trigger: str, triggers: list) -> str | None:
     try:
         index = triggers.index(trigger)
     except ValueError:
-        return None
+        return POSSIBILITIES_TRIGGER
     if index < len(triggers) - 1:
         return triggers[index + 1]
     if index == len(triggers) - 1:

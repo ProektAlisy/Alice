@@ -36,8 +36,9 @@ HELP_STATES: Final = [
     "useful_information",
 ]
 QUIZ_TRIGGER_STATE: Final = "trigger_" + QUIZ_STATE
-DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
 
+DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
+POSSIBILITIES_TRIGGER: Final = "trigger_possibilities"
 TRIGGERS_BY_GROUP: Final = [
     ("trigger_about_training_center",),
     ("trigger_about_facility",),

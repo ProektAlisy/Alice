@@ -229,12 +229,12 @@ class FiniteStateMachine:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
+        ic(step, self.history)
         while step in self.history:
             step = next_trigger(
                 step,
                 ORDERED_TRIGGERS,
             )
-        ic(step, "get_next_disagree_answer")
         return get_disagree_answer_by_trigger(
             self.history[-1],
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
