@@ -53,7 +53,7 @@ def get_trigger_by_command(command: str, structure: tuple) -> str | None:
         не найден, возвращает None.
     """
     for trig_commands in structure:
-        if trig_commands[0] == command:
+        if trig_commands[0].lower() == command:
             return trig_commands[1]
     return None
 
@@ -100,7 +100,7 @@ def get_all_commands(structure: tuple) -> list[str]:
     """
     commands = []
     for trig_commands in structure:
-        commands.append(trig_commands[0])
+        commands.append(trig_commands[0].lower())
     return commands
 
 

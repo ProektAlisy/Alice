@@ -63,5 +63,5 @@ answers_to_collections = {
 if __name__ == "__main__":
     for path in paths:
         db[answers_to_collections.get(path).name].drop()
-
+        write_to_db(path, answers_to_collections.get(path))
     logger.info("Запись ответов в БД завершена")

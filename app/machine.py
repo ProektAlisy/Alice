@@ -70,7 +70,7 @@ class FiniteStateMachine:
         self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
 
-    def _save_progress(self, current_step: str) -> None:
+    def save_progress(self, current_step: str) -> None:
         """Прогресс прохождения навыка.
 
         Сохраняет состояние прохождения навыка.
@@ -87,7 +87,7 @@ class FiniteStateMachine:
             ]
             self.is_to_progress = False
 
-    def _save_history(self, current_step: str) -> None:
+    def save_history(self, current_step: str) -> None:
         """История прохождения навыка.
 
         Сохраняет состояние прохождения навыка. Включает в себя состояния
@@ -114,8 +114,8 @@ class FiniteStateMachine:
         """
 
         def _func():
-            self._save_progress(trigger)
-            self._save_history(trigger)
+            self.save_progress(trigger)
+            self.save_history(trigger)
             if self.is_agree():
                 after_answer = get_after_answer_by_trigger(
                     trigger,
@@ -159,7 +159,7 @@ class FiniteStateMachine:
                     ),
                 )
             else:
-                self._save_history(trigger)
+                self.save_history(trigger)
             disagree_answer = self.get_next_disagree_answer(
                 trigger,
             )
@@ -216,7 +216,9 @@ class FiniteStateMachine:
             step = self.next_trigger_by_progress(
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
+        ic(step, "get_next_after_answer")
         pre_step = find_previous_element(step, ORDERED_TRIGGERS)
+        ic(pre_step, "get_next_after_answer pre_step")
         return get_after_answer_by_trigger(
             pre_step,
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
@@ -237,8 +239,9 @@ class FiniteStateMachine:
                 step,
                 ORDERED_TRIGGERS,
             )
+        ic(step, "get_next_disagree_answer")
         return get_disagree_answer_by_trigger(
-            step,
+            self.history[-1],
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
 
@@ -330,7 +333,7 @@ class FiniteStateMachine:
             Триггер, соответствующий первой непройденной истории/возможности
             после последнего выполненного действия.
         """
-        trigger = last_trigger(self.progress)
+        trigger = last_trigger(self.history)
         ordered_triggers = get_triggers_by_order(triggers)
         if trigger is None:
             return ordered_triggers[0]

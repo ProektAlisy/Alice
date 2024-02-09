@@ -9,6 +9,7 @@ from app.constants.comands_triggers_answers import (
 )
 from app.constants.commands import ServiceCommands
 from app.constants.quiz.intents import Intents
+from app.constants.states import QUIZ_TRIGGER_STATE, QUIZ_STATE
 from app.logger_initialize import logger
 from app.machine import FiniteStateMachine
 from app.utils import (
@@ -18,6 +19,7 @@ from app.utils import (
     is_alice_commands,
     last_trigger,
     next_trigger,
+    get_after_answer_by_trigger,
 )
 
 skill = FiniteStateMachine()
@@ -68,7 +70,7 @@ class QuizCommand(Command):
         return (
             Intents.TAKE_QUIZ in intents
             or self.skill.progress
-            and self.skill.progress[-1] == "trigger_take_quiz"
+            and self.skill.progress[-1] == QUIZ_TRIGGER_STATE
         )
 
     def execute(self, intents, command, is_new):
@@ -78,27 +80,29 @@ class QuizCommand(Command):
 
 class QuizSetState(Command):
     def condition(self, intents, command, is_new):
-        return skill.state == "take_quiz"
+        return skill.state == QUIZ_STATE
 
     def execute(self, intents, command, is_new):
+        self.skill.is_to_progress = True
+        skill.save_progress(QUIZ_TRIGGER_STATE)
+        skill.save_history(QUIZ_TRIGGER_STATE)
         result, answer = skill.quiz_skill.execute_command(command, intents)
-        after_quiz_message = ""
         if skill.quiz_skill.is_finished():
             # или надо сделать state = "after_quiz" c выбором след. пункта
             skill.state = "start"
-            self.skill.is_to_progress = True
-            after_quiz_message = (
-                self.command_instance.execute(
-                    self.skill,
-                    None,
-                    # self.skill.next_trigger_by_progress(
-                    #     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-                    # ),
+            if skill.is_agree():
+                after_answer = get_after_answer_by_trigger(
+                    QUIZ_TRIGGER_STATE,
+                    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
                 )
-                + "Продолжим?"
-            )
+            else:
+                after_answer = skill.get_next_after_answer(QUIZ_TRIGGER_STATE)
+        else:
+            after_answer = ""
+
         if result:
-            return answer + after_quiz_message
+            return answer + after_answer
+        return answer
 
 
 class GreetingsCommand(Command):
@@ -133,12 +137,20 @@ class AllCommandsCommand(Command):
 
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = True
+        ic(
+            command,
+            get_trigger_by_command(
+                command,
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            ),
+        )
         return (
             Answers.SMALL_GREETINGS if is_new else ""
         ) + self.command_instance.execute(
             self.skill,
             get_trigger_by_command(
-                command, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+                command,
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
 
