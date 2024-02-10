@@ -133,7 +133,7 @@ class FiniteStateMachine:
                 trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
             )
 
-    def _get_after_answer(self, trigger,):
+    def _get_after_answer(self, trigger, answer):
         if self.is_agree() and not (
             self.command == "повтори" and self.previous_command == "нет"
         ):
