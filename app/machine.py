@@ -1,6 +1,5 @@
 import logging
 
-from icecream import ic
 from transitions import Machine
 
 from app.constants.answers import Answers
@@ -15,6 +14,7 @@ from app.constants.states import (
     HELP_STATES,
     STATES,
     TRIGGERS_BY_GROUP,
+    TRIGGER_HELP_MAIN,
 )
 from app.quiz import QuizSkill
 from app.utils import (
@@ -105,9 +105,7 @@ class FiniteStateMachine:
 
     def _generate_agree_function(self, name, trigger):
         """Создает функции, вызываемые триггерами.
-
-        Создаем сразу все функции, которые указаны в transitions класса
-        FiniteStateMachine.
+        Создаем сразу все функции, которые указаны в transitions класса FiniteStateMachine.
         Args:
             name: Имя функции.
             trigger: Вызванная триггер.
@@ -116,33 +114,40 @@ class FiniteStateMachine:
         def _func():
             self.save_progress(trigger)
             self.save_history(trigger)
-
-            if self.is_agree():
-                after_answer = get_after_answer_by_trigger(
-                    trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-                )
-                answer = get_answer_by_trigger(
-                    trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-                )
-            else:
-                if (
-                    self.command == "повтори"
-                    and self.previous_command == "нет"
-                ):
-                    answer = disagree_answer_by_trigger(
-                        trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-                    )
-                    after_answer = ""
-                else:
-                    answer = get_answer_by_trigger(
-                        trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-                    )
-                    after_answer = self.get_next_after_answer(trigger)
-
-            self.message = answer + " " + after_answer
+            answer = self._get_answer(trigger)
+            after_answer = self._get_after_answer(trigger, answer)
+            self.message = self._compose_message(answer, after_answer)
             self.incorrect_answers = 0
 
         setattr(self, name, _func)
+
+    def _get_answer(self, trigger):
+        if self.is_agree() and not (
+            self.command == "повтори" and self.previous_command == "нет"
+        ):
+            return get_answer_by_trigger(
+                trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+            )
+        else:
+            return disagree_answer_by_trigger(
+                trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+            )
+
+    def _get_after_answer(self, trigger,):
+        if self.is_agree() and not (
+            self.command == "повтори" and self.previous_command == "нет"
+        ):
+            return get_after_answer_by_trigger(
+                trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+            )
+        else:
+            if self.command == "повтори" and self.previous_command == "нет":
+                return ""
+            else:
+                return self.get_next_after_answer(trigger)
+
+    def _compose_message(self, answer, after_answer):
+        return f"{answer} {after_answer}"
 
     def _generate_disagree_function(self, name, trigger):
         """Создает функции, вызываемые триггерами."""
@@ -210,9 +215,12 @@ class FiniteStateMachine:
             пользователя.
         """
         while step in self.progress:
-            step = self.next_trigger_by_progress(
+            step = self.next_trigger_by_history(
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
+        # исправляем border effect, когда в помощи появляется `after_answer`
+        if step == TRIGGER_HELP_MAIN:
+            return ""
         pre_step = find_previous_element(step, ORDERED_TRIGGERS)
         return get_after_answer_by_trigger(
             pre_step,
@@ -229,7 +237,6 @@ class FiniteStateMachine:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
-        ic(step, self.history)
         while step in self.history:
             step = next_trigger(
                 step,
@@ -312,7 +319,7 @@ class FiniteStateMachine:
             result = False
         return result
 
-    def next_trigger_by_progress(
+    def next_trigger_by_history(
         self,
         triggers: list,
     ) -> str:
@@ -332,9 +339,6 @@ class FiniteStateMachine:
         ordered_triggers = get_triggers_by_order(triggers)
         if trigger is None:
             return ordered_triggers[0]
-            # триггер состояния start ничего не делает, поэтому его
-            # пропускаем и назначаем первый триггер из тех, которые
-            # засчитываются в прогрессе.
         trigger_index = ordered_triggers.index(trigger)
         len_triggers = len(ordered_triggers)
         for index in range(trigger_index, len_triggers + trigger_index):

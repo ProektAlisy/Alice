@@ -147,7 +147,7 @@ class AgreeCommand(Command):
 
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = True
-        trigger = self.skill.next_trigger_by_progress(
+        trigger = self.skill.next_trigger_by_history(
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
         if trigger == QUIZ_TRIGGER_STATE:
