@@ -1,5 +1,7 @@
 from pymongo.collection import Collection
 
+from app.constants.states import POSSIBILITIES_TRIGGER
+
 
 def next_trigger(trigger: str, triggers: list) -> str | None:
     """Находим следующий триггер в списке триггеров после заданного.
@@ -14,7 +16,7 @@ def next_trigger(trigger: str, triggers: list) -> str | None:
     try:
         index = triggers.index(trigger)
     except ValueError:
-        return None
+        return POSSIBILITIES_TRIGGER
     if index < len(triggers) - 1:
         return triggers[index + 1]
     if index == len(triggers) - 1:
@@ -53,7 +55,7 @@ def get_trigger_by_command(command: str, structure: tuple) -> str | None:
         не найден, возвращает None.
     """
     for trig_commands in structure:
-        if trig_commands[0] == command:
+        if trig_commands[0].lower() == command:
             return trig_commands[1]
     return None
 
@@ -100,7 +102,7 @@ def get_all_commands(structure: tuple) -> list[str]:
     """
     commands = []
     for trig_commands in structure:
-        commands.append(trig_commands[0])
+        commands.append(trig_commands[0].lower())
     return commands
 
 
@@ -253,3 +255,23 @@ def get_last_in_history(history: list[str]) -> str:
     except (IndexError, TypeError):
         result = None
     return result
+
+
+def disagree_answer_by_trigger(
+    trigger: str,
+    structure: list[tuple[str]],
+):
+    """Возвращает соответствующий ответ.
+
+    Args:
+        trigger: Триггер действия.
+        structure: Структура, содержащая соответствующие команды и триггеры.
+
+    Returns:
+        Триггер, соответствующий команде. Если соответствующий триггер
+        не найден, возвращает None.
+    """
+    for trig_com_ans in structure:
+        if trig_com_ans[1] == trigger:
+            return trig_com_ans[5]
+    return ""

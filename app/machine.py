@@ -1,5 +1,6 @@
 import logging
 
+from icecream import ic
 from transitions import Machine
 
 from app.constants.answers import Answers
@@ -18,6 +19,7 @@ from app.constants.states import (
 from app.quiz import QuizSkill
 from app.utils import (
     create_trigger,
+    disagree_answer_by_trigger,
     find_previous_element,
     get_after_answer_by_trigger,
     get_answer_by_trigger,
@@ -55,6 +57,7 @@ class FiniteStateMachine:
         self.history = []
         self.incorrect_answers = 0
         self.command = ""
+        self.previous_command = ""
         self.machine = Machine(
             model=self,
             states=STATES + HELP_STATES,
@@ -67,7 +70,7 @@ class FiniteStateMachine:
         self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
 
-    def _save_progress(self, current_step: str) -> None:
+    def save_progress(self, current_step: str) -> None:
         """Прогресс прохождения навыка.
 
         Сохраняет состояние прохождения навыка.
@@ -84,7 +87,7 @@ class FiniteStateMachine:
             ]
             self.is_to_progress = False
 
-    def _save_history(self, current_step: str) -> None:
+    def save_history(self, current_step: str) -> None:
         """История прохождения навыка.
 
         Сохраняет состояние прохождения навыка. Включает в себя состояния
@@ -111,23 +114,31 @@ class FiniteStateMachine:
         """
 
         def _func():
-            self._save_progress(trigger)
-            self._save_history(trigger)
+            self.save_progress(trigger)
+            self.save_history(trigger)
+
             if self.is_agree():
                 after_answer = get_after_answer_by_trigger(
-                    trigger,
-                    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                    trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
                 )
                 answer = get_answer_by_trigger(
-                    trigger,
-                    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                    trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
                 )
             else:
-                after_answer = self.get_next_after_answer(trigger)
-                answer = get_answer_by_trigger(
-                    trigger,
-                    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
-                )
+                if (
+                    self.command == "повтори"
+                    and self.previous_command == "нет"
+                ):
+                    answer = disagree_answer_by_trigger(
+                        trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+                    )
+                    after_answer = ""
+                else:
+                    answer = get_answer_by_trigger(
+                        trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+                    )
+                    after_answer = self.get_next_after_answer(trigger)
+
             self.message = answer + " " + after_answer
             self.incorrect_answers = 0
 
@@ -137,7 +148,6 @@ class FiniteStateMachine:
         """Создает функции, вызываемые триггерами."""
 
         def _func():
-            self._save_history(trigger)
             if trigger in CORE_TRIGGERS:
                 self.history.extend(
                     get_triggers_group_by_trigger(
@@ -146,7 +156,7 @@ class FiniteStateMachine:
                     ),
                 )
             else:
-                self._save_history(trigger)
+                self.save_history(trigger)
             disagree_answer = self.get_next_disagree_answer(
                 trigger,
             )
@@ -219,13 +229,14 @@ class FiniteStateMachine:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
+        ic(step, self.history)
         while step in self.history:
             step = next_trigger(
                 step,
                 ORDERED_TRIGGERS,
             )
         return get_disagree_answer_by_trigger(
-            step,
+            self.history[-1],
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
 
