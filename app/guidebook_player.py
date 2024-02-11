@@ -13,6 +13,7 @@ class RequestData(BaseModel):
 
 class AudioAssistant:
     def __init__(self):
+        self.greetings = False
         self.current_token = None
         self.current_chapter = None
         self.is_playing = False
@@ -50,6 +51,9 @@ class AudioAssistant:
         }
 
     def process_request(self, command):
+        if not self.greetings:
+            self.greetings = True
+            return self.greet_user()
         if command == "пауза":
             return self.pause_playback()
         elif command == "продолжить":
@@ -183,6 +187,16 @@ class AudioAssistant:
         unknown_command_text = "Неизвестная команда."
         return self.get_response(unknown_command_text)
 
+    def greet_user(self):
+        welcome_text = (
+            "В 2018 году мы издали “Методическое пособие для владельцев и будущих владельцев собак-проводников”. "
+            "У меня есть аудиоверсия этого пособия. Здесь Вы можете прослушать главы по выбору или по порядку. "
+            "Воспроизведение можно ставить на паузу, а так же можно сказать 'следующая глава' для того чтобы "
+            "пропустить какую-нибудь тему. Для прослушивания списка всех тем скажите 'Оглавление' и после Вы "
+            "сможете выбрать главу или скажите 'Начинай' и я начну воспроизведение методички по порядку."
+        )
+        return self.get_response(welcome_text)
+
 
 audio_assistant = AudioAssistant()
 
@@ -198,9 +212,10 @@ audio_assistant = AudioAssistant()
 #     response = audio_assistant.process_request(command)
 #     return response
 
-# print(audio_assistant.process_request("3"))
-# time.sleep(3)
-# print(audio_assistant.process_request("пауза"))
-# print(audio_assistant.process_request("продолжить"))
-# print(audio_assistant.process_request("следующая"))
-# print(audio_assistant.process_request("прослушать оглавление"))
+print(audio_assistant.process_request(""))
+print(audio_assistant.process_request("3"))
+time.sleep(3)
+print(audio_assistant.process_request("пауза"))
+print(audio_assistant.process_request("продолжить"))
+print(audio_assistant.process_request("следующая"))
+print(audio_assistant.process_request("прослушать оглавление"))
