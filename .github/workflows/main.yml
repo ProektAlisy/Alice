@@ -61,12 +61,12 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ../home/alice_app/
+            sudo docker-compose stop
+            sudo docker-compose rm app
             echo ME_CONFIG_MONGODB_ADMINUSERNAME=${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }} > .env
             echo ME_CONFIG_MONGODB_ADMINPASSWORD=${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }} >> .env
             echo ME_CONFIG_MONGODB_URL=${{ secrets.ME_CONFIG_MONGODB_URL }} >> .env
             echo MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} >> .env
             echo MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} >> .env
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
-            sudo docker-compose stop
-            sudo docker-compose rm app
             sudo docker-compose up -d --build
