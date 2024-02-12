@@ -12,9 +12,7 @@ services:
     image: mongo:4.4.6
     restart: always
     container_name: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+    env_file: .env
     ports:
       - "27017:27017"
     volumes:
