@@ -115,42 +115,86 @@ class FiniteStateMachine:
             self.save_progress(trigger)
             self.save_history(trigger)
             answer = self._get_answer(trigger)
-            after_answer = self._get_after_answer(trigger, answer)
+            after_answer = self._get_after_answer(trigger)
             self.message = self._compose_message(answer, after_answer)
             self.incorrect_answers = 0
 
         setattr(self, name, _func)
 
-    def _get_answer(self, trigger):
-        if self.is_agree() and not (
-            self.command == "повтори" and self.previous_command == "нет"
-        ):
+    def _get_answer(self, trigger: str) -> str:
+        """Генерирует основной ответ навыка по триггеру.
+
+        Args:
+            trigger: Триггер, по которому генерируем ответ.
+
+        Returns:
+            Ответ навыка.
+        """
+        if self.is_agree() and not self._is_repeat_and_previous_disagree():
             return get_answer_by_trigger(
-                trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+                trigger,
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
-        else:
-            return disagree_answer_by_trigger(
-                trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-            )
+        return disagree_answer_by_trigger(
+            trigger,
+            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+        )
 
-    def _get_after_answer(self, trigger, answer):
-        if self.is_agree() and not (
-            self.command == "повтори" and self.previous_command == "нет"
-        ):
+    def _get_after_answer(self, trigger: str) -> str:
+        """Генерирует вторую часть ответа с подсказкой о продолжении.
+
+        Args:
+            trigger: Триггер, по которому генерируем подсказку.
+
+        Returns:
+            Подсказка.
+        """
+        if self.is_agree() and not self._is_repeat_and_previous_disagree():
             return get_after_answer_by_trigger(
-                trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+                trigger,
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
         else:
-            if self.command == "повтори" and self.previous_command == "нет":
-                return ""
-            else:
+            if not self._is_repeat_and_previous_disagree():
                 return self.get_next_after_answer(trigger)
+            else:
+                return ""
 
-    def _compose_message(self, answer, after_answer):
+    def _is_repeat_and_previous_disagree(self) -> bool:
+        """Проверка.
+
+        Является ли команда пользователя командой повтора и предыдущая
+        команда - командой отказа.
+
+        Returns:
+            True, если команда повтора и отказа.
+        """
+        return (
+            self.command == ServiceCommands.REPEAT
+            and self.previous_command == ServiceCommands.DISAGREE
+        )
+
+    @staticmethod
+    def _compose_message(answer: str, after_answer: str) -> str:
+        """Составляем сообщение пользователю.
+
+        Args:
+            answer: Основная часть ответа.
+            after_answer: Часть ответа с подсказкой о продолжении.
+
+        Returns:
+            Полный ответ.
+        """
         return f"{answer} {after_answer}"
 
-    def _generate_disagree_function(self, name, trigger):
-        """Создает функции, вызываемые триггерами."""
+    def _generate_disagree_function(self, name: str, trigger: str) -> None:
+        """Создает `disagree_` функцию.
+        Вызывается триггером, соответствующим отказу пользователя.
+
+        Args:
+            name: Имя функции.
+            trigger: Триггер, по которому вызываем функцию.
+        """
 
         def _func():
             if trigger in CORE_TRIGGERS:
@@ -188,7 +232,7 @@ class FiniteStateMachine:
         ]
 
     def _create_disagree_functions(self) -> None:
-        """Создание функций, обрабатывающих отказы пользователя."""
+        """Создание всех функций, обрабатывающих отказы пользователя."""
         [
             self._generate_disagree_function(
                 func_name + "_disagree",
@@ -205,7 +249,7 @@ class FiniteStateMachine:
         ]
 
     def get_next_after_answer(self, step: str) -> str:
-        """Возвращает следующий ответ с вариантами действия пользователя.
+        """Возвращает следующий ответ с подсказкой для пользователя.
 
         Args:
             step: Текущее состояние (соответствующий триггер).
@@ -255,10 +299,8 @@ class FiniteStateMachine:
         """
         self.incorrect_answers += 1
         if self.incorrect_answers <= 1:
-            self.message = Answers.DONT_UNDERSTAND_THE_FIRST_TIME
-        else:
-            self.message = Answers.DONT_UNDERSTAND_MORE_THAN_ONCE
-        return self.message
+            return Answers.DONT_UNDERSTAND_THE_FIRST_TIME
+        return Answers.DONT_UNDERSTAND_MORE_THAN_ONCE
 
     def dump_session_state(self) -> dict:
         """Функция возвращает словарь ответа для сохранения состояния навыка.
@@ -277,8 +319,8 @@ class FiniteStateMachine:
         # если нужно что-то хранить, например текущее состояние
         return {QUIZ_SESSION_STATE_KEY: self.quiz_skill.dump_state()}
 
-    def load_session_state(self, session_state: dict):
-        """Функция загружает текущее состояние из словаря session_state."""
+    def load_session_state(self, session_state: dict) -> None:
+        """Загружает текущее состояние из словаря session_state."""
         quiz_state = None
         if QUIZ_SESSION_STATE_KEY in session_state:
             quiz_state = session_state.pop(QUIZ_SESSION_STATE_KEY)
