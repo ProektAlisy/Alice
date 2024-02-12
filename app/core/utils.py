@@ -83,7 +83,7 @@ def get_disagree_answer_by_trigger(trigger: str, structure: tuple):
 
 
 def get_triggers_by_order(
-    trig_com_ans: list[tuple[str, str, str, str, str, str]],
+    trig_com_ans: list[tuple[str, str, str, str, str, str, str]],
 ) -> list[str]:
     """Возвращает список триггеров.
 

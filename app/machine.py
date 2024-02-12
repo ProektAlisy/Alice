@@ -6,6 +6,7 @@ from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
     ORDERED_TRIGGERS,
+    another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
 from app.constants.skill_transitions import transitions
@@ -157,8 +158,7 @@ class FiniteStateMachine:
             )
         if not self._is_repeat_and_previous_disagree():
             return self.get_next_after_answer(trigger)
-        else:
-            return ""
+        return ""
 
     def _is_repeat_and_previous_disagree(self) -> bool:
         """Проверка.
@@ -283,7 +283,6 @@ class FiniteStateMachine:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
-        ic(step, self.history)
         while step in self.history:
             step = next_trigger(
                 step,
@@ -302,8 +301,18 @@ class FiniteStateMachine:
         """
         self.incorrect_answers += 1
         if self.incorrect_answers <= 1:
-            return Answers.DONT_UNDERSTAND_THE_FIRST_TIME
-        return Answers.DONT_UNDERSTAND_MORE_THAN_ONCE
+            print(
+                another_answers_documents.get(
+                    "dont_understand_the_first_time", []
+                ),
+                "555",
+            )
+            return another_answers_documents.get(
+                "dont_understand_the_first_time", []
+            )
+        return another_answers_documents.get(
+            "dont_understand_more_than_once", []
+        )
 
     def dump_session_state(self) -> dict:
         """Функция возвращает словарь ответа для сохранения состояния навыка.

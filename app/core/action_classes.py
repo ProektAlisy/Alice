@@ -1,6 +1,7 @@
 from transitions import MachineError
 
 from app.constants.answers import Answers
+from app.constants.comands_triggers_answers import another_answers_documents
 from app.core.logger_initialize import logger
 from app.machine import FiniteStateMachine
 
@@ -39,7 +40,7 @@ class Action(BaseAction):
             MachineError, если триггер вызван из не дозволенного состояния.
         """
         if trigger_name is None:
-            return Answers.HELP_MAIN
+            return another_answers_documents.get("help_main", [])
         try:
             skill_obj.trigger(trigger_name)
         except MachineError:

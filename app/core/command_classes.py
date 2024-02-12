@@ -8,8 +8,10 @@ from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
     ORDERED_TRIGGERS,
+    another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
+from app.constants.quiz.intents import ServiceIntents
 from app.constants.quiz.intents import Intents
 from app.constants.states import QUIZ_STATE, QUIZ_TRIGGER_STATE
 from app.machine import FiniteStateMachine
@@ -141,7 +143,7 @@ class GreetingsCommand(Command):
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Выводит приветствие."""
-        return Answers.FULL_GREETINGS
+        return another_answers_documents.get("full_greetings", [])
 
 
 class RepeatCommand(Command):
@@ -168,7 +170,7 @@ class AliceCommandsCommand(Command):
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Вывод соответствующего ответа."""
-        return Answers.STANDARD_ALICE_COMMAND
+        return another_answers_documents.get("standard_alice_command", [])
 
 
 class AllCommandsCommand(Command):
@@ -176,16 +178,23 @@ class AllCommandsCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие для запуска `execute`."""
-        return command.lower() in all_commands
+        return command.lower() in all_commands or Intents.get_available(
+            intents
+        )
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
-        greeting = Answers.SMALL_GREETINGS if is_new else ""
+        greeting = (
+            another_answers_documents.get("small_greetings", [])
+            if is_new
+            else ""
+        )
         answer = self.command_instance.execute(
             self.skill,
             get_trigger_by_command(
                 command,
+                intents,
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
@@ -197,7 +206,9 @@ class AgreeCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
-        return command in ServiceCommands.AGREE
+        return (
+            command == ServiceCommands.AGREE or ServiceIntents.AGREE in intents
+        )
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Получение соответствующего сообщения."""
@@ -222,7 +233,10 @@ class DisagreeCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
-        return command == ServiceCommands.DISAGREE
+        return (
+            command == ServiceCommands.DISAGREE
+            or ServiceIntents.DISAGREE in intents
+        )
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Получение соответствующего ответа для пользователя."""
@@ -248,4 +262,4 @@ class ExitCommand(Command):
         self.skill.is_to_progress = False
         self.skill.history = []
         self.skill.progress = []
-        return Answers.EXIT_FROM_SKILL
+        return another_answers_documents.get("exit_from_skill", [])

@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
+from app.constants.comands_triggers_answers import another_answers_documents
 from app.core.action_classes import Action
 from app.core.command_classes import (
     AgreeCommand,
@@ -74,10 +75,14 @@ async def root(data: RequestData):
             break
 
     if skill.is_completed():
-        answer = Answers.ALL_COMPLETED
+        answer = another_answers_documents.get("all_completed", [])
         skill.progress = []
 
-    end_session = True if answer == Answers.EXIT_FROM_SKILL else False
+    end_session = (
+        True
+        if answer == another_answers_documents.get("exit_from_skill", [])
+        else False
+    )
     ic(command, skill.state, skill.progress, skill.history)
     skill.previous_command = command
     return {

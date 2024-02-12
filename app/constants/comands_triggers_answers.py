@@ -1,10 +1,11 @@
 from app.constants.commands import Commands
-from app.constants.intents import Intents
+from app.constants.quiz.intents import Intents
 from app.constants.states import HELP_STATES, STATES
 from app.monga.monga_initialize import (
     after_answers_collection,
     answers_collection,
     disagree_answers_collection,
+    another_answers_collection,
 )
 from app.core.utils import (
     create_func,
@@ -16,6 +17,7 @@ from app.core.utils import (
 answers_documents = read_from_db(answers_collection)
 after_answers_documents = read_from_db(after_answers_collection)
 disagree_answers_documents = read_from_db(disagree_answers_collection)
+another_answers_documents = read_from_db(another_answers_collection)
 
 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS = [
     (
