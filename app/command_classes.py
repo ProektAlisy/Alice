@@ -7,7 +7,8 @@ from app.constants.comands_triggers_answers import (
     ORDERED_TRIGGERS,
 )
 from app.constants.commands import ServiceCommands
-from app.constants.quiz.intents import Intents
+from app.constants.intents import Intents, ServiceIntents
+from app.constants.quiz.intents import Intents as QuizIntents
 from app.constants.states import QUIZ_STATE, QUIZ_TRIGGER_STATE
 from app.logger_initialize import logger
 from app.machine import FiniteStateMachine
@@ -66,7 +67,7 @@ class Command:
 
 class QuizCommand(Command):
     def condition(self, intents, command, is_new):
-        return Intents.TAKE_QUIZ in intents
+        return QuizIntents.TAKE_QUIZ in intents
 
     def execute(self, intents, command, is_new):
         return self.skill.quiz_skill.execute_command(command, intents)[1]
@@ -126,7 +127,9 @@ class AliceCommandsCommand(Command):
 
 class AllCommandsCommand(Command):
     def condition(self, intents, command, is_new):
-        return command.lower() in all_commands
+        return command.lower() in all_commands or Intents.get_available(
+            intents
+        )
 
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = True
@@ -136,6 +139,7 @@ class AllCommandsCommand(Command):
             self.skill,
             get_trigger_by_command(
                 command,
+                intents,
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
@@ -143,7 +147,9 @@ class AllCommandsCommand(Command):
 
 class AgreeCommand(Command):
     def condition(self, intents, command, is_new):
-        return command == ServiceCommands.AGREE
+        return (
+            command == ServiceCommands.AGREE or ServiceIntents.AGREE in intents
+        )
 
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = True
@@ -154,7 +160,7 @@ class AgreeCommand(Command):
             self.skill.machine.set_state(QUIZ_STATE)
             return self.skill.quiz_skill.execute_command(
                 "запусти викторину",
-                Intents.TAKE_QUIZ,
+                QuizIntents.TAKE_QUIZ,
             )[1]
         return self.command_instance.execute(
             self.skill,
@@ -164,7 +170,10 @@ class AgreeCommand(Command):
 
 class DisagreeCommand(Command):
     def condition(self, intents, command, is_new):
-        return command == ServiceCommands.DISAGREE
+        return (
+            command == ServiceCommands.DISAGREE
+            or ServiceIntents.DISAGREE in intents
+        )
 
     def execute(self, intents, command, is_new):
         self.skill.is_to_progress = False
