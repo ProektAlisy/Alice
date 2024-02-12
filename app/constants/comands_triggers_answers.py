@@ -1,4 +1,5 @@
 from app.constants.commands import Commands
+from app.constants.intents import Intents
 from app.constants.states import HELP_STATES, STATES
 from app.monga.monga_initialize import (
     after_answers_collection,
@@ -24,6 +25,7 @@ COMMANDS_TRIGGERS_GET_FUNC_ANSWERS = [
         answers_documents.get(command_name, ""),
         after_answers_documents.get(command_name, ""),
         disagree_answers_documents.get(command_name, ""),
+        getattr(Intents, command_name.upper()),
     )
     for command_name in STATES[1:] + HELP_STATES
 ]

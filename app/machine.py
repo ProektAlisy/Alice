@@ -105,7 +105,9 @@ class FiniteStateMachine:
 
     def _generate_agree_function(self, name, trigger):
         """Создает функции, вызываемые триггерами.
-        Создаем сразу все функции, которые указаны в transitions класса FiniteStateMachine.
+
+        Создаем сразу все функции, которые указаны в transitions класса
+        FiniteStateMachine.
         Args:
             name: Имя функции.
             trigger: Вызванная триггер.
@@ -226,6 +228,7 @@ class FiniteStateMachine:
                 answer,
                 _,
                 _,
+                _,
             ) in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
         ]
 
@@ -243,6 +246,7 @@ class FiniteStateMachine:
                 _,
                 _,
                 disagree_answer,
+                _,
             ) in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
         ]
 
@@ -279,6 +283,7 @@ class FiniteStateMachine:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
+        ic(step, self.history)
         while step in self.history:
             step = next_trigger(
                 step,

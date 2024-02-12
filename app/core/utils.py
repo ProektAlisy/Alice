@@ -43,11 +43,16 @@ def find_previous_element(
     return None  # Если элемент является первым в списке
 
 
-def get_trigger_by_command(command: str, structure: tuple) -> str | None:
+def get_trigger_by_command(
+    command: str,
+    intents: list[str],
+    structure: tuple,
+) -> str | None:
     """Возвращает триггер, соответствующий заданной команде.
 
     Args:
         command: Команда.
+        intents: Список распознанных интентов команды.
         structure: Структура, содержащая соответствующие команды и триггеры.
 
     Returns:
@@ -55,7 +60,7 @@ def get_trigger_by_command(command: str, structure: tuple) -> str | None:
         не найден, возвращает None.
     """
     for trig_commands in structure:
-        if trig_commands[0].lower() == command:
+        if trig_commands[0].lower() == command or trig_commands[6] in intents:
             return trig_commands[1]
     return None
 
