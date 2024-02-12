@@ -32,6 +32,6 @@ services:
     depends_on:
       - app
 
-#volumes:
-#  mongodata:
-#    driver: local
+volumes:
+  mongodata:
+    driver: local
