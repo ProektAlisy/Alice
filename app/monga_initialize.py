@@ -6,9 +6,9 @@ from pymongo import MongoClient
 load_dotenv()
 
 
-mongo_test_host = os.getenv("MONGO_TEST_HOST")
-mongo_user = os.getenv("MONGO_TEST_USER")
-mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
+mongo_test_host = os.getenv("ME_CONFIG_MONGODB_URL")
+mongo_user = os.getenv("MONGO_INITDB_ROOT_USERNAME")
+mongo_pass = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
 
 client = MongoClient(
     host=mongo_test_host,
