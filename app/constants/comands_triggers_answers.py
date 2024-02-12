@@ -1,11 +1,11 @@
 from app.constants.commands import Commands
 from app.constants.states import HELP_STATES, STATES
-from app.monga_initialize import (
+from app.monga.monga_initialize import (
     after_answers_collection,
     answers_collection,
     disagree_answers_collection,
 )
-from app.utils import (
+from app.core.utils import (
     create_func,
     create_trigger,
     get_triggers_by_order,

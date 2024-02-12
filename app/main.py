@@ -8,8 +8,8 @@ from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
-from app.command_classes import (
-    Action,
+from app.core.action_classes import Action
+from app.core.command_classes import (
     AgreeCommand,
     AliceCommandsCommand,
     AllCommandsCommand,

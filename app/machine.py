@@ -16,8 +16,8 @@ from app.constants.states import (
     TRIGGERS_BY_GROUP,
     TRIGGER_HELP_MAIN,
 )
-from app.quiz import QuizSkill
-from app.utils import (
+from app.quiz.quiz import QuizSkill
+from app.core.utils import (
     create_trigger,
     disagree_answer_by_trigger,
     find_previous_element,
@@ -130,12 +130,11 @@ class FiniteStateMachine:
         Returns:
             Ответ навыка.
         """
-        if self.is_agree() and not self._is_repeat_and_previous_disagree():
-            return get_answer_by_trigger(
-                trigger,
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+        if self._is_repeat_and_previous_disagree():
+            return disagree_answer_by_trigger(
+                trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
             )
-        return disagree_answer_by_trigger(
+        return get_answer_by_trigger(
             trigger,
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
@@ -154,11 +153,10 @@ class FiniteStateMachine:
                 trigger,
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
+        if not self._is_repeat_and_previous_disagree():
+            return self.get_next_after_answer(trigger)
         else:
-            if not self._is_repeat_and_previous_disagree():
-                return self.get_next_after_answer(trigger)
-            else:
-                return ""
+            return ""
 
     def _is_repeat_and_previous_disagree(self) -> bool:
         """Проверка.
@@ -310,7 +308,7 @@ class FiniteStateMachine:
 
         Examples:
             {
-                "quiz_state": { .... } - параметры состояния викторины
+                "quiz_state": {....} - параметры состояния викторины
                 ...
             }
         """
@@ -335,7 +333,7 @@ class FiniteStateMachine:
         Returns:
           True, если пользователь согласился.
         """
-        return self.command == ServiceCommands.AGREE
+        return self.command in ServiceCommands.AGREE
 
     def is_disagree(self):
         """Функция состояния.
@@ -345,7 +343,7 @@ class FiniteStateMachine:
         Returns:
           True, если пользователь отказался.
         """
-        return self.command == ServiceCommands.DISAGREE
+        return self.command in ServiceCommands.DISAGREE
 
     def is_completed(self) -> bool:  # noqa
         """Проверяет, завершено ли обучение.

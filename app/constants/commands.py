@@ -75,7 +75,11 @@ class ServiceCommands:
     def __setattr__(self, key, value):
         raise AttributeError("Команды изменять нельзя!")
 
-    AGREE = "да"
+    AGREE = (
+        "да",
+        "начинай",
+        "давай",
+    )
     DISAGREE = "нет"
     EXIT = "выход"
     NEXT = "дальше"
