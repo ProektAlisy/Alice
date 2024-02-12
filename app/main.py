@@ -1,25 +1,28 @@
+"""
+Точка входа в приложение.
+"""
+
 from typing import Optional
+
 from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
-from app.command_classes import Action, skill
+from app.command_classes import (
+    Action,
+    AgreeCommand,
+    AliceCommandsCommand,
+    AllCommandsCommand,
+    DisagreeCommand,
+    ExitCommand,
+    GreetingsCommand,
+    QuizCommand,
+    QuizSetState,
+    RepeatCommand,
+    skill,
+)
 from app.constants.answers import Answers
-from app.constants.comands_triggers_answers import (
-    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
-)
-from app.constants.commands import ServiceCommands
-from app.constants.quiz.intents import Intents
-from app.utils import (
-    get_all_commands,
-    get_next_trigger,
-    get_trigger_by_command,
-    is_alice_commands,
-    is_completed,
-    last_trigger,
-)
-from app.constants.intents import Intents
-from app.machine import FiniteStateMachine
+
 
 class RequestData(BaseModel):
     session: dict
@@ -45,72 +48,42 @@ async def root(data: RequestData):
 
     try:
         session_state = data.state.get("session")
-    except:
+    except AttributeError:
         session_state = {}
 
     skill.load_session_state(session_state)
-    all_commands = get_all_commands(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
     skill.command = command
-
-    if is_new or command in all_commands or is_alice_commands(command):
-        skill.incorrect_answers = 0
-
-    if command.lower() == ServiceCommands.EXIT:
-        answer = Answers.EXIT_FROM_SKILL
-        return {
-            "response": {
-                "text": answer,
-                "end_session": True,
-            },
-            "version": "1.0",
-        }
     command_instance = Action()
-    if skill.state == "take_quiz":
-        result, answer = skill.quiz_skill.execute_command(command, intents)
-        if result:
-            return {
-                "response": {
-                    "text": answer,
-                    "end_session": False,
-                },
-                "session_state": skill.dump_session_state(),
-                "version": "1.0",
-            }
-    if Intents.TAKE_QUIZ in intents:
-        skill.machine.set_state("quiz")
-        result, answer = skill.quiz_skill.execute_command(command, intents)
-    elif not command and is_new:
-        answer = Answers.FULL_GREETINGS
-    elif is_completed(skill):
+
+    commands = [
+        QuizSetState(skill, command_instance),
+        QuizCommand(skill, command_instance),
+        GreetingsCommand(skill, is_new),
+        RepeatCommand(skill, command_instance),
+        AliceCommandsCommand(skill, command_instance),
+        AllCommandsCommand(skill, command_instance),
+        AgreeCommand(skill, command_instance),
+        DisagreeCommand(skill, command_instance),
+        ExitCommand(skill, command_instance),
+    ]
+    answer = skill.dont_understand()
+
+    for command_obj in commands:
+        if command_obj.condition(intents, command, is_new):
+            answer = command_obj.execute(intents, command, is_new)
+            break
+
+    if skill.is_completed():
         answer = Answers.ALL_COMPLETED
-    elif command.lower() == ServiceCommands.REPEAT:
-        command_instance = Action()
-        answer = command_instance.execute(skill, last_trigger(skill))
-    elif is_alice_commands(command):
-        answer = Answers.STANDARD_ALICE_COMMAND
-    elif command.lower() in all_commands:
-        skill.flag = True
-        greetings = Answers.SMALL_GREETINGS if is_new else ""
-        answer = greetings + command_instance.execute(
-            skill,
-            get_trigger_by_command(
-                command,
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
-            ),
-        )
-    elif command in (ServiceCommands.AGREE, ServiceCommands.DISAGREE):
-        skill.flag = True if command == ServiceCommands.AGREE else False
-        answer = command_instance.execute(
-            skill,
-            get_next_trigger(skill, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS),
-        )
-    else:
-        answer = skill.dont_understand()
-    ic(command, skill.state, skill.progress)
+        skill.progress = []
+
+    end_session = True if answer == Answers.EXIT_FROM_SKILL else False
+    ic(command, skill.state, skill.progress, skill.history)
+    skill.previous_command = command
     return {
         "response": {
             "text": answer,
-            "end_session": False,
+            "end_session": end_session,
         },
         "session_state": skill.dump_session_state(),
         "version": "1.0",

@@ -11,7 +11,10 @@ services:
   mongo:
     image: mongo:4.4.6
     restart: always
-    env_file: .env
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - 27017:27017
     volumes:
@@ -29,6 +32,6 @@ services:
     depends_on:
       - app
 
-volumes:
-  mongodata:
-    driver: local
+#volumes:
+#  mongodata:
+#    driver: local

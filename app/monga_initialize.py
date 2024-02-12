@@ -6,22 +6,17 @@ from pymongo import MongoClient
 load_dotenv()
 
 
-# def connect_to_mongodb():
-mongo_host = os.getenv("MONGO_HOST")
-mongo_user = os.getenv("MONGO_USER")  # noqa
-mongo_pass = os.getenv("MONGO_PASSWORD")  # noqa
+mongo_test_host = os.getenv("ME_CONFIG_MONGODB_URL")
+mongo_user = os.getenv("MONGO_INITDB_ROOT_USERNAME")
+mongo_pass = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
 
 client = MongoClient(
-    host=mongo_host,
-    # username=mongo_user,
-    # password=mongo_pass,
+    host=mongo_test_host,
+    username=mongo_user,
+    password=mongo_pass,
 )
 db = client["database"]
 answers_collection = db["answers"]
 after_answers_collection = db["after_answers"]
 disagree_answers_collection = db["disagree_answers"]
-# return (
-#     db,
-#     answers_collection,
-#     after_answers_collection,     disagree_answers_collection,
-# )
+another_answers_collection = db["another_answers"]
