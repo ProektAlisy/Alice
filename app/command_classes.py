@@ -67,7 +67,7 @@ class Command:
 
 class QuizCommand(Command):
     def condition(self, intents, command, is_new):
-        return Intents.TAKE_QUIZ in intents
+        return QuizIntents.TAKE_QUIZ in intents
 
     def execute(self, intents, command, is_new):
         return self.skill.quiz_skill.execute_command(command, intents)[1]

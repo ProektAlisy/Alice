@@ -47,13 +47,13 @@ class QuizMessages:
         """Вы оказались в разделе, где можете проверить насколько
         усвоен пройденный теоретический материал.
         Я задам Вам {total_questions_count} вопросов, и после каждого вопроса
-        предложу три варианта ответа.
+        предложу три варианта ответа. sil <[300]>
         Вам надо выбрать единственный правильный ответ.
-        Для ответа просто назовите букву с правильным ответом: А, Б или В.
+        Для ответа просто назовите букву с правильным ответом: А, Бэ или Вэ.
         Если чувствуете, что Вам пока не хватает знаний, скажите:
-        'Завершить викторину'.
+        'Завершить викторину'. sil <[300]>
         Если нужно повторить вопрос и варианты ответов, скажите: 'Повтори'.
-        Приступаем?
+        sil <[300]> Приступ+аем?
         """.replace(
             "\n",
             " ",
@@ -217,7 +217,7 @@ class QuizQuestion:
         choices_as_str = "\n".join(
             [
                 QuizMessages.CHOICE_FORMAT.format(
-                    key=choice[0],
+                    key=QuizQuestion.choice_to_tts(choice[0]),
                     value=choice[1],
                 )
                 for choice in self.choices.items()
@@ -229,6 +229,22 @@ class QuizQuestion:
                 choices=choices_as_str,
             )
         )
+
+    @classmethod
+    def choice_to_tts(cls, choice: str) -> str:
+        """Преобразует вариант ответа в tts.
+
+        Добавляет "э" для б|в|г|д|ж|з
+
+        Args:
+            choice (str): Вариант ответа на вопрос (ключ)
+
+        Returns:
+            str: tts транскрипцию ответа.
+        """
+        if choice.lower() in "бвгджз":
+            return choice + "э"
+        return choice
 
     def __str__(self):
         return self.question_and_choices
@@ -474,7 +490,11 @@ class QuizSkill:
                 return QuizMessages.PARTIAL_RESULT_0
             case 1:
                 return QuizMessages.PARTIAL_RESULT_1
-            case 2 | 3 | 4:
+            case 2:
+                return QuizMessages.PARTIAL_RESULT_NOT_BAD.format(
+                    mistakes="две",
+                )
+            case 3 | 4:
                 return QuizMessages.PARTIAL_RESULT_NOT_BAD.format(
                     mistakes=self._quiz.mistakes_count,
                 )
