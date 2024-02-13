@@ -10,11 +10,7 @@ mongo_test_host = os.getenv("ME_CONFIG_MONGODB_URL")
 mongo_user = os.getenv("MONGO_INITDB_ROOT_USERNAME")
 mongo_pass = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
 
-client = MongoClient(
-    host=mongo_test_host,
-    username=mongo_user,
-    password=mongo_pass,
-)
+client = MongoClient(host=mongo_test_host)
 db = client["database"]
 answers_collection = db["answers"]
 after_answers_collection = db["after_answers"]

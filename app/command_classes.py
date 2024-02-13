@@ -128,7 +128,7 @@ class AliceCommandsCommand(Command):
 class AllCommandsCommand(Command):
     def condition(self, intents, command, is_new):
         return command.lower() in all_commands or Intents.get_available(
-            intents
+            intents,
         )
 
     def execute(self, intents, command, is_new):
