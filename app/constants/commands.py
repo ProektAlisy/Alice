@@ -80,7 +80,10 @@ class ServiceCommands:
         "начинай",
         "давай",
     )
-    DISAGREE = "нет"
+    DISAGREE = (
+        "нет",
+        "не надо",
+    )
     EXIT = "выход"
     NEXT = "дальше"
     REPEAT = "повтори"

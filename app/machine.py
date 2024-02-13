@@ -168,7 +168,7 @@ class FiniteStateMachine:
         """
         return (
             self.command == ServiceCommands.REPEAT
-            and self.previous_command == ServiceCommands.DISAGREE
+            and self.previous_command in ServiceCommands.DISAGREE
         )
 
     @staticmethod
@@ -298,12 +298,6 @@ class FiniteStateMachine:
         """
         self.incorrect_answers += 1
         if self.incorrect_answers <= 1:
-            print(
-                another_answers_documents.get(
-                    "dont_understand_the_first_time", []
-                ),
-                "555",
-            )
             return another_answers_documents.get(
                 "dont_understand_the_first_time", []
             )
