@@ -1,5 +1,5 @@
 from app.constants.commands import Commands
-from app.constants.quiz.intents import Intents
+from app.constants.intents import Intents
 from app.constants.states import HELP_STATES, STATES
 from app.monga.monga_initialize import (
     after_answers_collection,

@@ -22,7 +22,6 @@ from app.core.command_classes import (
     RepeatCommand,
     skill,
 )
-from app.constants.answers import Answers
 
 
 class RequestData(BaseModel):

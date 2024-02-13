@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from app.constants.quiz.intents import Intents
+from app.constants.intents import Intents
 from app.quiz import (
     Quiz,
     QuizFileNotFoundAliceException,

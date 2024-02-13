@@ -2,17 +2,15 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
-from transitions import MachineError
 
-from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
     ORDERED_TRIGGERS,
     another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
-from app.constants.quiz.intents import ServiceIntents
-from app.constants.quiz.intents import Intents
+from app.constants.intents import ServiceIntents, Intents
+from app.constants.quiz.intents import Intents as QuizIntents
 from app.constants.states import QUIZ_STATE, QUIZ_TRIGGER_STATE
 from app.machine import FiniteStateMachine
 from app.core.utils import (
@@ -86,7 +84,7 @@ class QuizCommand(Command):
         is_new: bool,
     ) -> bool:
         """Определяем, не вызывается ли викторина."""
-        return Intents.TAKE_QUIZ in intents
+        return QuizIntents.TAKE_QUIZ in intents
 
     def execute(
         self,
@@ -151,7 +149,10 @@ class RepeatCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие для выполнения `execute`."""
-        return command.lower() == ServiceCommands.REPEAT
+        return (
+            command.lower() == ServiceCommands.REPEAT
+            or ServiceIntents.REPEAT in intents
+        )
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Вызываем последний триггер в истории состояний."""
@@ -198,7 +199,7 @@ class AllCommandsCommand(Command):
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
-        return f"{greeting}. {answer}"
+        return f"{greeting} {answer}"
 
 
 class AgreeCommand(Command):
@@ -255,7 +256,7 @@ class ExitCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
-        return command == ServiceCommands.EXIT
+        return (command == ServiceCommands.EXIT,)
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Обнуление прогресса и соответствующее сообщение пользователю."""

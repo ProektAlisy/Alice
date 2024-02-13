@@ -2,7 +2,6 @@ import logging
 
 from transitions import Machine
 
-from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
     ORDERED_TRIGGERS,
@@ -32,8 +31,6 @@ from app.core.utils import (
 )
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
-
-logging.basicConfig(level=logging.INFO)
 
 
 class FiniteStateMachine:
