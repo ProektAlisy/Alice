@@ -2,17 +2,16 @@ import json
 
 import pytest
 
-from app.constants.quiz.intents import Intents
-from app.quiz import (
-    Quiz,
+from app.constants.quiz.intents import QuizIntents
+from app.quiz.exceptions import (
     QuizFileNotFoundAliceException,
     QuizFileWrongAnswerAliceException,
     QuizFileWrongFormatAliceException,
     QuizIsFinishedAliceException,
     QuizNoActiveQuestionAliceException,
-    QuizSkill,
-    QuizState,
 )
+from app.quiz.quiz import Quiz
+from app.quiz.quizskill import QuizSkill, QuizState
 
 quiz_state_init = {
     "questions_order": [0, 1, 2],
@@ -334,9 +333,9 @@ def test_quiz_skill_init_transitions():
 @pytest.mark.parametrize(
     "intent, new_state, expected_result",
     [
-        (Intents.REPEAT, QuizState.RULES, True),
-        (Intents.TERMINATE_QUIZ, QuizState.INIT, True),
-        (Intents.AGREE, QuizState.IN_PROGRESS, True),
+        (QuizIntents.REPEAT, QuizState.RULES, True),
+        (QuizIntents.TERMINATE_QUIZ, QuizState.INIT, True),
+        (QuizIntents.AGREE, QuizState.IN_PROGRESS, True),
         ("unknown_intent", QuizState.RULES, True),
     ],
 )
@@ -357,9 +356,9 @@ def test_quiz_skill_rules_transitions(
 @pytest.mark.parametrize(
     "command, intent, new_state, expected_result",
     [
-        ("", Intents.REPEAT, QuizState.IN_PROGRESS, True),
-        ("", Intents.NO_ANSWER, QuizState.IN_PROGRESS, True),
-        ("", Intents.TERMINATE_QUIZ, QuizState.TERMINATED, True),
+        ("", QuizIntents.REPEAT, QuizState.IN_PROGRESS, True),
+        ("", QuizIntents.NO_ANSWER, QuizState.IN_PROGRESS, True),
+        ("", QuizIntents.TERMINATE_QUIZ, QuizState.TERMINATED, True),
         ("а", "а", QuizState.FINISHED, True),
         ("unknown_command", "unknown_intent", QuizState.IN_PROGRESS, True),
     ],
@@ -426,10 +425,10 @@ def test_quiz_skill_finished_transitions(
 @pytest.mark.parametrize(
     "intent, new_state, expected_result",
     [
-        (Intents.START_AGAIN, QuizState.RULES, True),
-        (Intents.CONFIRM, QuizState.RULES, True),
-        (Intents.REJECT, QuizState.FINISHED, True),
-        (Intents.TERMINATE_QUIZ, QuizState.FINISHED, True),
+        (QuizIntents.START_AGAIN, QuizState.RULES, True),
+        (QuizIntents.CONFIRM, QuizState.RULES, True),
+        (QuizIntents.REJECT, QuizState.FINISHED, True),
+        (QuizIntents.TERMINATE_QUIZ, QuizState.FINISHED, True),
         ("unknown_intent", QuizState.RESTART, True),
     ],
 )
@@ -450,7 +449,7 @@ def test_quiz_skill_restart_transitions(
 @pytest.mark.parametrize(
     "intent, new_state, expected_result",
     [
-        (Intents.TAKE_QUIZ, QuizState.RESUME, True),
+        (QuizIntents.TAKE_QUIZ, QuizState.RESUME, True),
         ("unknown_intent", QuizState.TERMINATED, False),
     ],
 )
@@ -471,10 +470,10 @@ def test_quiz_skill_terminated_transitions(
 @pytest.mark.parametrize(
     "intent, new_state, expected_result",
     [
-        (Intents.REPEAT, QuizState.RESUME, True),
-        (Intents.START_AGAIN, QuizState.IN_PROGRESS, True),
-        (Intents.CONTINUE, QuizState.IN_PROGRESS, True),
-        (Intents.TERMINATE_QUIZ, QuizState.TERMINATED, True),
+        (QuizIntents.REPEAT, QuizState.RESUME, True),
+        (QuizIntents.START_AGAIN, QuizState.IN_PROGRESS, True),
+        (QuizIntents.CONTINUE, QuizState.IN_PROGRESS, True),
+        (QuizIntents.TERMINATE_QUIZ, QuizState.TERMINATED, True),
         ("unknown_intent", QuizState.RESUME, True),
     ],
 )

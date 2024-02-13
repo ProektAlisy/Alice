@@ -1,6 +1,5 @@
 from transitions import MachineError
 
-from app.constants.answers import Answers
 from app.constants.comands_triggers_answers import another_answers_documents
 from app.core.logger_initialize import logger
 from app.machine import FiniteStateMachine
