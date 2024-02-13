@@ -9,10 +9,9 @@ from app.constants.comands_triggers_answers import (
     another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
-from app.constants.intents import ServiceIntents, Intents
-from app.constants.quiz.intents import Intents as QuizIntents
+from app.constants.intents import Intents, ServiceIntents
+from app.constants.quiz.intents import QuizIntents
 from app.constants.states import QUIZ_STATE, QUIZ_TRIGGER_STATE
-from app.machine import FiniteStateMachine
 from app.core.utils import (
     get_after_answer_by_trigger,
     get_all_commands,
@@ -22,6 +21,7 @@ from app.core.utils import (
     last_trigger,
     next_trigger,
 )
+from app.machine import FiniteStateMachine
 
 skill = FiniteStateMachine()
 all_commands = get_all_commands(COMMANDS_TRIGGERS_GET_FUNC_ANSWERS)
@@ -199,7 +199,7 @@ class AllCommandsCommand(Command):
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
-        return f"{greeting} {answer}"
+        return f"{greeting}. {answer}"
 
 
 class AgreeCommand(Command):
@@ -256,7 +256,7 @@ class ExitCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
-        return (command == ServiceCommands.EXIT,)
+        return command == ServiceCommands.EXIT
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Обнуление прогресса и соответствующее сообщение пользователю."""

@@ -13,10 +13,9 @@ from app.constants.states import (
     CORE_TRIGGERS,
     HELP_STATES,
     STATES,
-    TRIGGERS_BY_GROUP,
     TRIGGER_HELP_MAIN,
+    TRIGGERS_BY_GROUP,
 )
-from app.quiz.quiz import QuizSkill
 from app.core.utils import (
     create_trigger,
     disagree_answer_by_trigger,
@@ -29,6 +28,7 @@ from app.core.utils import (
     last_trigger,
     next_trigger,
 )
+from app.quiz.quizskill import QuizSkill
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
 
@@ -132,7 +132,8 @@ class FiniteStateMachine:
         """
         if self._is_repeat_and_previous_disagree():
             return disagree_answer_by_trigger(
-                trigger, COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
+                trigger,
+                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
         return get_answer_by_trigger(
             trigger,
@@ -336,7 +337,7 @@ class FiniteStateMachine:
         Проверяет, ответил ли пользователь согласием.
 
         Returns:
-          True, если пользователь согласился.
+            True, если пользователь согласился.
         """
         return self.command in ServiceCommands.AGREE
 
@@ -346,7 +347,7 @@ class FiniteStateMachine:
         Проверяет, ответил ли пользователем отказом.
 
         Returns:
-          True, если пользователь отказался.
+            True, если пользователь отказался.
         """
         return self.command in ServiceCommands.DISAGREE
 

@@ -1,4 +1,4 @@
-class Intents:
+class QuizIntents:
     """Класс для используемых команд намерений (intents)."""
 
     def __setattr__(self, key, value):
