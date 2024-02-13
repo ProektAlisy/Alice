@@ -141,7 +141,7 @@ class GreetingsCommand(Command):
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Выводит приветствие."""
-        return another_answers_documents.get("full_greetings", [])
+        return another_answers_documents.get("full_greetings", "")
 
 
 class RepeatCommand(Command):
@@ -171,7 +171,7 @@ class AliceCommandsCommand(Command):
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Вывод соответствующего ответа."""
-        return another_answers_documents.get("standard_alice_command", [])
+        return another_answers_documents.get("standard_alice_command", "")
 
 
 class AllCommandsCommand(Command):
@@ -187,7 +187,7 @@ class AllCommandsCommand(Command):
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
         greeting = (
-            another_answers_documents.get("small_greetings", [])
+            another_answers_documents.get("small_greetings", "")
             if is_new
             else ""
         )
@@ -199,7 +199,7 @@ class AllCommandsCommand(Command):
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
-        return f"{greeting}. {answer}"
+        return f"{greeting} {answer}"
 
 
 class AgreeCommand(Command):
@@ -263,4 +263,4 @@ class ExitCommand(Command):
         self.skill.is_to_progress = False
         self.skill.history = []
         self.skill.progress = []
-        return another_answers_documents.get("exit_from_skill", [])
+        return another_answers_documents.get("exit_from_skill", "")
