@@ -65,6 +65,7 @@ jobs:
             sudo docker-compose rm app
             echo ME_CONFIG_MONGODB_ADMINUSERNAME=${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }} > .env
             echo ME_CONFIG_MONGODB_ADMINPASSWORD=${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }} >> .env
+            echo MONGO_TEST_HOST=${{ secrets.MONGO_TEST_HOST }}>> .env
             echo ME_CONFIG_MONGODB_URL=${{ secrets.ME_CONFIG_MONGODB_URL }} >> .env
             echo MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} >> .env
             echo MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} >> .env

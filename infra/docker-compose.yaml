@@ -5,6 +5,9 @@ services:
     image: guidedogsalice/alice_guidedogs:latest
     platform: linux/x86_64
     restart: always
+    environment:
+      - ME_CONFIG_MONGODB_URL=${ME_CONFIG_MONGODB_URL}
+      - MONGO_TEST_HOST=${MONGO_TEST_HOST}
     networks:
       - custom
     depends_on:
