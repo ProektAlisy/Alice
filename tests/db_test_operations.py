@@ -8,8 +8,11 @@ load_dotenv()
 mongo_test_host = os.getenv("MONGO_TEST_HOST")
 mongo_user = os.getenv("MONGO_TEST_USER")
 mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
+mongo_port = os.getenv("MONGO_PORT")
 
-client = MongoClient(host=mongo_test_host)
+uri = f"mongodb://{mongo_user}:{mongo_pass}@{mongo_test_host}:{mongo_port}/"
+
+client = MongoClient(uri)
 db = client["test_db"]
 
 

@@ -9,8 +9,11 @@ load_dotenv()
 mongo_host = os.getenv("ME_CONFIG_MONGODB_URL")
 mongo_user = os.getenv("MONGO_INITDB_ROOT_USERNAME")
 mongo_pass = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+mongo_port = os.getenv("MONGO_PORT")
 
-client = MongoClient(host=mongo_host)
+uri = f"mongodb://{mongo_user}:{mongo_pass}@{mongo_host}:{mongo_port}/"
+
+client = MongoClient(uri)
 
 db = client["database"]
 answers_collection = db["answers"]
