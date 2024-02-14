@@ -10,7 +10,8 @@ load_dotenv()
 # mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
 # mongo_port = os.getenv("MONGO_PORT")
 
-uri = ("mongodb://adminUser:adminPassword@www.guidedogs.acceleratorpracticum.ru"
+uri = ("mongodb://adminUser:adminPassword@"
+       "www.guidedogs.acceleratorpracticum.ru"
        ":27017/database")
 
 client = MongoClient(uri)
