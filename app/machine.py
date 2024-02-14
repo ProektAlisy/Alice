@@ -1,5 +1,3 @@
-import logging
-
 from transitions import Machine
 
 from app.constants.comands_triggers_answers import (
@@ -300,10 +298,12 @@ class FiniteStateMachine:
         self.incorrect_answers += 1
         if self.incorrect_answers <= 1:
             return another_answers_documents.get(
-                "dont_understand_the_first_time", ""
+                "dont_understand_the_first_time",
+                "",
             )
         return another_answers_documents.get(
-            "dont_understand_more_than_once", ""
+            "dont_understand_more_than_once",
+            "",
         )
 
     def dump_session_state(self) -> dict:

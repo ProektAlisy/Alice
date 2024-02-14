@@ -100,7 +100,10 @@ class QuizSetState(Command):
     """Работа викторины."""
 
     def condition(
-        self, intents: list[str], command: str, is_new: bool
+        self,
+        intents: list[str],
+        command: str,
+        is_new: bool,
     ) -> bool:
         """Проверяем, не окончена ли викторина."""
         return not skill.quiz_skill.is_finished()
@@ -180,7 +183,7 @@ class AllCommandsCommand(Command):
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие для запуска `execute`."""
         return command.lower() in all_commands or Intents.get_available(
-            intents
+            intents,
         )
 
     def execute(self, intents: list[str], command: str, is_new: bool):
