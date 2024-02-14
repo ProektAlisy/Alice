@@ -6,12 +6,12 @@ from pymongo import MongoClient
 load_dotenv()
 
 
-mongo_host = os.getenv("ME_CONFIG_MONGODB_URL")
-mongo_user = os.getenv("MONGO_INITDB_ROOT_USERNAME")
-mongo_pass = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+mongo_host = os.getenv("MONGO_TEST_HOST")
+mongo_user = os.getenv("MONGO_TEST_USER")
+mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
 mongo_port = os.getenv("MONGO_PORT")
 
-uri = f"mongodb://{mongo_user}:{mongo_pass}@{mongo_host}:{mongo_port}/"
+uri = f"{mongo_host}/{mongo_user}:{mongo_pass}@{mongo_host}:{mongo_port}/"
 
 client = MongoClient(uri)
 
