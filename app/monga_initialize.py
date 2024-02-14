@@ -11,7 +11,8 @@ mongo_user = os.getenv("MONGO_TEST_USER")
 mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
 mongo_port = os.getenv("MONGO_PORT")
 
-uri = f"{mongo_host}/{mongo_user}:{mongo_pass}@{mongo_host}:{mongo_port}/"
+uri = f"mongodb://{mongo_user}:{mongo_pass}@{mongo_host}:{mongo_port}/"
+
 
 client = MongoClient(uri)
 
