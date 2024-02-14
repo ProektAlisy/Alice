@@ -17,14 +17,21 @@ mongo_test_host = os.getenv("MONGO_TEST_HOST")
 mongo_user = os.getenv("MONGO_TEST_USER")
 mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
 mongo_port = os.getenv("MONGO_PORT")
-uri = f"mongodb://{mongo_user}:{mongo_pass}@{mongo_test_host}:{mongo_port}/"
+# uri = ("mongodb://adminUser:adminPassword@"
+#        "www.guidedogs.acceleratorpracticum.ru"
+#        ":27017/?authSource=adminUser")
 
 # client = MongoClient(uri)
 
 
 @pytest.fixture
 def mongo_client():
-    client = MongoClient(uri)
+    client = MongoClient(
+        'www.guidedogs.acceleratorpracticum.ru',
+        username='adminUser',
+        password='adminPassword',
+        authMechanism='SCRAM-SHA-256',
+    )
     db = client["test_db"]
     yield client
     client.drop_database(db)
