@@ -2,7 +2,7 @@ import os
 
 import pytest
 from dotenv import load_dotenv
-from pymongo import MongoClient
+from mongomock import MongoClient
 
 from tests.db_test_operations import (
     delete_data,
@@ -17,21 +17,11 @@ mongo_test_host = os.getenv("MONGO_TEST_HOST")
 mongo_user = os.getenv("MONGO_TEST_USER")
 mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
 mongo_port = os.getenv("MONGO_PORT")
-# uri = ("mongodb://adminUser:adminPassword@"
-#        "www.guidedogs.acceleratorpracticum.ru"
-#        ":27017/?authSource=adminUser")
-
-# client = MongoClient(uri)
 
 
 @pytest.fixture
 def mongo_client():
-    client = MongoClient(
-        'www.guidedogs.acceleratorpracticum.ru',
-        username='adminUser',
-        password='adminPassword',
-        authMechanism='SCRAM-SHA-256',
-    )
+    client = MongoClient()
     db = client["test_db"]
     yield client
     client.drop_database(db)
