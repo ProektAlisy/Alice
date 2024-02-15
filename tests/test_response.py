@@ -15,7 +15,7 @@ def test_root_endpoint():
     request_data_new_session = {
         "session": {"new": True},
         "request": {"command": "some_command"},
-        "state": None
+        "state": None,
     }
     response_new_session = client.post("/", json=request_data_new_session)
     assert response_new_session.status_code == HTTPStatus.OK
@@ -28,9 +28,11 @@ def test_root_endpoint():
     request_data_existing_session = {
         "session": {"new": False},
         "request": {"command": "some_command"},
-        "state": None
+        "state": None,
     }
-    response_existing_session = client.post("/", json=request_data_existing_session)
+    response_existing_session = client.post(
+        "/", json=request_data_existing_session,
+    )
     assert response_existing_session.status_code == HTTPStatus.OK
     assert "response" in response_existing_session.json()
     assert "text" in response_existing_session.json()["response"]
