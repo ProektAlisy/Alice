@@ -16,9 +16,11 @@ services:
 
   mongo:
     image: mongo:4.4.6
-    environment:
-      - MONGODB_INITDB_ROOT_USERNAME=adminUser
-      - MONGODB_INITDB_ROOT_PASSWORD=adminPassword
+    env_file:
+      - .env
+#    environment:
+#      - MONGODB_INITDB_ROOT_USERNAME=${MONGODB_INITDB_ROOT_USERNAME}
+#      - MONGODB_INITDB_ROOT_PASSWORD=${MONGODB_INITDB_ROOT_PASSWORD}
     restart: always
     command: ["--auth"]
     container_name: "mongo_db"
@@ -36,6 +38,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./metodichka:/usr/share/nginx/html
       - /etc/letsencrypt/live/www.guidedogs.acceleratorpracticum.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem
       - /etc/letsencrypt/live/www.guidedogs.acceleratorpracticum.ru/privkey.pem:/etc/nginx/ssl/privkey.pem
     depends_on:
