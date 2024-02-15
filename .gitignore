@@ -11,6 +11,7 @@ media
 .LSOverride
 Icon
 ._*
+.vscode
 .DocumentRevisions-V100
 .fseventsd
 .Spotlight-V100

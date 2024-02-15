@@ -1,5 +1,7 @@
 from typing import Final
 
+QUIZ_STATE: Final = "take_quiz"
+HELP_STATE: Final = "help_main"
 STATES: Final = [
     "start",
     "about_training_center",
@@ -9,10 +11,9 @@ STATES: Final = [
     "about_staff_3",
     "about_training_course",
     "take_manual_training",
-    "take_quiz",
+    QUIZ_STATE,
     "listen_to_legislation",
     "about_legislation_accessibility",
-    "about_guide_dog_transportation",
     "about_transportation_by_land_transport",
     "about_transportation_by_rail",
     "about_air_transportation",
@@ -35,9 +36,10 @@ HELP_STATES: Final = [
     "help_phrase",
     "useful_information",
 ]
-
+QUIZ_TRIGGER_STATE: Final = "trigger_" + QUIZ_STATE
+TRIGGER_HELP_MAIN = "trigger_" + HELP_STATE
 DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
-
+POSSIBILITIES_TRIGGER: Final = "trigger_possibilities"
 TRIGGERS_BY_GROUP: Final = [
     ("trigger_about_training_center",),
     ("trigger_about_facility",),
@@ -48,13 +50,13 @@ TRIGGERS_BY_GROUP: Final = [
     ),
     ("trigger_about_training_course",),
     ("trigger_take_manual_training",),
-    ("trigger_take_quiz",),
+    (QUIZ_TRIGGER_STATE,),
     (
         "trigger_listen_to_legislation",
         "trigger_about_legislation_accessibility",
         "trigger_about_transportation_by_land_transport",
         "trigger_about_transportation_by_rail",
-        "trigger_about_air_transportation",
+        "trigger_about_transportation_by_air",
         "trigger_about_transportation_by_water",
         "trigger_self_defense_phrase",
     ),
@@ -77,7 +79,6 @@ TRIGGERS_BY_GROUP: Final = [
 ]
 CORE_TRIGGERS: Final = [
     "trigger_about_staff_1",
-    "trigger_take_quiz",
     "trigger_listen_to_legislation",
     "trigger_about_discounts_and_free_services",
     "trigger_about_services_uniting_blind_people",

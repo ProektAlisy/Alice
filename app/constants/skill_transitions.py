@@ -4,7 +4,7 @@
 import itertools
 
 from app.constants.states import DISAGREE_STATES, HELP_STATES, STATES
-from app.utils import create_func, create_trigger
+from app.core.utils import create_func, create_trigger
 
 transitions = [
     [
