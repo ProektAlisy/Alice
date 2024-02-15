@@ -15,7 +15,12 @@ from app.monga.monga_initialize import (
     disagree_answers_collection,
 )
 
-folders = ["answers", "after_answers", "disagree_answers", "another_answers"]
+folders = [
+    "answers",
+    "after_answers",
+    "disagree_answers",
+    "another_answers",
+]
 
 answers_collection.create_index("key", unique=True)
 after_answers_collection.create_index("key", unique=True)
