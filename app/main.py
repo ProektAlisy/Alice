@@ -74,12 +74,15 @@ async def root(data: RequestData):
     directives = {}
     for command_obj in commands:
         if command_obj.condition(intents, command, is_new):
+            # спец-обработчик для аудио обучения по методичке, т.к. еще возвращает directives
             if type(command_obj) in [
                 ManualTrainingSetState,
                 ManualTrainingCommand,
             ]:
                 answer, directives = command_obj.execute(
-                    intents, command, is_new
+                    intents,
+                    command,
+                    is_new,
                 )
             else:
                 answer = command_obj.execute(intents, command, is_new)
