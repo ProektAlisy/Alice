@@ -66,6 +66,9 @@ class AudioAssistant:
     def process_learning_request(self, command):
         if not command:
             return self.unknown_command_response()
+        elif command == "начинай":
+            self.current_chapter = 0
+            return self.start_audio_playback(self.current_chapter)
         elif command == "прослушать оглавление":
             return self.get_table_of_contents()
         elif command == "выбрать главу":
@@ -219,3 +222,4 @@ print(audio_assistant.process_request("пауза"))
 print(audio_assistant.process_request("продолжить"))
 print(audio_assistant.process_request("следующая"))
 print(audio_assistant.process_request("прослушать оглавление"))
+print(audio_assistant.process_request("начинай"))
