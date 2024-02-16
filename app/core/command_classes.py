@@ -8,10 +8,15 @@ from app.constants.comands_triggers_answers import (
     ORDERED_TRIGGERS,
     another_answers_documents,
 )
-from app.constants.commands import ServiceCommands
+from app.constants.commands import Commands, ServiceCommands
 from app.constants.intents import Intents, ServiceIntents
 from app.constants.quiz.intents import QuizIntents
-from app.constants.states import QUIZ_STATE, QUIZ_TRIGGER_STATE
+from app.constants.states import (
+    MANUAL_TRAINING_STATE,
+    MANUAL_TRAINING_TRIGGER_STATE,
+    QUIZ_STATE,
+    QUIZ_TRIGGER_STATE,
+)
 from app.core.utils import (
     get_after_answer_by_trigger,
     get_all_commands,
@@ -135,6 +140,73 @@ class QuizSetState(Command):
         return answer
 
 
+class ManualTrainingCommand(Command):
+    """Фиксируем вызов обучения по методичке."""
+
+    def condition(
+        self,
+        intents: list[str],
+        command: str,
+        is_new: bool,
+    ) -> bool:
+        """Определяем, нет ли команды вызова обучения по методичке."""
+        return (
+            Intents.TAKE_MANUAL_TRAINING in intents
+            or command.lower() == Commands.TAKE_MANUAL_TRAINING
+        )
+
+    def execute(
+        self,
+        intents: list[str],
+        command: str,
+        is_new: bool,
+    ) -> str:
+        """Запуск обучения по методичке."""
+        return skill.manual_training.process_request(command, intents)
+
+
+class ManualTrainingSetState(Command):
+    """Обучение по методичке в процессе."""
+
+    def condition(
+        self,
+        intents: list[str],
+        command: str,
+        is_new: bool,
+    ) -> bool:
+        """Проверяем, не окончено ли обучение."""
+        return not skill.manual_training.is_finished()
+
+    def execute(
+        self,
+        intents: list[str],
+        command: str,
+        is_new: bool,
+    ) -> str:
+        """Проходим обучение по методичке."""
+        self.skill.is_to_progress = True
+        skill.save_progress(MANUAL_TRAINING_TRIGGER_STATE)
+        skill.save_history(MANUAL_TRAINING_TRIGGER_STATE)
+        answer, directives = skill.manual_training.process_request(
+            command,
+            intents,
+        )
+        if skill.manual_training.is_finished():
+            if skill.is_agree():
+                after_answer = get_after_answer_by_trigger(
+                    MANUAL_TRAINING_TRIGGER_STATE,
+                    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                )
+            else:
+                after_answer = skill.get_next_after_answer(
+                    MANUAL_TRAINING_TRIGGER_STATE
+                )
+        else:
+            after_answer = ""
+
+        return answer + after_answer, directives
+
+
 class GreetingsCommand(Command):
     """Работа с приветствием."""
 
@@ -224,8 +296,15 @@ class AgreeCommand(Command):
             self.skill.machine.set_state(QUIZ_STATE)
             return self.skill.quiz_skill.execute_command(
                 "запусти викторину",
-                Intents.TAKE_QUIZ,
+                QuizIntents.TAKE_QUIZ,
             )[1]
+        if trigger == MANUAL_TRAINING_TRIGGER_STATE:
+            self.skill.machine.set_state(MANUAL_TRAINING_STATE)
+            answer, _ = self.skill.manual_training.process_request(
+                "пройти обучение по методичке",
+                Intents.TAKE_MANUAL_TRAINING,
+            )
+            return answer
         return self.command_instance.execute(
             self.skill,
             trigger,

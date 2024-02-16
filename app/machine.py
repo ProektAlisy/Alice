@@ -26,6 +26,7 @@ from app.core.utils import (
     last_trigger,
     next_trigger,
 )
+from app.guidebook_player import AudioAssistant
 from app.quiz.quizskill import QuizSkill
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -45,6 +46,7 @@ class FiniteStateMachine:
         is_to_progress(boolean): Флаг согласия/отказа.
         max_progress(int): Максимальное количество состояний навыка.
         quiz_skill: Объект `QuizSkill` (викторина).
+        manual_training: Объект `AudioAssistant` (аудио-плеер).
     """
 
     def __init__(self):
@@ -65,6 +67,7 @@ class FiniteStateMachine:
         self._create_agree_functions()
         self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
+        self.manual_training = AudioAssistant()
 
     def save_progress(self, current_step: str) -> None:
         """Прогресс прохождения навыка.

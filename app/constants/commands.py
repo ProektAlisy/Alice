@@ -16,7 +16,7 @@ class Commands:
     ABOUT_STAFF_2 = "Прослушать информацию о персонале центра продолжение"
     ABOUT_STAFF_3 = "Прослушать информацию о персонале центра продолжение 2"
     ABOUT_TRAINING_COURSE = "Прослушать информацию о курсе обучения"
-    TAKE_MANUAL_TRAINING = "Пройти обучение по методичке"
+    TAKE_MANUAL_TRAINING = "пройти обучение по методичке"
     TAKE_QUIZ = "Пройти викторину"
     LISTEN_TO_LEGISLATION = "Прослушать выдержки из законодательства"
     ABOUT_LEGISLATION_ACCESSIBILITY = (

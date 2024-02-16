@@ -17,6 +17,8 @@ from app.core.command_classes import (
     DisagreeCommand,
     ExitCommand,
     GreetingsCommand,
+    ManualTrainingCommand,
+    ManualTrainingSetState,
     QuizCommand,
     QuizSetState,
     RepeatCommand,
@@ -58,6 +60,8 @@ async def root(data: RequestData):
     commands = [
         QuizSetState(skill, command_instance),
         QuizCommand(skill, command_instance),
+        ManualTrainingSetState(skill, command_instance),
+        ManualTrainingCommand(skill, command_instance),
         GreetingsCommand(skill, is_new),
         RepeatCommand(skill, command_instance),
         AliceCommandsCommand(skill, command_instance),
@@ -67,19 +71,26 @@ async def root(data: RequestData):
         ExitCommand(skill, command_instance),
     ]
     answer = skill.dont_understand()
-
+    directives = {}
     for command_obj in commands:
         if command_obj.condition(intents, command, is_new):
-            answer = command_obj.execute(intents, command, is_new)
+            if type(command_obj) in [
+                ManualTrainingSetState,
+                ManualTrainingCommand,
+            ]:
+                answer, directives = command_obj.execute(
+                    intents, command, is_new
+                )
+            else:
+                answer = command_obj.execute(intents, command, is_new)
             break
-
     if skill.is_completed():
-        answer = another_answers_documents.get("all_completed", [])
+        answer = another_answers_documents.get("all_completed", "[]")
         skill.progress = []
 
     end_session = (
         True
-        if answer == another_answers_documents.get("exit_from_skill", [])
+        if answer == another_answers_documents.get("exit_from_skill", "[]")
         else False
     )
     ic(command, skill.state, skill.progress, skill.history)
@@ -88,6 +99,7 @@ async def root(data: RequestData):
         "response": {
             "text": answer,
             "end_session": end_session,
+            "directives": directives,
         },
         "session_state": skill.dump_session_state(),
         "version": "1.0",
