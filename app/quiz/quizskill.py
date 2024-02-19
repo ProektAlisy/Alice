@@ -27,6 +27,7 @@ class QuizSkill:
         """Инициализация викторины вопросами из файла filename."""
         self._quiz = Quiz()
         self._state = QuizState.INIT
+        self.is_finish = True
         try:
             self._quiz.load_questions(filename)
             self._quiz.restart()
@@ -40,11 +41,12 @@ class QuizSkill:
             bool: True - если викторина не начата, или прервана досрочно или
             завершена и заданы все вопросы.
         """
-        return self._state in (
+        is_finish = self._state in (
             QuizState.INIT,
             QuizState.FINISHED,
             QuizState.TERMINATED,
         )
+        return is_finish
 
     def _get_final_result(self) -> str:
         """Возвращает строку результата для завершенной викторины."""

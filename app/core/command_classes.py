@@ -308,13 +308,14 @@ class AgreeCommand(Command):
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
         if trigger == QUIZ_TRIGGER_STATE:
-            self.skill.machine.set_state(QUIZ_STATE)
-            return self.skill.quiz_skill.execute_command(
+            self.skill.quiz_skill.is_finish = False
+            answer = self.skill.quiz_skill.execute_command(
                 "запусти викторину",
                 QuizIntents.TAKE_QUIZ,
             )[1]
+            return skill.get_output(answer)
         if trigger == MANUAL_TRAINING_TRIGGER_STATE:
-            self.skill.manual_training.is_finished = False
+            self.skill.manual_training.is_finish = False
             answer, _ = self.skill.manual_training.process_request(
                 "пройти обучение по методичке",
                 Intents.TAKE_MANUAL_TRAINING,
