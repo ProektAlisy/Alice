@@ -23,7 +23,7 @@ class Action(BaseAction):
         skill_obj: FiniteStateMachine,
         trigger_name: str | None = None,
         command: str | None = None,
-    ) -> str:
+    ) -> dict[str, str]:
         """Функция запускающая триггер.
 
         Args:
@@ -35,6 +35,8 @@ class Action(BaseAction):
             Сообщение для пользователя.
         """
         if trigger_name is None:
-            return another_answers_documents.get("full_greetings", "")
+            return skill_obj.get_output(
+                another_answers_documents.get("full_greetings", "")
+            )
         skill_obj.action_func(trigger_name)
-        return skill_obj.message
+        return skill_obj.get_output(skill_obj.message)

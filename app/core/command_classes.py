@@ -2,6 +2,8 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
+from pprint import pprint
+
 from icecream import ic
 
 from app.constants.comands_triggers_answers import (
@@ -97,9 +99,11 @@ class QuizCommand(Command):
         intents: list[str],
         command: str,
         is_new: bool,
-    ) -> str:
+    ) -> dict[str, str]:
         """Запуск викторины."""
-        return self.skill.quiz_skill.execute_command(command, intents)[1]
+        return skill.get_output(
+            self.skill.quiz_skill.execute_command(command, intents)[1]
+        )
 
 
 class QuizSetState(Command):
@@ -119,7 +123,7 @@ class QuizSetState(Command):
         intents: list[str],
         command: str,
         is_new: bool,
-    ) -> str:
+    ) -> dict[str, str]:
         """Отвечаем на вопросы викторины."""
         self.skill.is_to_progress = True
         skill.save_progress(QUIZ_TRIGGER_STATE)
@@ -137,8 +141,8 @@ class QuizSetState(Command):
             after_answer = ""
 
         if result:
-            return answer + after_answer
-        return answer
+            return skill.get_output(answer + after_answer)
+        return skill.get_output(answer)
 
 
 class ManualTrainingCommand(Command):
@@ -161,9 +165,15 @@ class ManualTrainingCommand(Command):
         intents: list[str],
         command: str,
         is_new: bool,
-    ) -> str:
+    ) -> dict[str, str]:
         """Запуск обучения по методичке."""
-        return skill.manual_training.process_request(command, intents)
+        result, directives = skill.manual_training.process_request(
+            command, intents
+        )
+        return skill.get_output(
+            result,
+            directives=directives,
+        )
 
 
 class ManualTrainingSetState(Command):
@@ -176,14 +186,14 @@ class ManualTrainingSetState(Command):
         is_new: bool,
     ) -> bool:
         """Проверяем, не окончено ли обучение."""
-        return not skill.manual_training.is_finished()
+        return not skill.manual_training.is_finish
 
     def execute(
         self,
         intents: list[str],
         command: str,
         is_new: bool,
-    ) -> str:
+    ) -> dict[str, str]:
         """Проходим обучение по методичке."""
         self.skill.is_to_progress = True
         skill.save_progress(MANUAL_TRAINING_TRIGGER_STATE)
@@ -205,7 +215,7 @@ class ManualTrainingSetState(Command):
         else:
             after_answer = ""
 
-        return answer + after_answer, directives
+        return skill.get_output(answer + after_answer, directives=directives)
 
 
 class GreetingsCommand(Command):
@@ -217,7 +227,9 @@ class GreetingsCommand(Command):
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Выводит приветствие."""
-        return another_answers_documents.get("full_greetings", "")
+        return skill.get_output(
+            another_answers_documents.get("full_greetings", "")
+        )
 
 
 class RepeatCommand(Command):
@@ -247,7 +259,9 @@ class AliceCommandsCommand(Command):
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Вывод соответствующего ответа."""
-        return another_answers_documents.get("standard_alice_command", "")
+        return skill.get_output(
+            another_answers_documents.get("standard_alice_command", "")
+        )
 
 
 class AllCommandsCommand(Command):
@@ -267,7 +281,7 @@ class AllCommandsCommand(Command):
             if is_new
             else ""
         )
-        answer = self.command_instance.execute(
+        result = self.command_instance.execute(
             self.skill,
             get_trigger_by_command(
                 command,
@@ -275,7 +289,7 @@ class AllCommandsCommand(Command):
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             ),
         )
-        return f"{greeting} {answer}"
+        return skill.get_output(f"{greeting} {result['response'].get('text')}")
 
 
 class AgreeCommand(Command):
@@ -300,12 +314,13 @@ class AgreeCommand(Command):
                 QuizIntents.TAKE_QUIZ,
             )[1]
         if trigger == MANUAL_TRAINING_TRIGGER_STATE:
-            self.skill.machine.set_state(MANUAL_TRAINING_STATE)
+            self.skill.manual_training.is_finished = False
             answer, _ = self.skill.manual_training.process_request(
                 "пройти обучение по методичке",
                 Intents.TAKE_MANUAL_TRAINING,
             )
-            return answer
+            return skill.get_output(answer)
+
         return self.command_instance.execute(
             self.skill,
             trigger,
@@ -339,6 +354,7 @@ class ExitCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
+        ic(command)
         return command == ServiceCommands.EXIT
 
     def execute(self, intents: list[str], command: str, is_new: bool):
@@ -346,4 +362,7 @@ class ExitCommand(Command):
         self.skill.is_to_progress = False
         self.skill.history = []
         self.skill.progress = []
-        return another_answers_documents.get("exit_from_skill", "")
+        return skill.get_output(
+            another_answers_documents.get("exit_from_skill", ""),
+            end_session=True,
+        )

@@ -10,6 +10,7 @@ class AudioAssistant:
         self.is_playing = False
         self.audio_playback_start_time = 0
         self.token_offsets = {}
+        self.is_finish = True
         self.human_readable_chapter_titles = {
             0: "Вступление",
             1: "Часто задаваемые вопросы",
@@ -43,7 +44,8 @@ class AudioAssistant:
 
     def is_finished(self):
         # TODO реализовать функцию после обработки команды "выход", "завершить обучение"
-        return self.current_chapter is None and not self.greetings
+        self.is_finish = self.current_chapter is None and not self.greetings
+        return self.is_finish
 
     def process_request(self, command, intents):
         # TODO добавить обработку интентов

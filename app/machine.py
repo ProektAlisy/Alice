@@ -42,7 +42,6 @@ class FiniteStateMachine:
         progress(list[str]): Прогресс прохождения всех историй в навыке.
         incorrect_answers(int): Количество неправильных ответов.
         command(str): Команда пользователя (в дальнейшем заменим на интенты).
-        machine(Machine): Машина состояний навыка.
         is_to_progress(boolean): Флаг согласия/отказа.
         max_progress(int): Максимальное количество состояний навыка.
         quiz_skill: Объект `QuizSkill` (викторина).
@@ -358,14 +357,14 @@ class FiniteStateMachine:
 
     def get_output(
         self,
-        answer,
+        answer_text,
         directives=None,
         end_session=False,
     ) -> dict[str, str]:
         """Функция возвращает словарь с ответом и дополнительными данными."""
         return {
             "response": {
-                "text": answer,
+                "text": answer_text,
                 "end_session": end_session,
                 "directives": directives,
             },

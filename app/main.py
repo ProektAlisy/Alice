@@ -49,7 +49,9 @@ async def root(data: RequestData):
     try:
         is_new = data.session.get("new")
     except AttributeError:
-        answer = "API яндекса поломался!"
+        return skill.get_output(
+            "API яндекса поломался!",
+        )
 
     try:
         session_state = data.state.get("session")
@@ -74,40 +76,17 @@ async def root(data: RequestData):
         DisagreeCommand(skill, command_instance),
         ExitCommand(skill, command_instance),
     ]
-    answer = skill.dont_understand()
-    directives = {}
+    result = skill.get_output(skill.dont_understand())
     for command_obj in commands:
         if command_obj.condition(intents, command, is_new):
-            # спец-обработчик для аудио обучения по методичке, т.к. еще возвращает directives
-            if type(command_obj) in [
-                ManualTrainingSetState,
-                ManualTrainingCommand,
-            ]:
-                answer, directives = command_obj.execute(
-                    intents,
-                    command,
-                    is_new,
-                )
-            else:
-                answer = command_obj.execute(intents, command, is_new)
+            result = command_obj.execute(intents, command, is_new)
             break
     if skill.is_completed():
-        answer = another_answers_documents.get("all_completed", "")
+        result = skill.get_output(
+            another_answers_documents.get("all_completed", "")
+        )
         skill.progress = []
 
-    end_session = (
-        True
-        if answer == another_answers_documents.get("exit_from_skill", "")
-        else False
-    )
     ic(command, skill.progress, skill.history)
     skill.previous_command = command
-    return {
-        "response": {
-            "text": answer,
-            "end_session": end_session,
-            "directives": directives,
-        },
-        "session_state": skill.dump_session_state(),
-        "version": "1.0",
-    }
+    return result
