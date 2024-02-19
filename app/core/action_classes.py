@@ -1,3 +1,4 @@
+from icecream import ic
 from transitions import MachineError
 
 from app.constants.comands_triggers_answers import another_answers_documents
@@ -34,15 +35,10 @@ class Action(BaseAction):
 
         Returns:
             Сообщение для пользователя.
-
-        Raises:
-            MachineError, если триггер вызван из не дозволенного состояния.
         """
         if trigger_name is None:
             return another_answers_documents.get("help_main", [])
-        try:
-            skill_obj.trigger(trigger_name)
-        except MachineError:
-            logger.debug(f"Команда вызвана из состояния {skill_obj.state}")
-            skill_obj.message = "Отсюда нельзя вызвать эту команду"
+        ic(trigger_name, "action")
+        skill_obj.action_func(trigger_name)
+        ic(skill_obj.message)
         return skill_obj.message

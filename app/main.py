@@ -54,6 +54,7 @@ async def root(data: RequestData):
         session_state = {}
 
     skill.load_session_state(session_state)
+
     skill.command = command
     command_instance = Action()
 
@@ -85,18 +86,19 @@ async def root(data: RequestData):
                     is_new,
                 )
             else:
+                ic(command_obj)
                 answer = command_obj.execute(intents, command, is_new)
             break
     if skill.is_completed():
-        answer = another_answers_documents.get("all_completed", "[]")
+        answer = another_answers_documents.get("all_completed", "")
         skill.progress = []
 
     end_session = (
         True
-        if answer == another_answers_documents.get("exit_from_skill", "[]")
+        if answer == another_answers_documents.get("exit_from_skill", "")
         else False
     )
-    ic(command, skill.state, skill.progress, skill.history)
+    ic(command, skill.progress, skill.history)
     skill.previous_command = command
     return {
         "response": {

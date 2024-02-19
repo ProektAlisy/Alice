@@ -1,4 +1,5 @@
-from transitions import Machine
+# from transitions import Machine
+from icecream import ic
 
 from app.constants.comands_triggers_answers import (
     COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
@@ -6,7 +7,6 @@ from app.constants.comands_triggers_answers import (
     another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
-from app.constants.skill_transitions import transitions
 from app.constants.states import (
     CORE_TRIGGERS,
     HELP_STATES,
@@ -56,18 +56,43 @@ class FiniteStateMachine:
         self.incorrect_answers = 0
         self.command = ""
         self.previous_command = ""
-        self.machine = Machine(
-            model=self,
-            states=STATES + HELP_STATES,
-            transitions=transitions,
-            initial="start",
-        )
         self.is_to_progress = False
         self.max_progress = len(STATES) - 1
-        self._create_agree_functions()
-        self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
         self.manual_training = AudioAssistant()
+
+    def is_agree(self) -> bool:
+        """Функция состояния.
+
+        Проверяет, ответил ли пользователь согласием.
+
+        Returns:
+            True, если пользователь согласился.
+        """
+        return self.command in ServiceCommands.AGREE
+
+    def is_disagree(self):
+        """Функция состояния.
+
+        Проверяет, ответил ли пользователем отказом.
+
+        Returns:
+            True, если пользователь отказался.
+        """
+        return self.command in ServiceCommands.DISAGREE
+
+    def action_func(self, trigger_name: str) -> callable:
+        """Флаг согласия/отказа.
+
+        Args:
+            trigger_name:
+            self: Объект FiniteStateMachine.
+        """
+
+        if self.is_disagree():
+            self.disagree_function(trigger_name)
+        else:
+            self.agree_function(trigger_name)
 
     def save_progress(self, current_step: str) -> None:
         """Прогресс прохождения навыка.
@@ -102,25 +127,44 @@ class FiniteStateMachine:
             current_step,
         ]
 
-    def _generate_agree_function(self, name, trigger):
+    def agree_function(self, trigger):
         """Создает функции, вызываемые триггерами.
 
         Создаем сразу все функции, которые указаны в transitions класса
         FiniteStateMachine.
         Args:
-            name: Имя функции.
             trigger: Вызванная триггер.
         """
+        self.save_progress(trigger)
+        self.save_history(trigger)
+        answer = self._get_answer(trigger)
+        after_answer = self._get_after_answer(trigger)
+        self.message = self._compose_message(answer, after_answer)
+        self.incorrect_answers = 0
 
-        def _func():
-            self.save_progress(trigger)
+    def disagree_function(self, trigger: str) -> None:
+        """Создает `disagree_` функцию.
+        Вызывается триггером, соответствующим отказу пользователя.
+
+        Args:
+            trigger: Триггер, по которому вызываем функцию.
+        """
+        ic(trigger, "disagree")
+        self.save_progress(trigger)
+        if trigger in CORE_TRIGGERS:
+            self.history.extend(
+                get_triggers_group_by_trigger(
+                    trigger,
+                    TRIGGERS_BY_GROUP,
+                ),
+            )
+        else:
             self.save_history(trigger)
-            answer = self._get_answer(trigger)
-            after_answer = self._get_after_answer(trigger)
-            self.message = self._compose_message(answer, after_answer)
-            self.incorrect_answers = 0
-
-        setattr(self, name, _func)
+        disagree_answer = self.get_next_disagree_answer(
+            trigger,
+        )
+        self.message = disagree_answer
+        self.incorrect_answers = 0
 
     def _get_answer(self, trigger: str) -> str:
         """Генерирует основной ответ навыка по триггеру.
@@ -185,69 +229,6 @@ class FiniteStateMachine:
             Полный ответ.
         """
         return f"{answer} {after_answer}"
-
-    def _generate_disagree_function(self, name: str, trigger: str) -> None:
-        """Создает `disagree_` функцию.
-        Вызывается триггером, соответствующим отказу пользователя.
-
-        Args:
-            name: Имя функции.
-            trigger: Триггер, по которому вызываем функцию.
-        """
-
-        def _func():
-            if trigger in CORE_TRIGGERS:
-                self.history.extend(
-                    get_triggers_group_by_trigger(
-                        trigger,
-                        TRIGGERS_BY_GROUP,
-                    ),
-                )
-            else:
-                self.save_history(trigger)
-            disagree_answer = self.get_next_disagree_answer(
-                trigger,
-            )
-            self.message = disagree_answer
-            self.incorrect_answers = 0
-
-        setattr(self, name, _func)
-
-    def _create_agree_functions(self) -> None:
-        """Создание функций, обрабатывающих согласие пользователя."""
-        [
-            self._generate_agree_function(
-                func_name,
-                trigger,
-            )
-            for (
-                command,
-                trigger,
-                func_name,
-                answer,
-                _,
-                _,
-                _,
-            ) in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-        ]
-
-    def _create_disagree_functions(self) -> None:
-        """Создание всех функций, обрабатывающих отказы пользователя."""
-        [
-            self._generate_disagree_function(
-                func_name + "_disagree",
-                trigger,
-            )
-            for (
-                command,
-                trigger,
-                func_name,
-                _,
-                _,
-                disagree_answer,
-                _,
-            ) in COMMANDS_TRIGGERS_GET_FUNC_ANSWERS
-        ]
 
     def get_next_after_answer(self, step: str) -> str:
         """Возвращает следующий ответ с подсказкой для пользователя.
@@ -334,26 +315,6 @@ class FiniteStateMachine:
         self.quiz_skill.load_state(quiz_state)
         # тут возможна загрузка других ключей при необходимости
 
-    def is_agree(self) -> bool:
-        """Функция состояния.
-
-        Проверяет, ответил ли пользователь согласием.
-
-        Returns:
-            True, если пользователь согласился.
-        """
-        return self.command in ServiceCommands.AGREE
-
-    def is_disagree(self):
-        """Функция состояния.
-
-        Проверяет, ответил ли пользователем отказом.
-
-        Returns:
-            True, если пользователь отказался.
-        """
-        return self.command in ServiceCommands.DISAGREE
-
     def is_completed(self) -> bool:  # noqa
         """Проверяет, завершено ли обучение.
 
@@ -394,3 +355,20 @@ class FiniteStateMachine:
             if ordered_triggers[index % len_triggers] in self.history:
                 continue
             return ordered_triggers[index % len_triggers]
+
+    def get_output(
+        self,
+        answer,
+        directives=None,
+        end_session=False,
+    ) -> dict[str, str]:
+        """Функция возвращает словарь с ответом и дополнительными данными."""
+        return {
+            "response": {
+                "text": answer,
+                "end_session": end_session,
+                "directives": directives,
+            },
+            "session_state": self.dump_session_state(),
+            "version": "1.0",
+        }
