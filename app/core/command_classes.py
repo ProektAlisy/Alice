@@ -2,6 +2,7 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
+
 from pprint import pprint
 
 from icecream import ic
@@ -168,7 +169,8 @@ class ManualTrainingCommand(Command):
     ) -> dict[str, str]:
         """Запуск обучения по методичке."""
         result, directives = skill.manual_training.process_request(
-            command, intents
+            command,
+            intents,
         )
         return skill.get_output(
             result,
@@ -227,9 +229,7 @@ class GreetingsCommand(Command):
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Выводит приветствие."""
-        return skill.get_output(
-            another_answers_documents.get("full_greetings", "")
-        )
+        return skill.get_output(another_answers_documents.get("full_greetings", ""))
 
 
 class RepeatCommand(Command):
@@ -277,9 +277,7 @@ class AllCommandsCommand(Command):
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
         greeting = (
-            another_answers_documents.get("small_greetings", "")
-            if is_new
-            else ""
+            another_answers_documents.get("small_greetings", "") if is_new else ""
         )
         result = self.command_instance.execute(
             self.skill,
@@ -297,9 +295,7 @@ class AgreeCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
-        return (
-            command == ServiceCommands.AGREE or ServiceIntents.AGREE in intents
-        )
+        return command == ServiceCommands.AGREE or ServiceIntents.AGREE in intents
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Получение соответствующего сообщения."""
@@ -308,7 +304,6 @@ class AgreeCommand(Command):
             COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
         )
         if trigger == QUIZ_TRIGGER_STATE:
-            self.skill.quiz_skill.is_finish = False
             answer = self.skill.quiz_skill.execute_command(
                 "запусти викторину",
                 QuizIntents.TAKE_QUIZ,
@@ -333,10 +328,7 @@ class DisagreeCommand(Command):
 
     def condition(self, intents: list[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
-        return (
-            command == ServiceCommands.DISAGREE
-            or ServiceIntents.DISAGREE in intents
-        )
+        return command == ServiceCommands.DISAGREE or ServiceIntents.DISAGREE in intents
 
     def execute(self, intents: list[str], command: str, is_new: bool):
         """Получение соответствующего ответа для пользователя."""
