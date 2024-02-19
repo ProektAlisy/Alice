@@ -46,7 +46,10 @@ async def root(data: RequestData):
     intents = []
     if nlu:
         intents = nlu.get("intents", [])
-    is_new = data.session.get("new")
+    try:
+        is_new = data.session.get("new")
+    except AttributeError:
+        answer = "API яндекса поломался!"
 
     try:
         session_state = data.state.get("session")
@@ -86,7 +89,6 @@ async def root(data: RequestData):
                     is_new,
                 )
             else:
-                ic(command_obj)
                 answer = command_obj.execute(intents, command, is_new)
             break
     if skill.is_completed():
