@@ -1,4 +1,3 @@
-# from transitions import Machine
 from icecream import ic
 
 from app.constants.comands_triggers_answers import (
@@ -9,7 +8,6 @@ from app.constants.comands_triggers_answers import (
 from app.constants.commands import ServiceCommands
 from app.constants.states import (
     CORE_TRIGGERS,
-    HELP_STATES,
     STATES,
     TRIGGER_HELP_MAIN,
     TRIGGERS_BY_GROUP,
@@ -41,7 +39,7 @@ class FiniteStateMachine:
         message(str): Сообщение, которое зачитывает Алиса.
         progress(list[str]): Прогресс прохождения всех историй в навыке.
         incorrect_answers(int): Количество неправильных ответов.
-        command(str): Команда пользователя (в дальнейшем заменим на интенты).
+        command(str): Команда пользователя.
         is_to_progress(boolean): Флаг согласия/отказа.
         max_progress(int): Максимальное количество состояний навыка.
         quiz_skill: Объект `QuizSkill` (викторина).
@@ -148,7 +146,6 @@ class FiniteStateMachine:
         Args:
             trigger: Триггер, по которому вызываем функцию.
         """
-        ic(trigger, "disagree")
         self.save_progress(trigger)
         if trigger in CORE_TRIGGERS:
             self.history.extend(
@@ -243,7 +240,7 @@ class FiniteStateMachine:
             step = self.next_trigger_by_history(
                 COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
             )
-        # исправляем border effect, когда в помощи появляется `after_answer`
+        # исправляем side effect, когда в помощи появляется `after_answer`
         if step == TRIGGER_HELP_MAIN:
             return ""
         pre_step = find_previous_element(step, ORDERED_TRIGGERS)
@@ -361,7 +358,13 @@ class FiniteStateMachine:
         directives=None,
         end_session=False,
     ) -> dict[str, str]:
-        """Функция возвращает словарь с ответом и дополнительными данными."""
+        """Функция возвращает словарь с ответом и дополнительными данными.
+
+        Args:
+            answer_text: Текст ответа.
+            directives: Команды для аудиоплеера.
+            end_session: Ключ для завершения сессии.
+        """
         return {
             "response": {
                 "text": answer_text,

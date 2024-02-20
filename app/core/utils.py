@@ -1,6 +1,8 @@
+from pydantic import BaseModel
 from pymongo.collection import Collection
 
 from app.constants.states import POSSIBILITIES_TRIGGER
+from app.core.exceptions import APIError
 
 
 def next_trigger(trigger: str, triggers: list) -> str | None:
@@ -280,3 +282,25 @@ def disagree_answer_by_trigger(
         if trig_com_ans[1] == trigger:
             return trig_com_ans[5]
     return ""
+
+
+def check_api(data: BaseModel) -> None:
+    try:
+        data.request.get("command")
+        data.request.get("nlu")
+        data.session.get("new")
+        data.state.get("session")
+    except AttributeError:
+        raise APIError
+
+
+def get_api_data(data: BaseModel) -> tuple[str, dict[str], bool, dict[str]]:
+    command = data.request.get("command")
+    nlu = data.request.get("nlu")
+    is_new = data.session.get("new")
+    session_state = data.state.get("session")
+    if nlu:
+        intents = nlu.get("intents", {})
+    else:
+        intents = {}
+    return command, intents, is_new, session_state

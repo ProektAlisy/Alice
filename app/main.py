@@ -24,6 +24,8 @@ from app.core.command_classes import (
     RepeatCommand,
     skill,
 )
+from app.core.exceptions import APIError
+from app.core.utils import check_api, get_api_data
 
 
 class RequestData(BaseModel):
@@ -41,25 +43,14 @@ application = FastAPI()
     summary="Диалог с Алисой.",
 )
 async def root(data: RequestData):
-    command = data.request.get("command")
-    nlu = data.request.get("nlu")
-    intents = []
-    if nlu:
-        intents = nlu.get("intents", [])
     try:
-        is_new = data.session.get("new")
-    except AttributeError:
+        check_api(data)
+    except APIError:
         return skill.get_output(
-            "API яндекса поломался!",
+            "Технические проблемы на стороне Яндекса. Попробуйте позже.",
         )
-
-    try:
-        session_state = data.state.get("session")
-    except AttributeError:
-        session_state = {}
-
+    command, intents, is_new, session_state = get_api_data(data)
     skill.load_session_state(session_state)
-
     skill.command = command
     command_instance = Action()
 
@@ -86,7 +77,6 @@ async def root(data: RequestData):
             another_answers_documents.get("all_completed", "")
         )
         skill.progress = []
-
     ic(command, skill.progress, skill.history)
     skill.previous_command = command
     return result
