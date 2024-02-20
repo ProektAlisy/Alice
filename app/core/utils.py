@@ -47,7 +47,7 @@ def find_previous_element(
 
 def get_trigger_by_command(
     command: str,
-    intents: list[str],
+    intents: dict[str],
     structure: tuple,
 ) -> str | None:
     """Возвращает триггер, соответствующий заданной команде.
@@ -161,18 +161,6 @@ def read_from_db(collection: Collection):
     """
     documents = collection.find({}, projection={"_id": False})
     return {doc["key"]: doc["answer"] for doc in documents}
-
-
-def create_trigger(name: str) -> str:
-    """Создает имя триггера.
-
-    Args:
-        name: Имя состояния.
-
-    Returns:
-        Имя триггера
-    """
-    return "trigger_" + name
 
 
 def create_func(name):
@@ -304,3 +292,16 @@ def get_api_data(data: BaseModel) -> tuple[str, dict[str], bool, dict[str]]:
     else:
         intents = {}
     return command, intents, is_new, session_state
+
+
+def compose_message(answer: str, after_answer: str) -> str:
+    """Составляем сообщение пользователю.
+
+    Args:
+        answer: Основная часть ответа.
+        after_answer: Часть ответа с подсказкой о продолжении.
+
+    Returns:
+        Полный ответ.
+    """
+    return f"{answer} {after_answer}"

@@ -1,8 +1,6 @@
-from icecream import ic
-
 from app.constants.comands_triggers_answers import (
-    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
-    ORDERED_TRIGGERS,
+    COMMANDS_STATES_GET_FUNC_ANSWERS,
+    ORDERED_STATES,
     another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
@@ -13,7 +11,6 @@ from app.constants.states import (
     TRIGGERS_BY_GROUP,
 )
 from app.core.utils import (
-    create_trigger,
     disagree_answer_by_trigger,
     find_previous_element,
     get_after_answer_by_trigger,
@@ -23,6 +20,7 @@ from app.core.utils import (
     get_triggers_group_by_trigger,
     last_trigger,
     next_trigger,
+    compose_message,
 )
 from app.guidebook_player import AudioAssistant
 from app.quiz.quizskill import QuizSkill
@@ -101,7 +99,7 @@ class FiniteStateMachine:
             current_step: Состояние навыка.
         """
         if self.is_to_progress and current_step in [
-            create_trigger(state) for state in STATES[1:]
+            state for state in STATES[1:]
         ]:
             self.progress = list(set(self.progress) - {current_step}) + [
                 current_step,
@@ -136,7 +134,7 @@ class FiniteStateMachine:
         self.save_history(trigger)
         answer = self._get_answer(trigger)
         after_answer = self._get_after_answer(trigger)
-        self.message = self._compose_message(answer, after_answer)
+        self.message = compose_message(answer, after_answer)
         self.incorrect_answers = 0
 
     def disagree_function(self, trigger: str) -> None:
@@ -174,11 +172,11 @@ class FiniteStateMachine:
         if self._is_repeat_and_previous_disagree():
             return disagree_answer_by_trigger(
                 trigger,
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                COMMANDS_STATES_GET_FUNC_ANSWERS,
             )
         return get_answer_by_trigger(
             trigger,
-            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            COMMANDS_STATES_GET_FUNC_ANSWERS,
         )
 
     def _get_after_answer(self, trigger: str) -> str:
@@ -193,7 +191,7 @@ class FiniteStateMachine:
         if self.is_agree() and not self._is_repeat_and_previous_disagree():
             return get_after_answer_by_trigger(
                 trigger,
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                COMMANDS_STATES_GET_FUNC_ANSWERS,
             )
         if not self._is_repeat_and_previous_disagree():
             return self.get_next_after_answer(trigger)
@@ -213,19 +211,6 @@ class FiniteStateMachine:
             and self.previous_command in ServiceCommands.DISAGREE
         )
 
-    @staticmethod
-    def _compose_message(answer: str, after_answer: str) -> str:
-        """Составляем сообщение пользователю.
-
-        Args:
-            answer: Основная часть ответа.
-            after_answer: Часть ответа с подсказкой о продолжении.
-
-        Returns:
-            Полный ответ.
-        """
-        return f"{answer} {after_answer}"
-
     def get_next_after_answer(self, step: str) -> str:
         """Возвращает следующий ответ с подсказкой для пользователя.
 
@@ -238,15 +223,15 @@ class FiniteStateMachine:
         """
         while step in self.progress:
             step = self.next_trigger_by_history(
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+                COMMANDS_STATES_GET_FUNC_ANSWERS,
             )
         # исправляем side effect, когда в помощи появляется `after_answer`
         if step == TRIGGER_HELP_MAIN:
             return ""
-        pre_step = find_previous_element(step, ORDERED_TRIGGERS)
+        pre_step = find_previous_element(step, ORDERED_STATES)
         return get_after_answer_by_trigger(
             pre_step,
-            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            COMMANDS_STATES_GET_FUNC_ANSWERS,
         )
 
     def get_next_disagree_answer(self, step: str) -> str:
@@ -262,11 +247,11 @@ class FiniteStateMachine:
         while step in self.history:
             step = next_trigger(
                 step,
-                ORDERED_TRIGGERS,
+                ORDERED_STATES,
             )
         return get_disagree_answer_by_trigger(
             self.history[-1],
-            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            COMMANDS_STATES_GET_FUNC_ANSWERS,
         )
 
     def dont_understand(self) -> str:
