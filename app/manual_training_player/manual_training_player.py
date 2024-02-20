@@ -1,8 +1,16 @@
 import time
 import uuid
+import json
+
+# Загрузка данных из JSON файла
+with open('chapter_titles.json', 'r') as f:
+    chapter_titles_data = json.load(f)
+
+with open('welcome_text.json', 'r') as f:
+    welcome_data = json.load(f)
 
 
-class AudioAssistant:
+class ManualTrainingPlayer:
     def __init__(self):
         self.greetings = False
         self.current_token = None
@@ -10,36 +18,8 @@ class AudioAssistant:
         self.is_playing = False
         self.audio_playback_start_time = 0
         self.token_offsets = {}
-        self.human_readable_chapter_titles = {
-            0: "Вступление",
-            1: "Часто задаваемые вопросы",
-            2: "Общий курс дрессировки",
-            3: "Специальный курс дрессировки",
-            4: "Типичные ошибки при работе с собакой - поводырем",
-            5: "Работа на месте и изучение новых маршрутов",
-            6: "Ориентировка с собакой",
-            7: "Кормление собаки - поводыря",
-            8: "Содержание собаки - поводыря",
-            9: "Профилактика заболеваний собаки - поводыря",
-            10: "Техника безопасности",
-            11: "Снаряжение собаки - поводыря",
-            12: "Контактная информация",
-        }
-        self.file_name_chapter_titles = {
-            0: "00-vstuplenie",
-            1: "01-chasto-zadavaemye-voprosy",
-            2: "02-obshchij-kurs-dressirovki",
-            3: "03-specialnyj-kurs-dressirovki",
-            4: "04-tipichnye-oshibki-pri-rabote-s-sobakoj-povodyrem",
-            5: "05-rabota-na-meste-i-izuchenie-novyh-marshrutov",
-            6: "06-orientirovka-s-sobakoj",
-            7: "07-kormlenie-sobaki-povodyrya",
-            8: "08-soderzhanie-sobaki-povodyrya",
-            9: "09-profilaktika-zabolevanij-sobaki-povodyrya",
-            10: "10-tekhnika-bezopasnosti",
-            11: "11-snaryazhenie-sobaki-povodyrya",
-            12: "12-kontaktnaya-informaciya",
-        }
+        self.human_readable_chapter_titles = chapter_titles_data['human_readable_chapter_titles']
+        self.file_name_chapter_titles = chapter_titles_data['file_name_chapter_titles']
 
     def is_finished(self):
         # TODO реализовать функцию после обработки команды "выход", "завершить обучение"
@@ -64,19 +44,37 @@ class AudioAssistant:
         if not command:
             return self.unknown_command_response()
         elif command == "начинай":
-            self.current_chapter = 0
+            self.current_chapter = 1
             return self.start_audio_playback(self.current_chapter)
         elif command == "прослушать оглавление":
             return self.get_table_of_contents()
+        elif command.startswith('расскажи название главы'):
+            try:
+                chapter_number = int(command.split()[-1])
+                chapter_name = self.get_chapter_name_by_number(chapter_number)
+                if chapter_name:
+                    chapter_name_text = f"Название главы {chapter_number}: {chapter_name}"
+                    return self.get_response(chapter_name_text)
+                else:
+                    no_chapter_text = "Глава с указанным номером не найдена"
+                    return self.get_response(no_chapter_text)
+            except ValueError:
+                error_text = "Неверный формат команды"
+                return self.get_response(error_text)
         elif command == "выбрать главу":
             text = "Какую главу хотите прослушать?"
             return self.get_response(text)
         elif (
             command.isdigit()
-            and int(command) in self.human_readable_chapter_titles
+            and command in self.human_readable_chapter_titles
         ):
-            self.current_chapter = int(command)
-            return self.start_audio_playback(self.current_chapter)
+            chapter_number = command
+            if chapter_number in self.human_readable_chapter_titles:
+                self.current_chapter = chapter_number
+                return self.start_audio_playback(self.current_chapter)
+            else:
+                no_chapter_text = "Указанная глава не существует. Пожалуйста, выберите другую главу."
+                return self.get_response(no_chapter_text)
         else:
             return self.unknown_command_response()
 
@@ -94,9 +92,8 @@ class AudioAssistant:
         offset_ms = self.token_offsets[chapter_number]["offset_ms"]
         self.audio_playback_start_time = int(time.time() * 1000)
         self.is_playing = True
-
-        audio_url = f"https://www.guidedogs.acceleratorpracticum.ru/{self.file_name_chapter_titles[chapter_number]}.mp3"
-        text = f"Начинаю проигрывание главы {self.human_readable_chapter_titles[chapter_number]}"
+        audio_url = f"https://www.guidedogs.acceleratorpracticum.ru/{self.file_name_chapter_titles.get(str(chapter_number))}.mp3"
+        text = f"Начинаю проигрывание главы номер {chapter_number} - {self.human_readable_chapter_titles.get(str(chapter_number))}."
         directives = {
             "audio_player": {
                 "action": "Play",
@@ -128,9 +125,9 @@ class AudioAssistant:
     def play_next_chapter(self):
         # если главы начинаются с 1, то 'is not None' лишнее !
         if self.current_chapter is not None:
-            next_chapter_number = self.current_chapter + 1
-            if next_chapter_number in self.human_readable_chapter_titles:
-                self.current_chapter = next_chapter_number
+            next_chapter_number = int(self.current_chapter) + 1
+            if str(next_chapter_number) in self.human_readable_chapter_titles:
+                self.current_chapter = str(next_chapter_number)
                 return self.start_audio_playback(next_chapter_number)
             return self.get_response("Вы достигли конца книги.")
         return self.get_response("Не выбрана текущая глава.")
@@ -167,14 +164,11 @@ class AudioAssistant:
         return self.get_response(unknown_command_text)
 
     def greet_user(self):
-        welcome_text = (
-            "В 2018 году мы издали “Методическое пособие для владельцев и будущих владельцев собак-проводников”. "
-            "У меня есть аудиоверсия этого пособия. Здесь Вы можете прослушать главы по выбору или по порядку. "
-            "Воспроизведение можно ставить на паузу, а так же можно сказать 'следующая глава' для того чтобы "
-            "пропустить какую-нибудь тему. Для прослушивания списка всех тем скажите 'Оглавление' и после Вы "
-            "сможете выбрать главу или скажите 'Начинай' и я начну воспроизведение методички по порядку."
-        )
+        welcome_text = welcome_data['welcome_text']
         return self.get_response(welcome_text)
+
+    def get_chapter_name_by_number(self, chapter_number):
+        return self.human_readable_chapter_titles.get(str(chapter_number))
 
 
 if __name__ == "__main__":
@@ -183,7 +177,7 @@ if __name__ == "__main__":
 
     app = FastAPI()
 
-    audio_assistant = AudioAssistant()
+    audio_assistant = ManualTrainingPlayer()
 
     # @app.post(
     #     "/",
@@ -196,11 +190,13 @@ if __name__ == "__main__":
     #     response = audio_assistant.process_request(command)
     #     return response
 
-    print(audio_assistant.process_request(""))
-    print(audio_assistant.process_request("3"))
+    print(audio_assistant.process_request("", {}))
+    print(audio_assistant.process_request("3", {}))
     time.sleep(3)
-    print(audio_assistant.process_request("пауза"))
-    print(audio_assistant.process_request("продолжить"))
-    print(audio_assistant.process_request("следующая"))
-    print(audio_assistant.process_request("прослушать оглавление"))
-    print(audio_assistant.process_request("начинай"))
+    print(audio_assistant.process_request("пауза",{}))
+    print(audio_assistant.process_request("продолжить", {}))
+    print(audio_assistant.process_request("следующая", {}))
+    print(audio_assistant.process_request("прослушать оглавление", {}))
+    print(audio_assistant.process_request("начинай", {}))
+    print(audio_assistant.process_request("расскажи название главы", {}))
+    print(audio_assistant.process_request("расскажи название главы 56", {}))

@@ -26,7 +26,7 @@ from app.core.utils import (
     last_trigger,
     next_trigger,
 )
-from app.guidebook_player import AudioAssistant
+from app.manual_training_player.manual_training_player import ManualTrainingPlayer
 from app.quiz.quizskill import QuizSkill
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -67,7 +67,7 @@ class FiniteStateMachine:
         self._create_agree_functions()
         self._create_disagree_functions()
         self.quiz_skill = QuizSkill()
-        self.manual_training = AudioAssistant()
+        self.manual_training = ManualTrainingPlayer()
 
     def save_progress(self, current_step: str) -> None:
         """Прогресс прохождения навыка.
