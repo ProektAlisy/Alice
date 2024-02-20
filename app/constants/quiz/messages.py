@@ -10,7 +10,9 @@ class QuizExceptionMessages:
     Неизвестный ответ <{answer}> в файле вопросов викторины для вопроса
     <{question}>
     """
-    QUIZ_IS_FINISHED: Final = "Все вопросы викторины заданы. Викторина завершена!"
+    QUIZ_IS_FINISHED: Final = (
+        "Все вопросы викторины заданы. Викторина завершена!"
+    )
     NO_ACTIVE_QUESTION_ERROR: Final = "Нет текущего вопроса для проверки!"
 
 
