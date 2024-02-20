@@ -212,7 +212,9 @@ class QuizSkill:
             self._quiz.advance_question(is_correct_answer)
             if self._quiz.is_finished():
                 self._state = QuizState.FINISHED
-                answer_result += self._get_current_result()
+                answer_result += (
+                    QuizMessages.IS_FINISHED + self._get_current_result()
+                )
             else:
                 answer_result += self._get_full_question()
             return True, answer_result
@@ -241,14 +243,20 @@ class QuizSkill:
         command: str,
     ) -> tuple[bool, str]:
         """Обработчик диалога викторины 'начать заново'."""
-        if QuizIntents.START_AGAIN in intents or QuizIntents.CONFIRM in intents:
+        if (
+            QuizIntents.START_AGAIN in intents
+            or QuizIntents.CONFIRM in intents
+        ):
             # запустить заново
             self._state = QuizState.RULES
             self._quiz.restart()
             return True, QuizMessages.RULES.format(
                 total_questions_count=self._quiz.total_questions_count,
             )
-        if QuizIntents.REJECT in intents or QuizIntents.TERMINATE_QUIZ in intents:
+        if (
+            QuizIntents.REJECT in intents
+            or QuizIntents.TERMINATE_QUIZ in intents
+        ):
             self._state = QuizState.FINISHED
             return True, QuizMessages.NO_RESULTS
 
