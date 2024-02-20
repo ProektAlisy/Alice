@@ -1,7 +1,6 @@
-from transitions import MachineError
+from icecream import ic
 
 from app.constants.comands_triggers_answers import another_answers_documents
-from app.core.logger_initialize import logger
 from app.machine import FiniteStateMachine
 
 
@@ -24,7 +23,7 @@ class Action(BaseAction):
         skill_obj: FiniteStateMachine,
         trigger_name: str | None = None,
         command: str | None = None,
-    ) -> str:
+    ) -> dict[str, str]:
         """Функция запускающая триггер.
 
         Args:
@@ -34,15 +33,10 @@ class Action(BaseAction):
 
         Returns:
             Сообщение для пользователя.
-
-        Raises:
-            MachineError, если триггер вызван из не дозволенного состояния.
         """
         if trigger_name is None:
-            return another_answers_documents.get("help_main", [])
-        try:
-            skill_obj.trigger(trigger_name)
-        except MachineError:
-            logger.debug(f"Команда вызвана из состояния {skill_obj.state}")
-            skill_obj.message = "Отсюда нельзя вызвать эту команду"
-        return skill_obj.message
+            return skill_obj.get_output(
+                another_answers_documents.get("full_greetings", "")
+            )
+        skill_obj.action_func(trigger_name)
+        return skill_obj.get_output(skill_obj.message)

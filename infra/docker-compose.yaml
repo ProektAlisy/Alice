@@ -33,6 +33,7 @@ services:
 
   nginx:
     image: nginx:1.19.3
+    user: "root"
     ports:
       - "80:80"
       - "443:443"

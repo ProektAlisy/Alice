@@ -17,11 +17,15 @@ from app.core.command_classes import (
     DisagreeCommand,
     ExitCommand,
     GreetingsCommand,
+    ManualTrainingCommand,
+    ManualTrainingSetState,
     QuizCommand,
     QuizSetState,
     RepeatCommand,
     skill,
 )
+from app.core.exceptions import APIError
+from app.core.utils import check_api, get_api_data
 
 
 class RequestData(BaseModel):
@@ -39,18 +43,13 @@ application = FastAPI()
     summary="Диалог с Алисой.",
 )
 async def root(data: RequestData):
-    command = data.request.get("command")
-    nlu = data.request.get("nlu")
-    intents = []
-    if nlu:
-        intents = nlu.get("intents", [])
-    is_new = data.session.get("new")
-
     try:
-        session_state = data.state.get("session")
-    except AttributeError:
-        session_state = {}
-
+        check_api(data)
+    except APIError:
+        return skill.get_output(
+            "Технические проблемы на стороне Яндекса. Попробуйте позже.",
+        )
+    command, intents, is_new, session_state = get_api_data(data)
     skill.load_session_state(session_state)
     skill.command = command
     command_instance = Action()
@@ -58,6 +57,8 @@ async def root(data: RequestData):
     commands = [
         QuizSetState(skill, command_instance),
         QuizCommand(skill, command_instance),
+        ManualTrainingSetState(skill, command_instance),
+        ManualTrainingCommand(skill, command_instance),
         GreetingsCommand(skill, is_new),
         RepeatCommand(skill, command_instance),
         AliceCommandsCommand(skill, command_instance),
@@ -66,29 +67,16 @@ async def root(data: RequestData):
         DisagreeCommand(skill, command_instance),
         ExitCommand(skill, command_instance),
     ]
-    answer = skill.dont_understand()
-
+    result = skill.get_output(skill.dont_understand())
     for command_obj in commands:
         if command_obj.condition(intents, command, is_new):
-            answer = command_obj.execute(intents, command, is_new)
+            result = command_obj.execute(intents, command, is_new)
             break
-
     if skill.is_completed():
-        answer = another_answers_documents.get("all_completed", [])
+        result = skill.get_output(
+            another_answers_documents.get("all_completed", "")
+        )
         skill.progress = []
-
-    end_session = (
-        True
-        if answer == another_answers_documents.get("exit_from_skill", [])
-        else False
-    )
-    ic(command, skill.state, skill.progress, skill.history)
+    ic(command, skill.progress, skill.history)
     skill.previous_command = command
-    return {
-        "response": {
-            "text": answer,
-            "end_session": end_session,
-        },
-        "session_state": skill.dump_session_state(),
-        "version": "1.0",
-    }
+    return result

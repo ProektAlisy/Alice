@@ -1,6 +1,7 @@
 from typing import Final
 
 QUIZ_STATE: Final = "take_quiz"
+MANUAL_TRAINING_STATE: Final = "take_manual_training"
 HELP_STATE: Final = "help_main"
 STATES: Final = [
     "start",
@@ -10,7 +11,7 @@ STATES: Final = [
     "about_staff_2",
     "about_staff_3",
     "about_training_course",
-    "take_manual_training",
+    MANUAL_TRAINING_STATE,
     QUIZ_STATE,
     "listen_to_legislation",
     "about_legislation_accessibility",
@@ -37,6 +38,7 @@ HELP_STATES: Final = [
     "useful_information",
 ]
 QUIZ_TRIGGER_STATE: Final = "trigger_" + QUIZ_STATE
+MANUAL_TRAINING_TRIGGER_STATE: Final = "trigger_" + MANUAL_TRAINING_STATE
 TRIGGER_HELP_MAIN = "trigger_" + HELP_STATE
 DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
 POSSIBILITIES_TRIGGER: Final = "trigger_possibilities"
@@ -49,7 +51,7 @@ TRIGGERS_BY_GROUP: Final = [
         "trigger_about_staff_3",
     ),
     ("trigger_about_training_course",),
-    ("trigger_take_manual_training",),
+    (MANUAL_TRAINING_TRIGGER_STATE,),
     (QUIZ_TRIGGER_STATE,),
     (
         "trigger_listen_to_legislation",

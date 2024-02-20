@@ -241,20 +241,14 @@ class QuizSkill:
         command: str,
     ) -> tuple[bool, str]:
         """Обработчик диалога викторины 'начать заново'."""
-        if (
-            QuizIntents.START_AGAIN in intents
-            or QuizIntents.CONFIRM in intents
-        ):
+        if QuizIntents.START_AGAIN in intents or QuizIntents.CONFIRM in intents:
             # запустить заново
             self._state = QuizState.RULES
             self._quiz.restart()
             return True, QuizMessages.RULES.format(
                 total_questions_count=self._quiz.total_questions_count,
             )
-        if (
-            QuizIntents.REJECT in intents
-            or QuizIntents.TERMINATE_QUIZ in intents
-        ):
+        if QuizIntents.REJECT in intents or QuizIntents.TERMINATE_QUIZ in intents:
             self._state = QuizState.FINISHED
             return True, QuizMessages.NO_RESULTS
 

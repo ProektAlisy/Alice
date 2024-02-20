@@ -32,7 +32,6 @@ class QuizQuestion:
                 },
                 "correct_choice": "а|б|в"
             }
-
         Raises:
             QuizFileWrongFormatAliceException: если отсутствует любой из ключей
             QuizFileWrongAnswerAliceException: если значение "correct_choice"
