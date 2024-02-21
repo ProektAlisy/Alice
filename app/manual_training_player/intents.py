@@ -15,3 +15,4 @@ class ManualTrainingIntents:
     SHOW_MANUAL_TRAINING_CONTENTS = "show_manual_training_contents"  # Показать оглавление методички
     CHOOSE_MANUAL_TRAINING_CHAPTER = "choose_manual_training_chapter"  # Выбрать конкретную главу методички
     TERMINATE_MANUAL_TRAINING = "terminate_manual_training"  # Остановить обучение по методичке
+    GET_MANUAL_TRAINING_CHAPTER_INFO = "get_manual_training_chapter_info"  # Получить информацию о главе методички

@@ -199,7 +199,7 @@ class ManualTrainingSetState(Command):
                 )
             else:
                 after_answer = skill.get_next_after_answer(
-                    MANUAL_TRAINING_TRIGGER_STATE
+                    MANUAL_TRAINING_TRIGGER_STATE,
                 )
         else:
             after_answer = ""
