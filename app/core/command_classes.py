@@ -2,6 +2,8 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
+from icecream import ic
+
 from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
     ORDERED_STATES,
@@ -10,7 +12,7 @@ from app.constants.comands_states_answers import (
 from app.constants.commands import Commands, ServiceCommands
 from app.constants.intents import INTENTS, ServiceIntents
 from app.constants.quiz.intents import QuizIntents
-from app.constants.states import MANUAL_TRAINING_STATE, QUIZ_TRIGGER_STATE
+from app.constants.states import MANUAL_TRAINING_STATE, QUIZ_STATE
 from app.core.utils import (
     compose_message,
     get_after_answer_by_state,
@@ -105,11 +107,11 @@ class QuizSetState(Command):
     def _get_quiz_after_agree_command():
         if skill.quiz_skill.is_finished() and skill.is_agree():
             return get_after_answer_by_state(
-                QUIZ_TRIGGER_STATE,
+                QUIZ_STATE,
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
         if skill.quiz_skill.is_finished():
-            return skill.get_next_after_answer(QUIZ_TRIGGER_STATE)
+            return skill.get_next_after_answer(QUIZ_STATE)
         return ""
 
     def condition(
@@ -129,8 +131,8 @@ class QuizSetState(Command):
     ) -> dict[str, str]:
         """Отвечаем на вопросы викторины."""
         self.skill.is_to_progress = True
-        skill.save_progress(QUIZ_TRIGGER_STATE)
-        skill.save_history(QUIZ_TRIGGER_STATE)
+        skill.save_progress(QUIZ_STATE)
+        skill.save_history(QUIZ_STATE)
         result, answer = skill.quiz_skill.execute_command(command, intents)
         after_answer = self._get_quiz_after_agree_command()
         if result:
@@ -160,6 +162,7 @@ class ManualTrainingCommand(Command):
         is_new: bool,
     ) -> dict[str, str]:
         """Запуск обучения по методичке."""
+        self.skill.manual_training.is_finish = False
         result, directives = skill.manual_training.process_request(
             command,
             intents,
@@ -178,7 +181,7 @@ class ManualTrainingSetState(Command):
         """Возвращает вспомогательный ответ.
 
         После согласия (is_agree=True) пользователя на шаге обучения по
-        методичке (state=MANUAL_TRAINING_TRIGGER_STATE).
+        методичке (state=MANUAL_TRAINING_STATE).
         """
         if skill.manual_training.is_finished() and skill.is_agree():
             return get_after_answer_by_state(
@@ -186,6 +189,8 @@ class ManualTrainingSetState(Command):
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
         if skill.manual_training.is_finished():
+            # skill.save_progress(MANUAL_TRAINING_STATE)
+            # skill.save_history(MANUAL_TRAINING_STATE)
             return skill.get_next_after_answer(MANUAL_TRAINING_STATE)
         return ""
 
@@ -213,7 +218,10 @@ class ManualTrainingSetState(Command):
             intents,
         )
         after_answer = self._get_manual_after_agree_command()
-        return skill.get_output(answer + after_answer, directives=directives)
+        return skill.get_output(
+            answer + after_answer,
+            directives=directives,
+        )
 
 
 class GreetingsCommand(Command):
@@ -311,7 +319,7 @@ class AgreeCommand(Command):
         state = self.skill.next_state_by_history(
             COMMANDS_STATES_ANSWERS_INTENTS,
         )
-        if state == QUIZ_TRIGGER_STATE:
+        if state == QUIZ_STATE:
             answer = self.skill.quiz_skill.execute_command(
                 "запусти викторину",
                 QuizIntents.TAKE_QUIZ,

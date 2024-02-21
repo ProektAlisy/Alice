@@ -37,7 +37,6 @@ HELP_STATES: Final = [
     "help_phrase",
     "useful_information",
 ]
-QUIZ_TRIGGER_STATE: Final = QUIZ_STATE
 STATE_HELP_MAIN = HELP_STATE
 DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
 POSSIBILITIES_TRIGGER: Final = "possibilities"
@@ -51,7 +50,7 @@ STATES_BY_GROUP: Final = [
     ),
     ("about_training_course",),
     (MANUAL_TRAINING_STATE,),
-    (QUIZ_TRIGGER_STATE,),
+    (QUIZ_STATE,),
     (
         "listen_to_legislation",
         "about_legislation_accessibility",

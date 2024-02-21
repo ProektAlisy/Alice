@@ -1,3 +1,5 @@
+from icecream import ic
+
 from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
     ORDERED_STATES,
@@ -130,6 +132,7 @@ class FiniteStateMachine:
         """
         self.save_progress(state)
         self.save_history(state)
+        ic(self.history, self.progress)
         answer = self._get_answer(state)
         after_answer = self._get_after_answer(state)
         self.message = compose_message(answer, after_answer)
