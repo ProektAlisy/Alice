@@ -2,6 +2,7 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
+
 from icecream import ic
 
 from app.constants.comands_states_answers import (
@@ -105,14 +106,14 @@ class QuizSetState(Command):
 
     @staticmethod
     def _get_quiz_after_agree_command():
-        if skill.quiz_skill.is_finished() and skill.is_agree():
+        if not skill.quiz_skill.is_finished():
+            return ""
+        if skill.is_agree():
             return get_after_answer_by_state(
                 QUIZ_STATE,
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        if skill.quiz_skill.is_finished():
-            return skill.get_next_after_answer(QUIZ_STATE)
-        return ""
+        return skill.get_next_after_answer(QUIZ_STATE)
 
     def condition(
         self,
@@ -183,16 +184,16 @@ class ManualTrainingSetState(Command):
         После согласия (is_agree=True) пользователя на шаге обучения по
         методичке (state=MANUAL_TRAINING_STATE).
         """
-        if skill.manual_training.is_finished() and skill.is_agree():
+        if not skill.manual_training.is_finished():
+            return ""
+        if skill.is_agree():
             return get_after_answer_by_state(
                 MANUAL_TRAINING_STATE,
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        if skill.manual_training.is_finished():
-            # skill.save_progress(MANUAL_TRAINING_STATE)
-            # skill.save_history(MANUAL_TRAINING_STATE)
-            return skill.get_next_after_answer(MANUAL_TRAINING_STATE)
-        return ""
+        # skill.save_progress(MANUAL_TRAINING_STATE)
+        # skill.save_history(MANUAL_TRAINING_STATE)
+        return skill.get_next_after_answer(MANUAL_TRAINING_STATE)
 
     def condition(
         self,
