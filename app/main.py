@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
-from app.constants.comands_triggers_answers import another_answers_documents
+from app.constants.comands_states_answers import another_answers_documents
 from app.core.action_classes import Action
 from app.core.command_classes import (
     AgreeCommand,
@@ -74,7 +74,10 @@ async def root(data: RequestData):
             break
     if skill.is_completed():
         result = skill.get_output(
-            another_answers_documents.get("all_completed", "")
+            another_answers_documents.get(
+                "all_completed",
+                "",
+            ),
         )
         skill.progress = []
     ic(command, skill.progress, skill.history)

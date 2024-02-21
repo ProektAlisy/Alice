@@ -38,10 +38,10 @@ HELP_STATES: Final = [
     "useful_information",
 ]
 QUIZ_TRIGGER_STATE: Final = QUIZ_STATE
-TRIGGER_HELP_MAIN = HELP_STATE
+STATE_HELP_MAIN = HELP_STATE
 DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
 POSSIBILITIES_TRIGGER: Final = "possibilities"
-TRIGGERS_BY_GROUP: Final = [
+STATES_BY_GROUP: Final = [
     ("about_training_center",),
     ("about_facility",),
     (
@@ -78,7 +78,7 @@ TRIGGERS_BY_GROUP: Final = [
         "tinstructions_for_launching_podcast",
     ),
 ]
-CORE_TRIGGERS: Final = [
+CORE_STATES: Final = [
     "about_staff_1",
     "listen_to_legislation",
     "about_discounts_and_free_services",

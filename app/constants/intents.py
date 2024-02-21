@@ -1,6 +1,4 @@
-from typing import Optional
-
-from app.constants.states import STATES, HELP_STATES
+from app.constants.states import HELP_STATES, STATES
 
 
 class Intents:
@@ -10,20 +8,24 @@ class Intents:
         raise AttributeError("Интенты изменять нельзя!")
 
     def __getattr__(self, name):
+        """Выдает атрибуты"""
         if name.lower() in STATES + HELP_STATES:
             return name.upper()
-        else:
-            raise AttributeError(f"Параметр '{name}' не разрешен!")
+        raise AttributeError(f"Параметр '{name}' не разрешен!")
+
+    ALL_INTENTS = [intent.upper() for intent in STATES + HELP_STATES]
 
     @staticmethod
-    def get_available(intents: Optional[dict[str]]) -> set[str]:
+    def get_available(intents: dict[str] | None) -> set[str]:
         """Возвращает список разрешенных интентов.
         Args:
-            intents (list[str]): Список интентов (получен от диалогов)
+            intents: Список интентов (получен от диалогов)
         Returns:
-            set[str]: Подмножество из intents, которые объявлены в классе.
+            Подмножество из intents, которые объявлены в классе.
         """
-        return set(STATES + HELP_STATES) & set(intents)
+        return set(STATES + HELP_STATES) & {
+            intent.lower() for intent in intents.keys()
+        }
 
 
 INTENTS = Intents()

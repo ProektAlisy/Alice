@@ -2,40 +2,29 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
-
-from pprint import pprint
-
-from icecream import ic
-
-from app.constants.comands_triggers_answers import (
-    COMMANDS_STATES_GET_FUNC_ANSWERS,
+from app.constants.comands_states_answers import (
+    COMMANDS_STATES_ANSWERS_INTENTS,
     ORDERED_STATES,
     another_answers_documents,
 )
 from app.constants.commands import Commands, ServiceCommands
-from app.constants.intents import (
-    ServiceIntents,
-    INTENTS,
-)
+from app.constants.intents import INTENTS, ServiceIntents
 from app.constants.quiz.intents import QuizIntents
-from app.constants.states import (
-    MANUAL_TRAINING_STATE,
-    QUIZ_TRIGGER_STATE,
-)
+from app.constants.states import MANUAL_TRAINING_STATE, QUIZ_TRIGGER_STATE
 from app.core.utils import (
-    get_after_answer_by_trigger,
+    compose_message,
+    get_after_answer_by_state,
     get_all_commands,
     get_last_in_history,
-    get_trigger_by_command,
+    get_states_by_command,
     is_alice_commands,
-    last_trigger,
-    next_trigger,
-    compose_message,
+    last_states,
+    next_state,
 )
 from app.machine import FiniteStateMachine
 
 skill = FiniteStateMachine()
-all_commands = get_all_commands(COMMANDS_STATES_GET_FUNC_ANSWERS)
+all_commands = get_all_commands(COMMANDS_STATES_ANSWERS_INTENTS)
 
 
 class Command:
@@ -105,7 +94,7 @@ class QuizCommand(Command):
     ) -> dict[str, str]:
         """Запуск викторины."""
         return skill.get_output(
-            self.skill.quiz_skill.execute_command(command, intents)[1]
+            self.skill.quiz_skill.execute_command(command, intents)[1],
         )
 
 
@@ -115,15 +104,13 @@ class QuizSetState(Command):
     @staticmethod
     def _get_quiz_after_agree_command():
         if skill.quiz_skill.is_finished() and skill.is_agree():
-            after_answer = get_after_answer_by_trigger(
+            return get_after_answer_by_state(
                 QUIZ_TRIGGER_STATE,
-                COMMANDS_STATES_GET_FUNC_ANSWERS,
+                COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        elif skill.quiz_skill.is_finished():
-            after_answer = skill.get_next_after_answer(QUIZ_TRIGGER_STATE)
-        else:
-            after_answer = ""
-        return after_answer
+        if skill.quiz_skill.is_finished():
+            return skill.get_next_after_answer(QUIZ_TRIGGER_STATE)
+        return ""
 
     def condition(
         self,
@@ -194,15 +181,13 @@ class ManualTrainingSetState(Command):
         методичке (state=MANUAL_TRAINING_TRIGGER_STATE).
         """
         if skill.manual_training.is_finished() and skill.is_agree():
-            after_answer = get_after_answer_by_trigger(
+            return get_after_answer_by_state(
                 MANUAL_TRAINING_STATE,
-                COMMANDS_STATES_GET_FUNC_ANSWERS,
+                COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        elif skill.manual_training.is_finished():
-            after_answer = skill.get_next_after_answer(MANUAL_TRAINING_STATE)
-        else:
-            after_answer = ""
-        return after_answer
+        if skill.manual_training.is_finished():
+            return skill.get_next_after_answer(MANUAL_TRAINING_STATE)
+        return ""
 
     def condition(
         self,
@@ -241,7 +226,10 @@ class GreetingsCommand(Command):
     def execute(self, intents: dict[str], command: str, is_new: bool):
         """Выводит приветствие."""
         return skill.get_output(
-            another_answers_documents.get("full_greetings", "")
+            another_answers_documents.get(
+                "full_greetings",
+                "",
+            ),
         )
 
 
@@ -256,10 +244,10 @@ class RepeatCommand(Command):
         )
 
     def execute(self, intents: dict[str], command: str, is_new: bool):
-        """Вызываем последний триггер в истории состояний."""
+        """Вызываем последнее состояние в истории состояний."""
         return self.command_instance.execute(
             self.skill,
-            last_trigger(self.skill.history),
+            last_states(self.skill.history),
         )
 
 
@@ -273,7 +261,10 @@ class AliceCommandsCommand(Command):
     def execute(self, intents: dict[str], command: str, is_new: bool):
         """Вывод соответствующего ответа."""
         return skill.get_output(
-            another_answers_documents.get("standard_alice_command", "")
+            another_answers_documents.get(
+                "standard_alice_command",
+                "",
+            ),
         )
 
 
@@ -296,10 +287,10 @@ class AllCommandsCommand(Command):
         )
         result = self.command_instance.execute(
             self.skill,
-            get_trigger_by_command(
+            get_states_by_command(
                 command,
                 intents,
-                COMMANDS_STATES_GET_FUNC_ANSWERS,
+                COMMANDS_STATES_ANSWERS_INTENTS,
             ),
         )
         return skill.get_output(f"{greeting} {result['response'].get('text')}")
@@ -317,16 +308,16 @@ class AgreeCommand(Command):
     def execute(self, intents: dict[str], command: str, is_new: bool):
         """Получение соответствующего сообщения."""
         self.skill.is_to_progress = True
-        trigger = self.skill.next_trigger_by_history(
-            COMMANDS_STATES_GET_FUNC_ANSWERS,
+        state = self.skill.next_state_by_history(
+            COMMANDS_STATES_ANSWERS_INTENTS,
         )
-        if trigger == QUIZ_TRIGGER_STATE:
+        if state == QUIZ_TRIGGER_STATE:
             answer = self.skill.quiz_skill.execute_command(
                 "запусти викторину",
                 QuizIntents.TAKE_QUIZ,
             )[1]
             return skill.get_output(answer)
-        if trigger == MANUAL_TRAINING_STATE:
+        if state == MANUAL_TRAINING_STATE:
             self.skill.manual_training.is_finish = False
             answer, _ = self.skill.manual_training.process_request(
                 "пройти обучение по методичке",
@@ -336,7 +327,7 @@ class AgreeCommand(Command):
 
         return self.command_instance.execute(
             self.skill,
-            trigger,
+            state,
         )
 
 
@@ -355,7 +346,7 @@ class DisagreeCommand(Command):
         self.skill.is_to_progress = False
         return self.command_instance.execute(
             self.skill,
-            next_trigger(
+            next_state(
                 get_last_in_history(self.skill.history),
                 ORDERED_STATES,
             ),

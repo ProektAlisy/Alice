@@ -31,7 +31,8 @@ def test_root_endpoint():
         "state": None,
     }
     response_existing_session = client.post(
-        "/", json=request_data_existing_session,
+        "/",
+        json=request_data_existing_session,
     )
     assert response_existing_session.status_code == HTTPStatus.OK
     assert "response" in response_existing_session.json()
@@ -65,9 +66,10 @@ def test_root_endpoint_intents():
     """
     request_data = {
         "session": {"new": False},
-        "request": {"command": "some_command",
-                    "nlu": {"intents": ["intent1", "intent2"]},
-                    },
+        "request": {
+            "command": "some_command",
+            "nlu": {"intents": ["intent1", "intent2"]},
+        },
         "state": None,
     }
     response = client.post("/", json=request_data)
