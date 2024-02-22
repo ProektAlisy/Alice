@@ -1,28 +1,28 @@
 from icecream import ic
 
-from app.constants.comands_triggers_answers import (
-    COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
-    ORDERED_TRIGGERS,
+from app.constants.comands_states_answers import (
+    COMMANDS_STATES_ANSWERS_INTENTS,
+    ORDERED_STATES,
     another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
 from app.constants.states import (
-    CORE_TRIGGERS,
+    CORE_STATES,
+    STATE_HELP_MAIN,
     STATES,
-    TRIGGER_HELP_MAIN,
-    TRIGGERS_BY_GROUP,
+    STATES_BY_GROUP,
 )
 from app.core.utils import (
-    create_trigger,
-    disagree_answer_by_trigger,
-    find_previous_element,
-    get_after_answer_by_trigger,
-    get_answer_by_trigger,
-    get_disagree_answer_by_trigger,
-    get_triggers_by_order,
-    get_triggers_group_by_trigger,
-    last_trigger,
-    next_trigger,
+    compose_message,
+    disagree_answer_by_state,
+    find_previous_state,
+    get_after_answer_by_state,
+    get_answer_by_state,
+    get_disagree_answer_by_state,
+    get_states_by_order,
+    get_states_group_by_state,
+    last_states,
+    next_state,
 )
 from app.guidebook_player import AudioAssistant
 from app.quiz.quizskill import QuizSkill
@@ -78,18 +78,18 @@ class FiniteStateMachine:
         """
         return self.command in ServiceCommands.DISAGREE
 
-    def action_func(self, trigger_name: str) -> callable:
+    def action_func(self, state_name: str) -> callable:
         """Флаг согласия/отказа.
 
         Args:
-            trigger_name:
+            state_name: Название состояния.
             self: Объект FiniteStateMachine.
         """
 
         if self.is_disagree():
-            self.disagree_function(trigger_name)
+            self.disagree_function(state_name)
         else:
-            self.agree_function(trigger_name)
+            self.agree_function(state_name)
 
     def save_progress(self, current_step: str) -> None:
         """Прогресс прохождения навыка.
@@ -100,9 +100,7 @@ class FiniteStateMachine:
             self: Объект FiniteStateMachine.
             current_step: Состояние навыка.
         """
-        if self.is_to_progress and current_step in [
-            create_trigger(state) for state in STATES[1:]
-        ]:
+        if self.is_to_progress and current_step in STATES[1:]:
             self.progress = list(set(self.progress) - {current_step}) + [
                 current_step,
             ]
@@ -118,85 +116,85 @@ class FiniteStateMachine:
             Используется для генерации подходящих отрицательных ответов.
 
         Args:
-            current_step: Текущее состояние (соответствующий триггер).
+            current_step: Текущее состояние.
         """
         self.history = list(set(self.progress) - {current_step}) + [
             current_step,
         ]
 
-    def agree_function(self, trigger):
-        """Создает функции, вызываемые триггерами.
+    def agree_function(self, state):
+        """Вызывается при положительном ответе пользователя.
 
-        Создаем сразу все функции, которые указаны в transitions класса
-        FiniteStateMachine.
+        Положительный ответ включает в себя прямой вызов команды.
+
         Args:
-            trigger: Вызванная триггер.
+            state: Вызванное состояние.
         """
-        self.save_progress(trigger)
-        self.save_history(trigger)
-        answer = self._get_answer(trigger)
-        after_answer = self._get_after_answer(trigger)
-        self.message = self._compose_message(answer, after_answer)
+        self.save_progress(state)
+        self.save_history(state)
+        ic(self.history, self.progress)
+        answer = self._get_answer(state)
+        after_answer = self._get_after_answer(state)
+        self.message = compose_message(answer, after_answer)
         self.incorrect_answers = 0
 
-    def disagree_function(self, trigger: str) -> None:
-        """Создает `disagree_` функцию.
-        Вызывается триггером, соответствующим отказу пользователя.
+    def disagree_function(self, state: str) -> None:
+        """Соответствует отказу пользователя.
 
         Args:
-            trigger: Триггер, по которому вызываем функцию.
+            state: Состояние, в которое переходим.
         """
-        self.save_progress(trigger)
-        if trigger in CORE_TRIGGERS:
+        self.save_progress(state)
+        if state in CORE_STATES:
             self.history.extend(
-                get_triggers_group_by_trigger(
-                    trigger,
-                    TRIGGERS_BY_GROUP,
+                get_states_group_by_state(
+                    state,
+                    STATES_BY_GROUP,
                 ),
             )
         else:
-            self.save_history(trigger)
+            self.save_history(state)
         disagree_answer = self.get_next_disagree_answer(
-            trigger,
+            state,
         )
         self.message = disagree_answer
         self.incorrect_answers = 0
 
-    def _get_answer(self, trigger: str) -> str:
-        """Генерирует основной ответ навыка по триггеру.
+    def _get_answer(self, state: str) -> str:
+        """Генерирует основной ответ навыка по состоянию.
 
         Args:
-            trigger: Триггер, по которому генерируем ответ.
+            state: Состояние, по которому генерируем ответ.
 
         Returns:
             Ответ навыка.
         """
         if self._is_repeat_and_previous_disagree():
-            return disagree_answer_by_trigger(
-                trigger,
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            return disagree_answer_by_state(
+                state,
+                COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        return get_answer_by_trigger(
-            trigger,
-            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+        return get_answer_by_state(
+            state,
+            COMMANDS_STATES_ANSWERS_INTENTS,
         )
 
-    def _get_after_answer(self, trigger: str) -> str:
+    def _get_after_answer(self, state: str) -> str:
         """Генерирует вторую часть ответа с подсказкой о продолжении.
 
         Args:
-            trigger: Триггер, по которому генерируем подсказку.
+            state: Триггер, по которому генерируем подсказку.
 
         Returns:
             Подсказка.
         """
         if self.is_agree() and not self._is_repeat_and_previous_disagree():
-            return get_after_answer_by_trigger(
-                trigger,
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            return get_after_answer_by_state(
+                state,
+                COMMANDS_STATES_ANSWERS_INTENTS,
             )
         if not self._is_repeat_and_previous_disagree():
-            return self.get_next_after_answer(trigger)
+            return self.get_next_after_answer(state)
         return ""
 
     def _is_repeat_and_previous_disagree(self) -> bool:
@@ -213,60 +211,47 @@ class FiniteStateMachine:
             and self.previous_command in ServiceCommands.DISAGREE
         )
 
-    @staticmethod
-    def _compose_message(answer: str, after_answer: str) -> str:
-        """Составляем сообщение пользователю.
-
-        Args:
-            answer: Основная часть ответа.
-            after_answer: Часть ответа с подсказкой о продолжении.
-
-        Returns:
-            Полный ответ.
-        """
-        return f"{answer} {after_answer}"
-
     def get_next_after_answer(self, step: str) -> str:
         """Возвращает следующий ответ с подсказкой для пользователя.
 
         Args:
-            step: Текущее состояние (соответствующий триггер).
+            step: Текущее состояние.
 
         Returns:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
         while step in self.progress:
-            step = self.next_trigger_by_history(
-                COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            step = self.next_state_by_history(
+                COMMANDS_STATES_ANSWERS_INTENTS,
             )
         # исправляем side effect, когда в помощи появляется `after_answer`
-        if step == TRIGGER_HELP_MAIN:
+        if step == STATE_HELP_MAIN:
             return ""
-        pre_step = find_previous_element(step, ORDERED_TRIGGERS)
-        return get_after_answer_by_trigger(
+        pre_step = find_previous_state(step, ORDERED_STATES)
+        return get_after_answer_by_state(
             pre_step,
-            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            COMMANDS_STATES_ANSWERS_INTENTS,
         )
 
     def get_next_disagree_answer(self, step: str) -> str:
         """Возвращает следующий ответ с вариантами действия пользователя.
 
         Args:
-            step: Текущее состояние (соответствующий триггер).
+            step: Текущее состояние.
 
         Returns:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
         while step in self.history:
-            step = next_trigger(
+            step = next_state(
                 step,
-                ORDERED_TRIGGERS,
+                ORDERED_STATES,
             )
-        return get_disagree_answer_by_trigger(
+        return get_disagree_answer_by_state(
             self.history[-1],
-            COMMANDS_TRIGGERS_GET_FUNC_ANSWERS,
+            COMMANDS_STATES_ANSWERS_INTENTS,
         )
 
     def dont_understand(self) -> str:
@@ -325,32 +310,32 @@ class FiniteStateMachine:
             result = False
         return result
 
-    def next_trigger_by_history(
+    def next_state_by_history(
         self,
-        triggers: list,
+        states: list,
     ) -> str:
-        """Возвращает следующий триггер.
+        """Возвращает следующее состояние.
 
         Очередность определяется списком состояний STATES в states.py.
         Учитывается прогресс пользователя.
 
         Args:
-            triggers: Список всех триггеров.
+            states: Список всех триггеров.
 
         Returns:
             Триггер, соответствующий первой непройденной истории/возможности
             после последнего выполненного действия.
         """
-        trigger = last_trigger(self.history)
-        ordered_triggers = get_triggers_by_order(triggers)
-        if trigger is None:
-            return ordered_triggers[0]
-        trigger_index = ordered_triggers.index(trigger)
-        len_triggers = len(ordered_triggers)
-        for index in range(trigger_index, len_triggers + trigger_index):
-            if ordered_triggers[index % len_triggers] in self.history:
+        state = last_states(self.history)
+        ordered_states = get_states_by_order(states)
+        if state is None:
+            return ordered_states[0]
+        state_index = ordered_states.index(state)
+        len_states = len(ordered_states)
+        for index in range(state_index, len_states + state_index):
+            if ordered_states[index % len_states] in self.history:
                 continue
-            return ordered_triggers[index % len_triggers]
+            return ordered_states[index % len_states]
 
     def get_output(
         self,

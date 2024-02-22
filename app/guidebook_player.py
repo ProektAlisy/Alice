@@ -43,7 +43,8 @@ class AudioAssistant:
         }
 
     def is_finished(self):
-        # TODO реализовать функцию после обработки команды "выход", "завершить обучение"
+        # TODO реализовать функцию после обработки команды "выход",
+        #  "завершить обучение"
         self.is_finish = self.current_chapter is None and not self.greetings
         return self.is_finish
 
@@ -54,33 +55,31 @@ class AudioAssistant:
             return self.greet_user()
         if command == "пауза":
             return self.pause_playback()
-        elif command == "продолжить":
+        if command == "продолжить":
             return self.continue_playback()
-        elif command == "следующая":
+        if command == "следующая":
             return self.play_next_chapter()
-        else:
-            return self.process_learning_request(command, intents)
+        return self.process_learning_request(command, intents)
 
     def process_learning_request(self, command, intents):
         # TODO добавить обработку интентов
         if not command:
             return self.unknown_command_response()
-        elif command == "начинай":
+        if command == "начинай":
             self.current_chapter = 0
             return self.start_audio_playback(self.current_chapter)
-        elif command == "прослушать оглавление":
+        if command == "прослушать оглавление":
             return self.get_table_of_contents()
-        elif command == "выбрать главу":
+        if command == "выбрать главу":
             text = "Какую главу хотите прослушать?"
             return self.get_response(text)
-        elif (
+        if (
             command.isdigit()
             and int(command) in self.human_readable_chapter_titles
         ):
             self.current_chapter = int(command)
             return self.start_audio_playback(self.current_chapter)
-        else:
-            return self.unknown_command_response()
+        return self.unknown_command_response()
 
     def start_audio_playback(self, chapter_number):
         token_info = self.token_offsets.get(chapter_number)
@@ -97,8 +96,14 @@ class AudioAssistant:
         self.audio_playback_start_time = int(time.time() * 1000)
         self.is_playing = True
 
-        audio_url = f"https://www.guidedogs.acceleratorpracticum.ru/{self.file_name_chapter_titles[chapter_number]}.mp3"
-        text = f"Начинаю проигрывание главы {self.human_readable_chapter_titles[chapter_number]}"
+        audio_url = (
+            f"https://www.guidedogs.acceleratorpracticum.ru/"
+            f"{self.file_name_chapter_titles[chapter_number]}.mp3"
+        )
+        text = (
+            f"Начинаю проигрывание главы "
+            f"{self.human_readable_chapter_titles[chapter_number]}"
+        )
         directives = {
             "audio_player": {
                 "action": "Play",
@@ -107,7 +112,7 @@ class AudioAssistant:
                         "url": audio_url,
                         "offset_ms": offset_ms,
                         "token": self.current_token,
-                    }
+                    },
                 },
             },
         }
@@ -160,9 +165,8 @@ class AudioAssistant:
             text = "Пауза проигрывания."
             directives = {"audio_player": {"action": "Stop"}}
             return text, directives
-        else:
-            return_text = "Проигрывание еще не началось."
-            return self.get_response(return_text)
+        return_text = "Проигрывание еще не началось."
+        return self.get_response(return_text)
 
     def unknown_command_response(self):
         unknown_command_text = "Неизвестная команда."
@@ -170,39 +174,44 @@ class AudioAssistant:
 
     def greet_user(self):
         welcome_text = (
-            "В 2018 году мы издали “Методическое пособие для владельцев и будущих владельцев собак-проводников”. "
-            "У меня есть аудиоверсия этого пособия. Здесь Вы можете прослушать главы по выбору или по порядку. "
-            "Воспроизведение можно ставить на паузу, а так же можно сказать 'следующая глава' для того чтобы "
-            "пропустить какую-нибудь тему. Для прослушивания списка всех тем скажите 'Оглавление' и после Вы "
-            "сможете выбрать главу или скажите 'Начинай' и я начну воспроизведение методички по порядку."
+            "В 2018 году мы издали “Методическое пособие для владельцев и"
+            "будущих владельцев собак-проводников”. "
+            "У меня есть аудиоверсия этого пособия. Здесь Вы можете прослушать"
+            "главы по выбору или по порядку. "
+            "Воспроизведение можно ставить на паузу, а так же можно сказать"
+            "'следующая глава' для того чтобы"
+            "пропустить какую-нибудь тему. Для прослушивания списка всех тем"
+            "скажите 'Оглавление' и после Вы "
+            "сможете выбрать главу или скажите 'Начинай' и я начну"
+            "воспроизведение методички по порядку."
         )
         return self.get_response(welcome_text)
 
 
-if __name__ == "__main__":
-    from fastapi import FastAPI
-    from pydantic import BaseModel
+# if __name__ == "__main__":
+#     from fastapi import FastAPI
+#     from pydantic import BaseModel
+#
+#     app = FastAPI()
+#
+#     audio_assistant = AudioAssistant()
 
-    app = FastAPI()
+# @app.post(
+#     "/",
+#     tags=["Alice project"],
+#     summary="Диалог с Алисой.",
+# )
+# async def root(data: RequestData):
+#     global audio_assistant
+#     command = data.request.get("command")
+#     response = audio_assistant.process_request(command)
+#     return response
 
-    audio_assistant = AudioAssistant()
-
-    # @app.post(
-    #     "/",
-    #     tags=["Alice project"],
-    #     summary="Диалог с Алисой.",
-    # )
-    # async def root(data: RequestData):
-    #     global audio_assistant
-    #     command = data.request.get("command")
-    #     response = audio_assistant.process_request(command)
-    #     return response
-
-    print(audio_assistant.process_request(""))
-    print(audio_assistant.process_request("3"))
-    time.sleep(3)
-    print(audio_assistant.process_request("пауза"))
-    print(audio_assistant.process_request("продолжить"))
-    print(audio_assistant.process_request("следующая"))
-    print(audio_assistant.process_request("прослушать оглавление"))
-    print(audio_assistant.process_request("начинай"))
+# print(audio_assistant.process_request(""))
+# print(audio_assistant.process_request("3"))
+# time.sleep(3)
+# print(audio_assistant.process_request("пауза"))
+# print(audio_assistant.process_request("продолжить"))
+# print(audio_assistant.process_request("следующая"))
+# print(audio_assistant.process_request("прослушать оглавление"))
+# print(audio_assistant.process_request("начинай"))

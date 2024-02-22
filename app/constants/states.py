@@ -37,52 +37,50 @@ HELP_STATES: Final = [
     "help_phrase",
     "useful_information",
 ]
-QUIZ_TRIGGER_STATE: Final = "trigger_" + QUIZ_STATE
-MANUAL_TRAINING_TRIGGER_STATE: Final = "trigger_" + MANUAL_TRAINING_STATE
-TRIGGER_HELP_MAIN = "trigger_" + HELP_STATE
+STATE_HELP_MAIN = HELP_STATE
 DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
-POSSIBILITIES_TRIGGER: Final = "trigger_possibilities"
-TRIGGERS_BY_GROUP: Final = [
-    ("trigger_about_training_center",),
-    ("trigger_about_facility",),
+POSSIBILITIES_TRIGGER: Final = "possibilities"
+STATES_BY_GROUP: Final = [
+    ("about_training_center",),
+    ("about_facility",),
     (
-        "trigger_about_staff_1",
-        "trigger_about_staff_2",
-        "trigger_about_staff_3",
+        "about_staff_1",
+        "about_staff_2",
+        "about_staff_3",
     ),
-    ("trigger_about_training_course",),
-    (MANUAL_TRAINING_TRIGGER_STATE,),
-    (QUIZ_TRIGGER_STATE,),
+    ("about_training_course",),
+    (MANUAL_TRAINING_STATE,),
+    (QUIZ_STATE,),
     (
-        "trigger_listen_to_legislation",
-        "trigger_about_legislation_accessibility",
-        "trigger_about_transportation_by_land_transport",
-        "trigger_about_transportation_by_rail",
-        "trigger_about_transportation_by_air",
-        "trigger_about_transportation_by_water",
-        "trigger_self_defense_phrase",
+        "listen_to_legislation",
+        "about_legislation_accessibility",
+        "about_transportation_by_land_transport",
+        "about_transportation_by_rail",
+        "about_transportation_by_air",
+        "about_transportation_by_water",
+        "self_defense_phrase",
     ),
-    ("trigger_about_support_services_for_blind_passengers",),
+    ("about_support_services_for_blind_passengers",),
     (
-        "trigger_about_discounts_and_free_services",
-        "trigger_discounts_for_food",
-        "trigger_discounts_for_delicacy",
-        "trigger_special_offers_for_veterinaries",
-    ),
-    (
-        "trigger_about_services_uniting_blind_people",
-        "trigger_about_regional_clubs",
-        "trigger_about_special_view_foundation",
+        "about_discounts_and_free_services",
+        "discounts_for_food",
+        "discounts_for_delicacy",
+        "special_offers_for_veterinaries",
     ),
     (
-        "trigger_about_podcast",
-        "trigger_instructions_for_launching_podcast",
+        "about_services_uniting_blind_people",
+        "about_regional_clubs",
+        "about_special_view_foundation",
+    ),
+    (
+        "about_podcast",
+        "tinstructions_for_launching_podcast",
     ),
 ]
-CORE_TRIGGERS: Final = [
-    "trigger_about_staff_1",
-    "trigger_listen_to_legislation",
-    "trigger_about_discounts_and_free_services",
-    "trigger_about_services_uniting_blind_people",
-    "trigger_about_podcast",
+CORE_STATES: Final = [
+    "about_staff_1",
+    "listen_to_legislation",
+    "about_discounts_and_free_services",
+    "about_services_uniting_blind_people",
+    "about_podcast",
 ]
