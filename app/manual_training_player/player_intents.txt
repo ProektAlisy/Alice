@@ -3,7 +3,7 @@
 Название
     Пройти обучение
 ID
-    take_manual_training
+    start_manual_training
 
 Грамматика
 

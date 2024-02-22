@@ -5,11 +5,8 @@ import uuid
 from app.manual_training_player.intents import ManualTrainingIntents
 
 # Загрузка данных из JSON файла
-with open('chapter_titles.json', 'r') as f:
+with open('chapter_titles.json', 'r', encoding="utf-8") as f:
     chapter_titles_data = json.load(f)
-
-with open('welcome_text.json', 'r') as f:
-    welcome_data = json.load(f)
 
 
 class ManualTrainingPlayer:
@@ -27,63 +24,59 @@ class ManualTrainingPlayer:
 
     def is_finished(self):
         # TODO реализовать функцию после обработки команды "выход", "завершить обучение"
-        return self.current_chapter is None and not self.greetings
+        # return self.current_chapter is None and not self.greetings
+        return False
 
     def process_request(self, command, intents):
         if not self.greetings:
             self.greetings = True
             return self.greet_user()
-        for intent in intents:
-            if intent == ManualTrainingIntents.PAUSE_MANUAL_TRAINING:
-                return self.pause_playback()
-            elif intent == ManualTrainingIntents.RESUME_MANUAL_TRAINING:
-                return self.continue_playback()
-            elif intent == ManualTrainingIntents.NEXT_MANUAL_TRAINING_CHAPTER:
-                return self.play_next_chapter()
-            elif intent == ManualTrainingIntents.TERMINATE_MANUAL_TRAINING:
-                return self.is_finished()
-            else:
-                return self.process_learning_request(command, intents)
+        elif ManualTrainingIntents.PAUSE_MANUAL_TRAINING in intents:
+            return self.pause_playback()
+        elif ManualTrainingIntents.RESUME_MANUAL_TRAINING in intents:
+            return self.continue_playback()
+        elif ManualTrainingIntents.NEXT_MANUAL_TRAINING_CHAPTER in intents:
+            return self.play_next_chapter()
+        elif ManualTrainingIntents.TERMINATE_MANUAL_TRAINING in intents:
+            return self.is_finished()
+        else:
+            return self.process_learning_request(command, intents)
 
     def process_learning_request(self, command, intents):
         if not command:
             return self.unknown_command_response()
-
-        # Обработка интентов
-        for intent in intents:
-            if intent == ManualTrainingIntents.TAKE_MANUAL_TRAINING:
-                self.current_chapter = 1
-                return self.start_audio_playback(self.current_chapter)
-            elif intent == ManualTrainingIntents.SHOW_MANUAL_TRAINING_CONTENTS:
-                return self.get_table_of_contents()
-            elif intent == ManualTrainingIntents.GET_MANUAL_TRAINING_CHAPTER_INFO:
-                chapter_number = intents[intent]['slots']['chapter']['value']
-                if chapter_number:
-                    try:
-                        chapter_number = int(chapter_number)
-                        chapter_name = self.get_chapter_name_by_number(chapter_number)
-                        if chapter_name:
-                            chapter_name_text = f"Название главы {chapter_number}: {chapter_name}"
-                            return self.get_response(chapter_name_text)
-                        else:
-                            no_chapter_text = "Глава с указанным номером не найдена"
-                            return self.get_response(no_chapter_text)
-                    except ValueError:
-                        error_text = "Неверный формат номера главы"
-                        return self.get_response(error_text)
-                else:
-                    error_text = "Не указан номер главы"
+        elif ManualTrainingIntents.START_MANUAL_TRAINING in intents:
+            self.current_chapter = 1
+            return self.start_audio_playback(self.current_chapter)
+        elif ManualTrainingIntents.SHOW_MANUAL_TRAINING_CONTENTS in intents:
+            return self.get_table_of_contents()
+        elif ManualTrainingIntents.GET_MANUAL_TRAINING_CHAPTER_INFO in intents:
+            chapter_number = intents['get_manual_training_chapter_info']['slots']['chapter']['value']
+            if chapter_number:
+                try:
+                    chapter_number = int(chapter_number)
+                    chapter_name = self.get_chapter_name_by_number(chapter_number)
+                    if chapter_name:
+                        chapter_name_text = f"Название главы {chapter_number}: {chapter_name}"
+                        return self.get_response(chapter_name_text)
+                    else:
+                        no_chapter_text = "Глава с указанным номером не найдена"
+                        return self.get_response(no_chapter_text)
+                except ValueError:
+                    error_text = "Неверный формат номера главы"
                     return self.get_response(error_text)
-            elif intent == ManualTrainingIntents.CHOOSE_MANUAL_TRAINING_CHAPTER:
-                chapter_number = intents[intent]['slots']['chapter']['value']
-                if chapter_number in self.human_readable_chapter_titles:
-                    self.current_chapter = chapter_number
-                    return self.start_audio_playback(self.current_chapter)
-                else:
-                    no_chapter_text = "Указанная глава не существует. Пожалуйста, выберите другую главу."
-                    return self.get_response(no_chapter_text)
             else:
-                return self.unknown_command_response()
+                error_text = "Не указан номер главы"
+                return self.get_response(error_text)
+        elif ManualTrainingIntents.CHOOSE_MANUAL_TRAINING_CHAPTER in intents:
+            chapter_number = intents['choose_manual_training_chapter']['slots']['chapter']['value']
+            if str(chapter_number) in self.human_readable_chapter_titles:
+                self.current_chapter = chapter_number
+                return self.start_audio_playback(self.current_chapter)
+            else:
+                no_chapter_text = "Указанная глава не существует. Пожалуйста, выберите другую главу."
+                return self.get_response(no_chapter_text)
+        return self.unknown_command_response()
 
     def start_audio_playback(self, chapter_number):
         token_info = self.token_offsets.get(chapter_number)
@@ -153,7 +146,7 @@ class ManualTrainingPlayer:
             elapsed_time_ms = stop_time_ms - self.audio_playback_start_time
             token = self.current_token
             if token in self.token_offsets:
-                self.token_offsets[self.current_chapter][
+                self.token_offsets[str(self.current_chapter)][
                     "offset_ms"
                 ] += elapsed_time_ms
             else:
@@ -172,6 +165,8 @@ class ManualTrainingPlayer:
         return self.get_response(unknown_command_text)
 
     def greet_user(self):
+        with open('welcome_text.json', 'r', encoding="utf-8") as file:
+            welcome_data = json.load(file)
         welcome_text = welcome_data['welcome_text']
         return self.get_response(welcome_text)
 
@@ -181,7 +176,7 @@ class ManualTrainingPlayer:
 
 if __name__ == "__main__":
     from fastapi import FastAPI
-
+    from app.main import RequestData
     app = FastAPI()
 
     audio_assistant = ManualTrainingPlayer()
@@ -198,6 +193,8 @@ if __name__ == "__main__":
     #     return response
 
     print(audio_assistant.process_request("", {}))
+    print(audio_assistant.process_request("", {}))
+    print(audio_assistant.process_request("фамии", {}))
     print(audio_assistant.process_request("пауза", {"pause_manual_training"}))
     print(audio_assistant.process_request("3",
                                           {"choose_manual_training_chapter": {"slots": {"chapter": {"value": "3"}}}}))
@@ -206,7 +203,7 @@ if __name__ == "__main__":
     print(audio_assistant.process_request("продолжить", {"resume_manual_training"}))
     print(audio_assistant.process_request("следующая", {"next_manual_training_chapter"}))
     print(audio_assistant.process_request("прослушать оглавление", {"show_manual_training_contents"}))
-    print(audio_assistant.process_request("начинай", {"take_manual_training"}))
+    print(audio_assistant.process_request("начинай", {"start_manual_training"}))
     print(audio_assistant.process_request("расскажи название главы", {"get_manual_training_chapter_info": {"slots": {"chapter": {"value": ""}}}}))
     print(audio_assistant.process_request("расскажи название главы 56", {"get_manual_training_chapter_info": {"slots": {"chapter": {"value": "56"}}}}))
     print(audio_assistant.process_request("Остановить обучение по методичке", {"terminate_manual_training"}))
