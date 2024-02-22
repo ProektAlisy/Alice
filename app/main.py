@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from icecream import ic
 from pydantic import BaseModel
 
-from app.constants.comands_triggers_answers import another_answers_documents
+from app.constants.comands_states_answers import another_answers_documents
 from app.core.action_classes import Action
 from app.core.command_classes import (
     AgreeCommand,
@@ -24,6 +24,8 @@ from app.core.command_classes import (
     RepeatCommand,
     skill,
 )
+from app.core.exceptions import APIError
+from app.core.utils import check_api, get_api_data
 
 
 class RequestData(BaseModel):
@@ -41,18 +43,13 @@ application = FastAPI()
     summary="Диалог с Алисой.",
 )
 async def root(data: RequestData):
-    command = data.request.get("command")
-    nlu = data.request.get("nlu")
-    intents = []
-    if nlu:
-        intents = nlu.get("intents", [])
-    is_new = data.session.get("new")
-
     try:
-        session_state = data.state.get("session")
-    except AttributeError:
-        session_state = {}
-
+        check_api(data)
+    except APIError:
+        return skill.get_output(
+            "Технические проблемы на стороне Яндекса. Попробуйте позже.",
+        )
+    command, intents, is_new, session_state = get_api_data(data)
     skill.load_session_state(session_state)
     skill.command = command
     command_instance = Action()
@@ -70,40 +67,19 @@ async def root(data: RequestData):
         DisagreeCommand(skill, command_instance),
         ExitCommand(skill, command_instance),
     ]
-    answer = skill.dont_understand()
-    directives = {}
+    result = skill.get_output(skill.dont_understand())
     for command_obj in commands:
         if command_obj.condition(intents, command, is_new):
-            # спец-обработчик для аудио обучения по методичке, т.к. еще возвращает directives
-            if type(command_obj) in [
-                ManualTrainingSetState,
-                ManualTrainingCommand,
-            ]:
-                answer, directives = command_obj.execute(
-                    intents,
-                    command,
-                    is_new,
-                )
-            else:
-                answer = command_obj.execute(intents, command, is_new)
+            result = command_obj.execute(intents, command, is_new)
             break
     if skill.is_completed():
-        answer = another_answers_documents.get("all_completed", "[]")
+        result = skill.get_output(
+            another_answers_documents.get(
+                "all_completed",
+                "",
+            ),
+        )
         skill.progress = []
-
-    end_session = (
-        True
-        if answer == another_answers_documents.get("exit_from_skill", "[]")
-        else False
-    )
-    ic(command, skill.state, skill.progress, skill.history)
+    ic(command, skill.progress, skill.history)
     skill.previous_command = command
-    return {
-        "response": {
-            "text": answer,
-            "end_session": end_session,
-            "directives": directives,
-        },
-        "session_state": skill.dump_session_state(),
-        "version": "1.0",
-    }
+    return result

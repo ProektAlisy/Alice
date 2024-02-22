@@ -5,7 +5,7 @@ import uuid
 from app.manual_training_player.intents import ManualTrainingIntents
 
 # Загрузка данных из JSON файла
-with open('chapter_titles.json', 'r', encoding="utf-8") as f:
+with open('app/manual_training_player/chapter_titles.json', 'r', encoding="utf-8") as f:
     chapter_titles_data = json.load(f)
 
 
@@ -17,27 +17,27 @@ class ManualTrainingPlayer:
         self.is_playing = False
         self.audio_playback_start_time = 0
         self.token_offsets = {}
+        self.is_finish = False
         self.human_readable_chapter_titles = (
             chapter_titles_data)['human_readable_chapter_titles']
         self.file_name_chapter_titles = (
             chapter_titles_data)['file_name_chapter_titles']
 
     def is_finished(self):
-        # TODO реализовать функцию после обработки команды "выход", "завершить обучение"
-        # return self.current_chapter is None and not self.greetings
-        return False
+        self.is_finish = True
+        return self.get_response("Закрываю методичку.")
 
     def process_request(self, command, intents):
         if not self.greetings:
             self.greetings = True
             return self.greet_user()
-        elif ManualTrainingIntents.PAUSE_MANUAL_TRAINING in intents:
+        elif ManualTrainingIntents.PAUSE_MANUAL_TRAINING == intents:
             return self.pause_playback()
-        elif ManualTrainingIntents.RESUME_MANUAL_TRAINING in intents:
+        elif ManualTrainingIntents.RESUME_MANUAL_TRAINING == intents:
             return self.continue_playback()
-        elif ManualTrainingIntents.NEXT_MANUAL_TRAINING_CHAPTER in intents:
+        elif ManualTrainingIntents.NEXT_MANUAL_TRAINING_CHAPTER == intents:
             return self.play_next_chapter()
-        elif ManualTrainingIntents.TERMINATE_MANUAL_TRAINING in intents:
+        elif ManualTrainingIntents.TERMINATE_MANUAL_TRAINING == intents:
             return self.is_finished()
         else:
             return self.process_learning_request(command, intents)
@@ -165,7 +165,7 @@ class ManualTrainingPlayer:
         return self.get_response(unknown_command_text)
 
     def greet_user(self):
-        with open('welcome_text.json', 'r', encoding="utf-8") as file:
+        with open('app/manual_training_player/welcome_text.json', 'r', encoding="utf-8") as file:
             welcome_data = json.load(file)
         welcome_text = welcome_data['welcome_text']
         return self.get_response(welcome_text)
@@ -174,36 +174,36 @@ class ManualTrainingPlayer:
         return self.human_readable_chapter_titles.get(str(chapter_number))
 
 
-if __name__ == "__main__":
-    from fastapi import FastAPI
-    from app.main import RequestData
-    app = FastAPI()
-
-    audio_assistant = ManualTrainingPlayer()
-
-    # @app.post(
-    #     "/",
-    #     tags=["Alice project"],
-    #     summary="Диалог с Алисой.",
-    # )
-    # async def root(data: RequestData):
-    #     global audio_assistant
-    #     command = data.request.get("command")
-    #     response = audio_assistant.process_request(command)
-    #     return response
-
-    print(audio_assistant.process_request("", {}))
-    print(audio_assistant.process_request("", {}))
-    print(audio_assistant.process_request("фамии", {}))
-    print(audio_assistant.process_request("пауза", {"pause_manual_training"}))
-    print(audio_assistant.process_request("3",
-                                          {"choose_manual_training_chapter": {"slots": {"chapter": {"value": "3"}}}}))
-    time.sleep(3)
-    print(audio_assistant.process_request("пауза", {"pause_manual_training"}))
-    print(audio_assistant.process_request("продолжить", {"resume_manual_training"}))
-    print(audio_assistant.process_request("следующая", {"next_manual_training_chapter"}))
-    print(audio_assistant.process_request("прослушать оглавление", {"show_manual_training_contents"}))
-    print(audio_assistant.process_request("начинай", {"start_manual_training"}))
-    print(audio_assistant.process_request("расскажи название главы", {"get_manual_training_chapter_info": {"slots": {"chapter": {"value": ""}}}}))
-    print(audio_assistant.process_request("расскажи название главы 56", {"get_manual_training_chapter_info": {"slots": {"chapter": {"value": "56"}}}}))
-    print(audio_assistant.process_request("Остановить обучение по методичке", {"terminate_manual_training"}))
+# if __name__ == "__main__":
+#     from fastapi import FastAPI
+#     from app.main import RequestData
+#     app = FastAPI()
+#
+#     audio_assistant = ManualTrainingPlayer()
+#
+#     # @app.post(
+#     #     "/",
+#     #     tags=["Alice project"],
+#     #     summary="Диалог с Алисой.",
+#     # )
+#     # async def root(data: RequestData):
+#     #     global audio_assistant
+#     #     command = data.request.get("command")
+#     #     response = audio_assistant.process_request(command)
+#     #     return response
+#
+#     print(audio_assistant.process_request("", {}))
+#     print(audio_assistant.process_request("", {}))
+#     print(audio_assistant.process_request("фамии", {}))
+#     print(audio_assistant.process_request("пауза", {"pause_manual_training"}))
+#     print(audio_assistant.process_request("3",
+#                                           {"choose_manual_training_chapter": {"slots": {"chapter": {"value": "3"}}}}))
+#     time.sleep(3)
+#     print(audio_assistant.process_request("пауза", {"pause_manual_training"}))
+#     print(audio_assistant.process_request("продолжить", {"resume_manual_training"}))
+#     print(audio_assistant.process_request("следующая", {"next_manual_training_chapter"}))
+#     print(audio_assistant.process_request("прослушать оглавление", {"show_manual_training_contents"}))
+#     print(audio_assistant.process_request("начинай", {"start_manual_training"}))
+#     print(audio_assistant.process_request("расскажи название главы", {"get_manual_training_chapter_info": {"slots": {"chapter": {"value": ""}}}}))
+#     print(audio_assistant.process_request("расскажи название главы 56", {"get_manual_training_chapter_info": {"slots": {"chapter": {"value": "56"}}}}))
+#     print(audio_assistant.process_request("Остановить обучение по методичке", {"terminate_manual_training"}))

@@ -176,7 +176,7 @@ filler:
     Информация о персонале центра продолжение 2
 
 ID
-    ABOUT_STAFF_CAT
+    ABOUT_STAFF_3
 
 Грамматика
 root:

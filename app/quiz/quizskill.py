@@ -212,7 +212,9 @@ class QuizSkill:
             self._quiz.advance_question(is_correct_answer)
             if self._quiz.is_finished():
                 self._state = QuizState.FINISHED
-                answer_result += self._get_current_result()
+                answer_result += (
+                    QuizMessages.IS_FINISHED + self._get_current_result()
+                )
             else:
                 answer_result += self._get_full_question()
             return True, answer_result
