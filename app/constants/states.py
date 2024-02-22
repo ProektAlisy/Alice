@@ -15,6 +15,7 @@ STATES: Final = [
     QUIZ_STATE,
     "listen_to_legislation",
     "about_legislation_accessibility",
+    "choice_by_land_rail_air_water",
     "about_transportation_by_land_transport",
     "about_transportation_by_rail",
     "about_air_transportation",
@@ -38,8 +39,7 @@ HELP_STATES: Final = [
     "useful_information",
 ]
 STATE_HELP_MAIN = HELP_STATE
-DISAGREE_STATES: Final = [state + "_disagree" for state in STATES]
-POSSIBILITIES_TRIGGER: Final = "possibilities"
+POSSIBILITIES_STATE: Final = "possibilities"
 STATES_BY_GROUP: Final = [
     ("about_training_center",),
     ("about_facility",),

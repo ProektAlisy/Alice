@@ -2,9 +2,6 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
-
-from icecream import ic
-
 from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
     ORDERED_STATES,
@@ -191,8 +188,6 @@ class ManualTrainingSetState(Command):
                 MANUAL_TRAINING_STATE,
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        # skill.save_progress(MANUAL_TRAINING_STATE)
-        # skill.save_history(MANUAL_TRAINING_STATE)
         return skill.get_next_after_answer(MANUAL_TRAINING_STATE)
 
     def condition(
