@@ -5,7 +5,7 @@ import uuid
 from app.manual_training_player.intents import ManualTrainingIntents
 
 # Загрузка данных из JSON файла
-with open('chapter_titles.json', 'r', encoding="utf-8") as f:
+with open('app/manual_training_player/chapter_titles.json', 'r', encoding="utf-8") as f:
     chapter_titles_data = json.load(f)
 
 
@@ -172,7 +172,7 @@ class ManualTrainingPlayer:
         return self.get_response(unknown_command_text)
 
     def greet_user(self):
-        with open('welcome_text.json', 'r', encoding="utf-8") as file:
+        with open('app/manual_training_player/welcome_text.json', 'r', encoding="utf-8") as file:
             welcome_data = json.load(file)
         welcome_text = welcome_data['welcome_text']
         return self.get_response(welcome_text)
