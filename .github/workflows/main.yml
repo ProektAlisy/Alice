@@ -73,5 +73,5 @@ jobs:
             echo MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} >> .env
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
             sudo docker-compose up -d --build
-            # Run db_loader.py inside the container
-            sudo docker exec -it alice_app-app-1 python /alice_app/app/monga/db_loader.py
+            sleep 30s
+            sudo docker exec alice_app-app-1 python app/monga/db_loader.py
