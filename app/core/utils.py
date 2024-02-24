@@ -295,4 +295,4 @@ def compose_message(answer: str, after_answer: str) -> str:
     Returns:
         Полный ответ.
     """
-    return f"{answer} {after_answer}"
+    return f"{answer} sil <[400]> {after_answer}"

@@ -106,7 +106,7 @@ class QuizSetState(Command):
 
     @staticmethod
     def _get_quiz_after_agree_command():
-        if not skill.quiz_skill.is_finish:
+        if not skill.quiz_skill.is_finished():
             return ""
         if skill.is_agree():
             return get_after_answer_by_state(
@@ -163,7 +163,7 @@ class ManualTrainingCommand(Command):
         is_new: bool,
     ) -> dict[str, str]:
         """Запуск обучения по методичке."""
-        self.skill.manual_training.is_finish = False
+        # self.skill.manual_training.is_finish = False
         result, directives = skill.manual_training.process_request(
             command,
             intents,
@@ -202,7 +202,7 @@ class ManualTrainingSetState(Command):
         is_new: bool,
     ) -> bool:
         """Проверяем, не окончено ли обучение."""
-        return not skill.manual_training.is_finish
+        return not skill.manual_training.is_finished()
 
     def execute(
         self,
@@ -220,7 +220,7 @@ class ManualTrainingSetState(Command):
         )
         after_answer = self._get_manual_after_agree_command()
         return skill.get_output(
-            answer + after_answer,
+            compose_message(answer, after_answer),
             directives=directives,
         )
 
