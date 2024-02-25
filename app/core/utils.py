@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from pymongo.collection import Collection
 
-from app.constants.states import POSSIBILITIES_TRIGGER
+from app.constants.states import POSSIBILITIES_STATE
 from app.core.exceptions import APIError
 
 
@@ -18,7 +18,7 @@ def next_state(state: str, states: list) -> str | None:
     try:
         index = states.index(state)
     except ValueError:
-        return POSSIBILITIES_TRIGGER
+        return POSSIBILITIES_STATE
     if index < len(states) - 1:
         return states[index + 1]
     if index == len(states) - 1:
@@ -265,11 +265,11 @@ def disagree_answer_by_state(
 
 def check_api(data: BaseModel) -> None:
     try:
-        data.request.get("command")
-        data.request.get("nlu")
-        data.session.get("new")
-        data.state.get("session")
-    except AttributeError:
+        _ = data.request["command"]
+        _ = data.request["nlu"]
+        _ = data.session["new"]
+        _ = data.state["session"]
+    except KeyError:
         raise APIError
 
 

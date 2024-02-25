@@ -24,6 +24,9 @@ class Commands:
         "объектам инфраструктуры"
     )
     ABOUT_GUIDE_DOG_TRANSPORTATION = "Прослушать информацию о провозе собак"
+    CHOICE_BY_LAND_RAIL_AIR_WATER = (
+        "Выбор информации о провозе собаки в различных видах транспорта"
+    )
     ABOUT_TRANSPORTATION_BY_LAND_TRANSPORT = (
         "Узнать о провозе собак-проводников в наземном транспорте"
     )
