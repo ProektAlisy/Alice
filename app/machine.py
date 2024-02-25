@@ -24,7 +24,9 @@ from app.core.utils import (
     last_states,
     next_state,
 )
-from app.manual_training_player.manual_training_player import ManualTrainingPlayer
+from app.manual_training_player.manual_training_player import (
+    ManualTrainingPlayer,
+)
 from app.quiz.quizskill import QuizSkill
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"

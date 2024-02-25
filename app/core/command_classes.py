@@ -3,7 +3,7 @@
 соответствующие определенным условиям.
 """
 
-from icecream import ic
+# from icecream import ic
 
 from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
