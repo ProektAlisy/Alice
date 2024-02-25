@@ -66,6 +66,9 @@ class ManualTrainingPlayer:
             if not self.current_chapter:
                 self.current_chapter = "1"
                 return self.start_audio_playback(self.current_chapter)
+            elif self.is_playing:
+                playback_text = ManualPlayerMessages.PLAYBACK_IS_ACTIVE
+                return self.get_response(playback_text)
             return self.start_audio_playback(self.current_chapter)
         if ManualTrainingIntents.SHOW_MANUAL_TRAINING_CONTENTS in intents:
             return self.get_table_of_contents()

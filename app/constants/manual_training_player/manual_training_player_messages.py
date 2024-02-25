@@ -16,6 +16,7 @@ class ManualPlayerMessages:
     NO_CHAPTER_NUMBER: Final = "Не указан номер главы."
     INVALID_CHAPTER_NUMBER: Final = "Неверный формат номера главы."
     PLAYBACK_NOT_STARTED: Final = "Проигрывание еще не началось."
+    PLAYBACK_IS_ACTIVE: Final = "Проигрывание уже идёт."
     MANUAL_END: Final = "Вы достигли конца книги."
     NO_CURRENT_CHAPTER: Final = "Нет текущей главы для продолжения."
     PLAYBACK_STOP: Final = "Остановила."
