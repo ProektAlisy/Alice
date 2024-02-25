@@ -24,7 +24,9 @@ from app.core.utils import (
     last_states,
     next_state,
 )
-from app.guidebook_player import AudioAssistant
+from app.manual_training_player.manual_training_player import (
+    ManualTrainingPlayer,
+)
 from app.quiz.quizskill import QuizSkill
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
@@ -56,7 +58,7 @@ class FiniteStateMachine:
         self.is_to_progress = False
         self.max_progress = len(STATES) - 1
         self.quiz_skill = QuizSkill()
-        self.manual_training = AudioAssistant()
+        self.manual_training = ManualTrainingPlayer()
 
     def is_agree(self) -> bool:
         """Функция состояния.
