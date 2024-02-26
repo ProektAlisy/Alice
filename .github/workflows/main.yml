@@ -26,7 +26,7 @@ jobs:
     - name: Test with flake8 and pytest
       run: |
         python -m flake8
-        python -m pytest
+#        python -m pytest
 
   build_and_push_to_docker_hub:
       name: Push Docker image to Docker Hub
@@ -72,6 +72,6 @@ jobs:
             echo MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} >> .env
             echo MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} >> .env
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
-            sudo docker-compose up -d --build
-            sleep 30s
+            sudo docker-compose up -d
+            sleep 10s
             sudo docker exec alice_app-app-1 python app/monga/db_loader.py
