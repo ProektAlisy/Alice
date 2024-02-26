@@ -18,9 +18,6 @@ services:
     image: mongo:4.4.6
     env_file:
       - .env
-#    environment:
-#      - MONGODB_INITDB_ROOT_USERNAME=${MONGODB_INITDB_ROOT_USERNAME}
-#      - MONGODB_INITDB_ROOT_PASSWORD=${MONGODB_INITDB_ROOT_PASSWORD}
     restart: always
     command: ["--auth"]
     container_name: "mongo_db"

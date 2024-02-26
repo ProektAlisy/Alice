@@ -42,7 +42,7 @@ python db_loader.py
 uvicorn app.main:application --reload
 ```
 
-- Создание и запуск проект через Docker-Compose:
+- Создание и запуск проект через Docker-Compose (нужно находится в папке /infra):
 ```
 docker-compose up -d --build
 ```
