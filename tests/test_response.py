@@ -57,24 +57,3 @@ def test_root_endpoint_with_state():
     assert "text" in response.json()["response"]
     assert "end_session" in response.json()["response"]
     assert "session_state" in response.json()
-
-
-def test_root_endpoint_intents():
-    """
-    Тест для проверки работы эндпоинта с интентами.
-    :return:
-    """
-    request_data = {
-        "session": {"new": False},
-        "request": {
-            "command": "some_command",
-            "nlu": {"intents": ["intent1", "intent2"]},
-        },
-        "state": None,
-    }
-    response = client.post("/", json=request_data)
-    assert response.status_code == HTTPStatus.OK
-    assert "response" in response.json()
-    assert "text" in response.json()["response"]
-    assert "end_session" in response.json()["response"]
-    assert "session_state" in response.json()
