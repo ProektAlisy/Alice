@@ -13,7 +13,6 @@ services:
       - mongo
     ports:
       - "8000:8000"
-
   mongo:
     image: mongo:4.4.6
     env_file:
