@@ -2,33 +2,51 @@ version: '3.8'
 
 services:
   app:
-    image: guidedogsalice/alice_guidedogs
+    image: guidedogsalice/alice_guidedogs:latest
     platform: linux/x86_64
     restart: always
+    env_file:
+      - .env
+    networks:
+      - custom
+    depends_on:
+      - mongo
     ports:
       - "8000:8000"
 
   mongo:
     image: mongo:4.4.6
+    env_file:
+      - .env
     restart: always
-    env_file: .env
+    command: ["--auth"]
+    container_name: "mongo_db"
     ports:
-      - 27017:27017
+      - "27017:27017"
+    networks:
+      - custom
     volumes:
       - mongodata:/data/db
 
   nginx:
     image: nginx:1.19.3
+    user: "root"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./metodichka:/usr/share/nginx/html
       - /etc/letsencrypt/live/www.guidedogs.acceleratorpracticum.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem
       - /etc/letsencrypt/live/www.guidedogs.acceleratorpracticum.ru/privkey.pem:/etc/nginx/ssl/privkey.pem
     depends_on:
       - app
+    networks:
+      - custom
 
 volumes:
   mongodata:
-    driver: local
+
+networks:
+  custom:
+    driver: bridge

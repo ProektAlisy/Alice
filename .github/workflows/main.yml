@@ -23,13 +23,10 @@ jobs:
         pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
         pip install -r requirements.txt
 
-    - name: Test with flake8
+    - name: Test with flake8 and pytest
       run: |
         python -m flake8
-
-#    - name: Run tests
-#      run: |
-#        python pytest
+#        python -m pytest
 
   build_and_push_to_docker_hub:
       name: Push Docker image to Docker Hub
@@ -64,12 +61,17 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ../home/alice_app/
-            echo ME_CONFIG_MONGODB_ADMINUSERNAME=${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }} > .env
+            sudo docker-compose stop
+            sudo docker-compose rm app
+            echo MONGO_TEST_HOST=${{ secrets.MONGO_TEST_HOST }} > .env
+            echo MONGO_TEST_USER=${{ secrets.MONGO_TEST_USER }} >> .env
+            echo MONGO_TEST_PASSWORD=${{ secrets.MONGO_TEST_PASSWORD }} >> .env
+            echo ME_CONFIG_MONGODB_ADMINUSERNAME=${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }} >> .env
             echo ME_CONFIG_MONGODB_ADMINPASSWORD=${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }} >> .env
             echo ME_CONFIG_MONGODB_URL=${{ secrets.ME_CONFIG_MONGODB_URL }} >> .env
             echo MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} >> .env
             echo MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} >> .env
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
-            sudo docker-compose stop
-            sudo docker-compose rm app
-            sudo docker-compose up -d --build
+            sudo docker-compose up -d
+            sleep 10s
+            sudo docker exec alice_app-app-1 python app/monga/db_loader.py
