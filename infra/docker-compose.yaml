@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: guidedogsalice/alice_guidedogs:latest
+    image: guidedogsalice/alice_guidedogs:v1
     platform: linux/x86_64
     restart: always
     env_file:
