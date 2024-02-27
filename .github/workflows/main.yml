@@ -60,7 +60,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ../home/alice_app
+            cd ../home/alice_app/
             sudo docker-compose stop
             sudo docker-compose rm app
             echo MONGO_TEST_HOST=${{ secrets.MONGO_TEST_HOST }} > .env
@@ -74,4 +74,4 @@ jobs:
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:v1
             sudo docker-compose up -d
             sleep 10s
-            sudo docker exec home-app-1 python app/monga/db_loader.py
+            sudo docker exec alice_app-app-1 python app/monga/db_loader.py
