@@ -2,7 +2,6 @@
 Загружаем в БД ответы пользователю из файлов в папке constants/answers
 """
 
-import os
 from pathlib import Path
 
 from pymongo.errors import DuplicateKeyError
