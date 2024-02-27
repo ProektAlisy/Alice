@@ -27,7 +27,7 @@ after_answers_collection.create_index("key", unique=True)
 disagree_answers_collection.create_index("key", unique=True)
 another_answers_collection.create_index("key", unique=True)
 
-path = os.path.join("../constants")
+path = os.path.join("app/constants")
 paths = [os.path.join(path, folder) for folder in folders]
 
 
