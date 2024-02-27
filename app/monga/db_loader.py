@@ -27,7 +27,7 @@ after_answers_collection.create_index("key", unique=True)
 disagree_answers_collection.create_index("key", unique=True)
 another_answers_collection.create_index("key", unique=True)
 
-path = Path("app", "constants")
+path = Path("..", "constants")
 paths = [path / folder for folder in folders]
 
 
