@@ -3,6 +3,7 @@
 """
 
 import os
+from pathlib import Path
 
 from pymongo.errors import DuplicateKeyError
 
@@ -27,8 +28,8 @@ after_answers_collection.create_index("key", unique=True)
 disagree_answers_collection.create_index("key", unique=True)
 another_answers_collection.create_index("key", unique=True)
 
-path = os.path.join("app/constants")
-paths = [os.path.join(path, folder) for folder in folders]
+path = Path("..", "constants")
+paths = [path / folder for folder in folders]
 
 
 def write_to_db(file_path, collection):
@@ -40,20 +41,20 @@ def write_to_db(file_path, collection):
         file_path: Путь до папки с файлами.
         collection: Коллекция в БД.
     """
-    for file_name in os.listdir(file_path):
+    for file_name in file_path.iterdir():
         with open(
-            os.path.join(file_path, file_name),
+            file_path / file_name.name,
             "r",
             encoding="utf-8",
         ) as file:
             answer = " ".join([line.strip() for line in file])
-            answer.replace("  ", " ")
+            answer = answer.replace("  ", " ")
             if not answer:
-                logger.debug(f"Файл {file_path}/{file_name} пустой")
+                logger.debug(f"Файл {file_name} пустой")
                 continue
             try:
                 collection.insert_one(
-                    {"key": file_name[:-4], "answer": answer},
+                    {"key": file_name.stem, "answer": answer},
                 )
             except DuplicateKeyError:
                 logger.debug("Такой ответ уже есть")
