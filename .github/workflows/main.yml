@@ -47,7 +47,7 @@ jobs:
           uses: docker/build-push-action@v4
           with:
             push: true
-            tags: ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:v1
+            tags: ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -71,7 +71,7 @@ jobs:
             echo ME_CONFIG_MONGODB_URL=${{ secrets.ME_CONFIG_MONGODB_URL }} >> .env
             echo MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} >> .env
             echo MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} >> .env
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:v1
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
             sudo docker-compose up -d
             sleep 10s
             sudo docker exec alice_app-app-1 python app/monga/db_loader.py
