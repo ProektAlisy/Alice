@@ -25,6 +25,7 @@ from app.core.command_classes import (
     skill,
 )
 from app.core.exceptions import APIError
+from app.core.logger_initialize import logger
 from app.core.utils import check_api, get_api_data
 
 
@@ -43,9 +44,12 @@ application = FastAPI()
     summary="Диалог с Алисой.",
 )
 async def root(data: RequestData):
+    request_data = data.model_dump()
+
     try:
         check_api(data)
     except APIError:
+        logger.error("Invalid request format!")
         return skill.get_output(
             "Технические проблемы на стороне Яндекса. Попробуйте позже.",
         )
@@ -82,4 +86,12 @@ async def root(data: RequestData):
         skill.progress = []
     ic(command, skill.progress, skill.history)
     skill.previous_command = command
+
+    logger.info(
+        "HISTORY",
+        extra={
+            "request": request_data,
+            "response": result,
+        },
+    )
     return result
