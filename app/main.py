@@ -25,7 +25,7 @@ from app.core.command_classes import (
     skill,
 )
 from app.core.exceptions import APIError
-from app.core.utils import check_api, get_api_data
+from app.core.utils import check_api, get_api_data, limit_response_text_length
 
 
 class RequestData(BaseModel):
@@ -82,4 +82,5 @@ async def root(data: RequestData):
         skill.progress = []
     ic(command, skill.progress, skill.history)
     skill.previous_command = command
+    limit_response_text_length(result)
     return result
