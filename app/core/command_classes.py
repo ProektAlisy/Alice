@@ -2,6 +2,7 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
+
 from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
     ORDERED_STATES,
@@ -22,6 +23,7 @@ from app.core.utils import (
     next_state,
 )
 from app.machine import FiniteStateMachine
+from app.schemas import ResponseData
 
 skill = FiniteStateMachine()
 all_commands = get_all_commands(COMMANDS_STATES_ANSWERS_INTENTS)
@@ -91,7 +93,7 @@ class QuizCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
-    ) -> dict[str, str]:
+    ) -> ResponseData:
         """Запуск викторины."""
         return skill.get_output(
             self.skill.quiz_skill.execute_command(command, intents)[1],
@@ -126,7 +128,7 @@ class QuizSetState(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
-    ) -> dict[str, str]:
+    ) -> ResponseData:
         """Отвечаем на вопросы викторины."""
         self.skill.is_to_progress = True
         skill.save_progress(QUIZ_STATE)
@@ -158,7 +160,7 @@ class ManualTrainingCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
-    ) -> dict[str, str]:
+    ) -> ResponseData:
         """Запуск обучения по методичке."""
         # self.skill.manual_training.is_finish = False
         result, directives = skill.manual_training.process_request(
@@ -204,7 +206,7 @@ class ManualTrainingSetState(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
-    ) -> dict[str, str]:
+    ) -> ResponseData:
         """Проходим обучение по методичке."""
         self.skill.is_to_progress = True
         skill.save_progress(MANUAL_TRAINING_STATE)
@@ -227,7 +229,9 @@ class GreetingsCommand(Command):
         """Условие, для выполнения `execute`."""
         return not command and is_new
 
-    def execute(self, intents: dict[str], command: str, is_new: bool):
+    def execute(
+        self, intents: dict[str], command: str, is_new: bool
+    ) -> ResponseData:
         """Выводит приветствие."""
         return skill.get_output(
             another_answers_documents.get(
@@ -247,7 +251,9 @@ class RepeatCommand(Command):
             or ServiceIntents.REPEAT in intents
         )
 
-    def execute(self, intents: dict[str], command: str, is_new: bool):
+    def execute(
+        self, intents: dict[str], command: str, is_new: bool
+    ) -> ResponseData:
         """Вызываем последнее состояние в истории состояний."""
         return self.command_instance.execute(
             self.skill,
@@ -262,7 +268,9 @@ class AliceCommandsCommand(Command):
         """Проверка, является ли команда командой Алисы."""
         return is_alice_commands(command)
 
-    def execute(self, intents: dict[str], command: str, is_new: bool):
+    def execute(
+        self, intents: dict[str], command: str, is_new: bool
+    ) -> ResponseData:
         """Вывод соответствующего ответа."""
         return skill.get_output(
             another_answers_documents.get(
@@ -281,7 +289,9 @@ class AllCommandsCommand(Command):
             intents,
         )
 
-    def execute(self, intents: dict[str], command: str, is_new: bool):
+    def execute(
+        self, intents: dict[str], command: str, is_new: bool
+    ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
         greeting = (
@@ -297,7 +307,7 @@ class AllCommandsCommand(Command):
                 COMMANDS_STATES_ANSWERS_INTENTS,
             ),
         )
-        return skill.get_output(f"{greeting} {result['response'].get('text')}")
+        return skill.get_output(f"{greeting} {result.response.text}")
 
 
 class AgreeCommand(Command):
@@ -309,7 +319,12 @@ class AgreeCommand(Command):
             command == ServiceCommands.AGREE or ServiceIntents.AGREE in intents
         )
 
-    def execute(self, intents: dict[str], command: str, is_new: bool):
+    def execute(
+        self,
+        intents: dict[str],
+        command: str,
+        is_new: bool,
+    ) -> ResponseData:
         """Получение соответствующего сообщения."""
         self.skill.is_to_progress = True
         state = self.skill.next_state_by_history(
@@ -341,11 +356,14 @@ class DisagreeCommand(Command):
     def condition(self, intents: dict[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
         return (
-            command == ServiceCommands.DISAGREE
+            command in ServiceCommands.DISAGREE
             or ServiceIntents.DISAGREE in intents
+            or ServiceIntents.NEXT in intents
         )
 
-    def execute(self, intents: dict[str], command: str, is_new: bool):
+    def execute(
+        self, intents: dict[str], command: str, is_new: bool
+    ) -> ResponseData:
         """Получение соответствующего ответа для пользователя."""
         self.skill.is_to_progress = False
         return self.command_instance.execute(
@@ -364,7 +382,9 @@ class ExitCommand(Command):
         """Условие запуска `execute`."""
         return command == ServiceCommands.EXIT
 
-    def execute(self, intents: dict[str], command: str, is_new: bool):
+    def execute(
+        self, intents: dict[str], command: str, is_new: bool
+    ) -> ResponseData:
         """Обнуление прогресса и соответствующее сообщение пользователю."""
         self.skill.is_to_progress = False
         self.skill.history = []
