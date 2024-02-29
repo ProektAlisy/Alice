@@ -6,6 +6,7 @@ from app.constants.comands_states_answers import (
     another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
+from app.constants.intents import ServiceIntents
 from app.constants.states import (
     CORE_STATES,
     STATE_HELP_MAIN,
@@ -55,6 +56,7 @@ class FiniteStateMachine:
         self.history = []
         self.incorrect_answers = 0
         self.command = ""
+        self.intents = {}
         self.previous_command = ""
         self.is_to_progress = False
         self.max_progress = len(STATES) - 1
@@ -69,7 +71,10 @@ class FiniteStateMachine:
         Returns:
             True, если пользователь согласился.
         """
-        return self.command in ServiceCommands.AGREE
+        return (
+            self.command in ServiceCommands.AGREE
+            or ServiceIntents.AGREE in self.intents
+        )
 
     def is_disagree(self):
         """Функция состояния.
@@ -79,7 +84,11 @@ class FiniteStateMachine:
         Returns:
             True, если пользователь отказался.
         """
-        return self.command in ServiceCommands.DISAGREE
+        return (
+            self.command in ServiceCommands.DISAGREE
+            or ServiceIntents.DISAGREE in self.intents
+            or ServiceIntents.NEXT in self.intents
+        )
 
     def action_func(self, state_name: str) -> callable:
         """Флаг согласия/отказа.

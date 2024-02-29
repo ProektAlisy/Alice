@@ -47,6 +47,7 @@ async def root(data: RequestData) -> ResponseData:
     command, intents, is_new, session_state = get_api_data(data)
     skill.load_session_state(session_state)
     skill.command = command
+    skill.intents = intents
     command_instance = Action()
 
     commands = [
