@@ -4,6 +4,7 @@ from pymongo.collection import Collection
 from app.constants.states import POSSIBILITIES_STATE
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
+from app.schemas import InnerResponse
 
 
 def next_state(state: str, states: list) -> str | None:
@@ -300,16 +301,18 @@ def compose_message(answer: str, after_answer: str) -> str:
 
 
 def limit_response_text_length(
-    response: dict[str],
+    response: InnerResponse,
     max_length: int = 1024,
 ) -> None:
     """Ограничивает длину поля text ответа (обрезает при превышении).
 
     Args:
-        response: Сформированный словарь ответа.
-        max_length: Максимальная длина.
+        response: Сформированный ответ навыка.
+        max_length: Максимальная длина поля response.text.
     """
-    text = response.get("text")
-    if text and len(text) > max_length:
-        logger.warning("TEXT LENGTH ERROR: {} for {}".format(len(text), text))
-        response[text] = text[: max_length - 3] + "..."
+    text_len = len(response.text)
+    if text_len > max_length:
+        logger.warning(
+            "TEXT LENGTH ERROR: {} for {}".format(text_len, response.text)
+        )
+        response.text = response.text[: max_length - 3] + "..."

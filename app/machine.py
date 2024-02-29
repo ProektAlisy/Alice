@@ -28,6 +28,7 @@ from app.manual_training_player.manual_training_player import (
     ManualTrainingPlayer,
 )
 from app.quiz.quizskill import QuizSkill
+from app.schemas import InnerResponse, ResponseData
 
 QUIZ_SESSION_STATE_KEY = "quiz_state"
 
@@ -344,20 +345,20 @@ class FiniteStateMachine:
         answer_text,
         directives=None,
         end_session=False,
-    ) -> dict[str, str]:
-        """Функция возвращает словарь с ответом и дополнительными данными.
+    ) -> ResponseData:
+        """Возвращает модель с ответом и дополнительными данными.
 
         Args:
             answer_text: Текст ответа.
             directives: Команды для аудиоплеера.
             end_session: Ключ для завершения сессии.
         """
-        return {
-            "response": {
-                "text": answer_text,
-                "end_session": end_session,
-                "directives": directives,
-            },
-            "session_state": self.dump_session_state(),
-            "version": "1.0",
-        }
+        return ResponseData(
+            response=InnerResponse(
+                text=answer_text,
+                end_session=end_session,
+                directives=directives,
+            ),
+            session_state=self.dump_session_state(),
+            version="1.0",
+        )
