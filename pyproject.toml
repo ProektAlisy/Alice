@@ -34,3 +34,8 @@ exclude = '''
                      # the root of the project
 )
 '''
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning"
+]
+

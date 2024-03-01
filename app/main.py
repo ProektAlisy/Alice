@@ -54,6 +54,7 @@ async def root(data: RequestData):
             "Технические проблемы на стороне Яндекса. Попробуйте позже.",
         )
     command, intents, is_new, session_state = get_api_data(data)
+    ic(command)
     skill.load_session_state(session_state)
     skill.command = command
     command_instance = Action()
@@ -84,7 +85,7 @@ async def root(data: RequestData):
             ),
         )
         skill.progress = []
-    ic(command, skill.progress, skill.history)
+    # ic(command, skill.progress, skill.history)
     skill.previous_command = command
 
     logger.info(

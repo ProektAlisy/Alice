@@ -74,7 +74,7 @@ STATES_BY_GROUP: Final = [
     ),
     (
         "about_podcast",
-        "tinstructions_for_launching_podcast",
+        "instructions_for_launching_podcast",
     ),
 ]
 CORE_STATES: Final = [
