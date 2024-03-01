@@ -2,11 +2,8 @@
 Точка входа в приложение.
 """
 
-from typing import Optional
-
 from fastapi import FastAPI
 from icecream import ic
-from pydantic import BaseModel
 
 from app.constants.comands_states_answers import another_answers_documents
 from app.core.action_classes import Action
@@ -26,14 +23,8 @@ from app.core.command_classes import (
 )
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
-from app.core.utils import check_api, get_api_data
-
-
-class RequestData(BaseModel):
-    session: dict
-    request: dict
-    state: Optional[dict]
-
+from app.core.utils import check_api, get_api_data, limit_response_text_length
+from app.schemas import RequestData, ResponseData
 
 application = FastAPI()
 
@@ -43,7 +34,7 @@ application = FastAPI()
     tags=["Alice project"],
     summary="Диалог с Алисой.",
 )
-async def root(data: RequestData):
+async def root(data: RequestData) -> ResponseData:
     request_data = data.model_dump()
 
     try:
@@ -57,6 +48,7 @@ async def root(data: RequestData):
     ic(command)
     skill.load_session_state(session_state)
     skill.command = command
+    skill.intents = intents
     command_instance = Action()
 
     commands = [
@@ -87,7 +79,7 @@ async def root(data: RequestData):
         skill.progress = []
     # ic(command, skill.progress, skill.history)
     skill.previous_command = command
-
+    limit_response_text_length(result.response)
     logger.info(
         "HISTORY",
         extra={

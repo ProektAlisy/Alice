@@ -3,6 +3,8 @@ from pymongo.collection import Collection
 
 from app.constants.states import POSSIBILITIES_STATE
 from app.core.exceptions import APIError
+from app.core.logger_initialize import logger
+from app.schemas import InnerResponse
 
 
 def next_state(state: str, states: list) -> str | None:
@@ -295,7 +297,7 @@ def compose_message(answer: str, after_answer: str) -> str:
     Returns:
         Полный ответ.
     """
-    return f"{answer} sil <[400]> {after_answer}"
+    return f"{answer} sil<[400]> {after_answer}"
 
 
 def get_state_by_answer(
@@ -336,3 +338,21 @@ def get_state_by_after_answer(
         if state_com_ans[3] == after_answer:
             return state_com_ans[1]
     return ""
+
+
+def limit_response_text_length(
+    response: InnerResponse,
+    max_length: int = 1024,
+) -> None:
+    """Ограничивает длину поля text ответа (обрезает при превышении).
+
+    Args:
+        response: Сформированный ответ навыка.
+        max_length: Максимальная длина поля response.text.
+    """
+    text_len = len(response.text)
+    if text_len > max_length:
+        logger.warning(
+            "TEXT LENGTH ERROR: {} for {}".format(text_len, response.text)
+        )
+        response.text = response.text[: max_length - 3] + "..."

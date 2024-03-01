@@ -1,5 +1,6 @@
 from app.constants.comands_states_answers import another_answers_documents
 from app.machine import FiniteStateMachine
+from app.schemas import ResponseData
 
 
 class BaseAction:
@@ -21,7 +22,7 @@ class Action(BaseAction):
         skill_obj: FiniteStateMachine,
         state_name: str | None = None,
         command: str | None = None,
-    ) -> dict[str, str]:
+    ) -> ResponseData:
         """Функция выполняющая переход в заданное состояние.
 
         Args:

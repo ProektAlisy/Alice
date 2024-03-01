@@ -40,3 +40,4 @@ class ServiceIntents:
     AGREE = "YANDEX.CONFIRM"
     DISAGREE = "YANDEX.REJECT"
     REPEAT = "YANDEX.REPEAT"
+    NEXT = "NEXT"
