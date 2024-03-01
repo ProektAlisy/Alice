@@ -355,6 +355,7 @@ class FiniteStateMachine:
         return {
             "response": {
                 "text": answer_text,
+                "tts": answer_text,
                 "end_session": end_session,
                 "directives": directives,
             },

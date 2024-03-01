@@ -296,3 +296,43 @@ def compose_message(answer: str, after_answer: str) -> str:
         Полный ответ.
     """
     return f"{answer} sil <[400]> {after_answer}"
+
+
+def get_state_by_answer(
+    answer: str,
+    structure: list[tuple[str]],
+):
+    """Возвращает соответствующее состояние.
+
+    Args:
+        answer: Состояние, в которое переходим.
+        structure: Структура, содержащая соответствующие команды и состояния.
+
+    Returns:
+        Состояние, соответствующее команде. Если соответствующее состояние
+        не найдено, возвращает None.
+    """
+    for state_com_ans in structure:
+        if state_com_ans[2] == answer:
+            return state_com_ans[1]
+    return ""
+
+
+def get_state_by_after_answer(
+    after_answer: str,
+    structure: list[tuple[str]],
+):
+    """Возвращает соответствующее состояние.
+
+    Args:
+        after_answer: Состояние, в которое переходим.
+        structure: Структура, содержащая соответствующие команды и состояния.
+
+    Returns:
+        Состояние, соответствующее команде. Если соответствующее состояние
+        не найдено, возвращает None.
+    """
+    for state_com_ans in structure:
+        if state_com_ans[3] == after_answer:
+            return state_com_ans[1]
+    return ""
