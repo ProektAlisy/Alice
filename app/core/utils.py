@@ -32,7 +32,7 @@ def find_previous_state(
     state: str,
     ordered_states: list[str],
 ) -> str | None:
-    """Возвращает предыдущее состояние.
+    """Возвращает предыдущее состояние по списку состояний `state`.
 
     Args:
         state: Текущее состояние.

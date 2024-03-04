@@ -28,6 +28,7 @@ from app.core.utils import (
 from app.manual_training_player.manual_training_player import (
     ManualTrainingPlayer,
 )
+from app.monga.monga_initialize import after_answers_collection
 from app.quiz.quizskill import QuizSkill
 from app.schemas import InnerResponse, ResponseData
 
@@ -91,7 +92,7 @@ class FiniteStateMachine:
         )
 
     def action_func(self, state_name: str) -> callable:
-        """Флаг согласия/отказа.
+        """Функция действия.
 
         Args:
             state_name: Название состояния.
@@ -144,7 +145,6 @@ class FiniteStateMachine:
         """
         self.save_progress(state)
         self.save_history(state)
-        ic(self.history, self.progress)
         answer = self._get_answer(state)
         after_answer = self._get_after_answer(state)
         self.message = compose_message(answer, after_answer)
@@ -195,7 +195,7 @@ class FiniteStateMachine:
         """Генерирует вторую часть ответа с подсказкой о продолжении.
 
         Args:
-            state: Триггер, по которому генерируем подсказку.
+            state: состояние, по которому генерируем подсказку.
 
         Returns:
             Подсказка.
@@ -237,8 +237,11 @@ class FiniteStateMachine:
             step = self.next_state_by_history(
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
+        if self.is_completed():
+            return another_answers_documents.get("all_completed")
         # исправляем side effect, когда в помощи появляется `after_answer`
         if step == STATE_HELP_MAIN:
+            print("!!!!!!!!!!!!!!!!!!!!!")
             return ""
         pre_step = find_previous_state(step, ORDERED_STATES)
         return get_after_answer_by_state(

@@ -45,7 +45,6 @@ async def root(data: RequestData) -> ResponseData:
             "Технические проблемы на стороне Яндекса. Попробуйте позже.",
         )
     command, intents, is_new, session_state = get_api_data(data)
-    ic(command)
     skill.load_session_state(session_state)
     skill.command = command
     skill.intents = intents

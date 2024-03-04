@@ -4,10 +4,6 @@ import pytest
 @pytest.fixture
 def data():
     return {
-        "meta": {
-            "locale": "ru-RU",
-            "timezone": "UTC",
-        },
         "session": {
             "new": True,
         },

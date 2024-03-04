@@ -20,9 +20,6 @@ class Commands:
         "Прослушать информацию о основаниях для доступа к "
         "объектам инфраструктуры"
     )
-    ABOUT_GUIDE_DOG_TRANSPORTATION: str = (
-        "Прослушать информацию о провозе собак"
-    )
     CHOICE_BY_LAND_RAIL_AIR_WATER: str = (
         "Выбор информации о провозе собаки в различных видах транспорта"
     )
@@ -39,7 +36,9 @@ class Commands:
         "Узнать о провозе собак-проводников в водном транспорте"
     )
     SELF_DEFENSE_PHRASE: str = "Прослушать фразу для самозащиты"
-
+    ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS: str = (
+        "Узнать о службах поддержки незрячих пассажиров на транспорте"
+    )
     ABOUT_DISCOUNTS_AND_FREE_SERVICES: str = (
         "Узнать о скидках/льготах и бесплатных услугах"
     )
@@ -48,21 +47,11 @@ class Commands:
     SPECIAL_OFFERS_FOR_VETERINARIES: str = (
         "Узнать о компенсации расходов на ветеринарию"
     )
-    EXIT_DISCOUNTS_AND_FREE_SERVICES: str = (
-        "Выход из скидок и бесплатных услуг"
-    )
-
-    ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS: str = (
-        "Узнать о службах поддержки незрячих пассажиров на транспорте"
-    )
-
     ABOUT_SERVICES_UNITING_BLIND_PEOPLE: str = (
         "Узнать о службах объединяющие незрячих"
     )
     ABOUT_REGIONAL_CLUBS: str = "Прослушать о региональных клубах"
     ABOUT_SPECIAL_VIEW_FOUNDATION: str = "Узнать о фонде особый взгляд"
-    EXIT_SERVICES_FOR_BLIND: str = "Выход из служб поддержки незрячих"
-
     ABOUT_PODCAST: str = "Узнать о подкасте"
     INSTRUCTIONS_FOR_LAUNCHING_PODCAST: str = (
         "Узнать инструкцию запуска подкаста министерства наших собачьих дел"

@@ -294,11 +294,6 @@ class AllCommandsCommand(Command):
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
-        greeting = (
-            another_answers_documents.get("small_greetings", "")
-            if is_new
-            else ""
-        )
         result = self.command_instance.execute(
             self.skill,
             get_states_by_command(
@@ -307,7 +302,7 @@ class AllCommandsCommand(Command):
                 COMMANDS_STATES_ANSWERS_INTENTS,
             ),
         )
-        return skill.get_output(f"{greeting} {result.response.text}")
+        return skill.get_output(result.response.text)
 
 
 class AgreeCommand(Command):
