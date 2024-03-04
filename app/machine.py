@@ -362,6 +362,8 @@ class FiniteStateMachine:
             directives: Команды для аудиоплеера.
             end_session: Ключ для завершения сессии.
         """
+        if answer_text is None:
+            answer_text = " "
         return ResponseData(
             response=InnerResponse(
                 text=answer_text,
