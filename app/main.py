@@ -68,6 +68,7 @@ async def root(data: RequestData) -> ResponseData:
         if command_obj.condition(intents, command, is_new):
             result = command_obj.execute(intents, command, is_new)
             break
+    # ic(len(skill.progress), skill.max_progress)
     if skill.is_completed():
         result = skill.get_output(
             another_answers_documents.get(
