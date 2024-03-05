@@ -5,14 +5,17 @@ from app.constants.comands_states_answers import (
     ORDERED_STATES,
     another_answers_documents,
     after_answers_documents,
+    HELP_COMMANDS,
+    HELP_COMMANDS_STATES_ANSWERS_INTENTS,
 )
-from app.constants.commands import ServiceCommands
-from app.constants.intents import ServiceIntents
+from app.constants.commands import ServiceCommands, Commands, HelpCommands
+from app.constants.intents import ServiceIntents, INTENTS
 from app.constants.states import (
     CORE_STATES,
     STATE_HELP_MAIN,
     STATES,
     STATES_BY_GROUP,
+    HELP_STATES,
 )
 from app.core.utils import (
     compose_message,
@@ -181,14 +184,20 @@ class FiniteStateMachine:
         Returns:
             Ответ навыка.
         """
+        if self.command in HELP_COMMANDS or INTENTS.get_available(
+            self.intents,
+        ):
+            structure = HELP_COMMANDS_STATES_ANSWERS_INTENTS
+        else:
+            structure = COMMANDS_STATES_ANSWERS_INTENTS
         if self._is_repeat_and_previous_disagree():
             return disagree_answer_by_state(
                 state,
-                COMMANDS_STATES_ANSWERS_INTENTS,
+                structure,
             )
         return get_answer_by_state(
             state,
-            COMMANDS_STATES_ANSWERS_INTENTS,
+            structure,
         )
 
     def _get_after_answer(self, state: str) -> str:
@@ -237,13 +246,11 @@ class FiniteStateMachine:
             step = self.next_state_by_history(
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        if len(self.progress) == self.max_progress - 2:
-            return after_answers_documents.get(
-                "instructions_for_launching_podcast"
-            )
         # исправляем side effect, когда в помощи появляется `after_answer`
-        if step == STATE_HELP_MAIN:
-            print("!!!!!!!!!!!!!!!!!!!!!")
+        if (
+            self.command == HelpCommands.HELP_MAIN.lower()
+            or INTENTS.HELP_MAIN in self.intents
+        ):
             return ""
         pre_step = find_previous_state(step, ORDERED_STATES)
         return get_after_answer_by_state(
@@ -330,7 +337,7 @@ class FiniteStateMachine:
 
     def next_state_by_history(
         self,
-        states: list,
+        states: list[tuple[str, str, str, str, str, str]],
     ) -> str:
         """Возвращает следующее состояние.
 
@@ -338,10 +345,10 @@ class FiniteStateMachine:
         Учитывается прогресс пользователя.
 
         Args:
-            states: Список всех триггеров.
+            states: Список всех состояний.
 
         Returns:
-            Триггер, соответствующий первой непройденной истории/возможности
+            Состояние, соответствующее первой непройденной истории/возможности
             после последнего выполненного действия.
         """
         state = last_states(self.history)

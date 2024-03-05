@@ -2,11 +2,15 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
+from icecream import ic
 
 from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
     ORDERED_STATES,
     another_answers_documents,
+    HELP_COMMANDS,
+    HELP_COMMANDS_STATES_ANSWERS_INTENTS,
+    ALL_COMMANDS,
 )
 from app.constants.commands import Commands, ServiceCommands
 from app.constants.intents import INTENTS, ServiceIntents
@@ -26,7 +30,6 @@ from app.machine import FiniteStateMachine
 from app.schemas import ResponseData
 
 skill = FiniteStateMachine()
-all_commands = get_all_commands(COMMANDS_STATES_ANSWERS_INTENTS)
 
 
 class Command:
@@ -285,7 +288,7 @@ class AllCommandsCommand(Command):
 
     def condition(self, intents: dict[str], command: str, is_new: bool):
         """Условие для запуска `execute`."""
-        return command.lower() in all_commands or INTENTS.get_available(
+        return command.lower() in ALL_COMMANDS or INTENTS.get_available(
             intents,
         )
 
@@ -388,3 +391,27 @@ class ExitCommand(Command):
             another_answers_documents.get("exit_from_skill", ""),
             end_session=True,
         )
+
+
+class HelpCommandsCommand(Command):
+    """Работа с командами помощи."""
+
+    def condition(self, intents: dict[str], command: str, is_new: bool):
+        """Условие для запуска `execute`."""
+        return command.lower() in HELP_COMMANDS or INTENTS.get_available(
+            intents,
+        )
+
+    def execute(
+        self, intents: dict[str], command: str, is_new: bool
+    ) -> ResponseData:
+        """Получение соответствующего ответа."""
+        self.skill.is_to_progress = False
+        result = self.skill._get_answer(
+            get_states_by_command(
+                command,
+                intents,
+                HELP_COMMANDS_STATES_ANSWERS_INTENTS,
+            ),
+        )
+        return skill.get_output(result)

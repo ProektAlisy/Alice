@@ -14,6 +14,7 @@ class Intents:
         raise AttributeError(f"Параметр '{name}' не разрешен!")
 
     ALL_INTENTS = [intent.upper() for intent in STATES + HELP_STATES]
+    HELP_INTENTS = [intent.upper() for intent in HELP_STATES]
 
     @staticmethod
     def get_available(intents: dict[str] | None) -> set[str]:

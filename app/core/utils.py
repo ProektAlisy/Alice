@@ -106,7 +106,9 @@ def get_states_by_order(
     return states
 
 
-def get_all_commands(structure: tuple) -> list[str]:
+def get_all_commands(
+    structure: list[tuple[str, str, str, str, str, str]]
+) -> list[str]:
     """Возвращает список команд.
 
     Returns:

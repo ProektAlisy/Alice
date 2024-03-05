@@ -20,6 +20,7 @@ from app.core.command_classes import (
     QuizSetState,
     RepeatCommand,
     skill,
+    HelpCommandsCommand,
 )
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
@@ -61,6 +62,7 @@ async def root(data: RequestData) -> ResponseData:
         AllCommandsCommand(skill, command_instance),
         AgreeCommand(skill, command_instance),
         DisagreeCommand(skill, command_instance),
+        HelpCommandsCommand(skill, command_instance),
         ExitCommand(skill, command_instance),
     ]
     result = skill.get_output(skill.dont_understand())

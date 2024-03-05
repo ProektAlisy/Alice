@@ -56,10 +56,14 @@ class Commands:
     INSTRUCTIONS_FOR_LAUNCHING_PODCAST: str = (
         "Узнать инструкцию запуска подкаста министерства наших собачьих дел"
     )
-    HELP_MAIN: str = "Помощь"
-    HELP_PHRASE: str = "Хочу узнать фразы"
-    POSSIBILITIES: str = "Возможности"
-    USEFUL_INFORMATION: str = "Полезная информация"
+
+
+@dataclass
+class HelpCommands:
+    HELP_MAIN: str = "помощь"
+    HELP_PHRASE: str = "хочу узнать фразы"
+    POSSIBILITIES: str = "возможности"
+    USEFUL_INFORMATION: str = "полезная информация"
 
 
 class ServiceCommands:
