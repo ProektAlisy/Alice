@@ -233,7 +233,7 @@ class GreetingsCommand(Command):
         return not command and is_new
 
     def execute(
-        self, intents: dict[str], command: str, is_new: bool
+        self, intents: dict[str], command: str, is_new: bool,
     ) -> ResponseData:
         """Выводит приветствие."""
         return skill.get_output(
@@ -255,7 +255,7 @@ class RepeatCommand(Command):
         )
 
     def execute(
-        self, intents: dict[str], command: str, is_new: bool
+        self, intents: dict[str], command: str, is_new: bool,
     ) -> ResponseData:
         """Вызываем последнее состояние в истории состояний."""
         return self.command_instance.execute(
@@ -272,7 +272,7 @@ class AliceCommandsCommand(Command):
         return is_alice_commands(command)
 
     def execute(
-        self, intents: dict[str], command: str, is_new: bool
+        self, intents: dict[str], command: str, is_new: bool,
     ) -> ResponseData:
         """Вывод соответствующего ответа."""
         return skill.get_output(
@@ -293,7 +293,7 @@ class AllCommandsCommand(Command):
         )
 
     def execute(
-        self, intents: dict[str], command: str, is_new: bool
+        self, intents: dict[str], command: str, is_new: bool,
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
@@ -360,7 +360,7 @@ class DisagreeCommand(Command):
         )
 
     def execute(
-        self, intents: dict[str], command: str, is_new: bool
+        self, intents: dict[str], command: str, is_new: bool,
     ) -> ResponseData:
         """Получение соответствующего ответа для пользователя."""
         self.skill.is_to_progress = False
@@ -381,7 +381,7 @@ class ExitCommand(Command):
         return command == ServiceCommands.EXIT
 
     def execute(
-        self, intents: dict[str], command: str, is_new: bool
+        self, intents: dict[str], command: str, is_new: bool,
     ) -> ResponseData:
         """Обнуление прогресса и соответствующее сообщение пользователю."""
         self.skill.is_to_progress = False

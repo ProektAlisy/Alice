@@ -100,10 +100,7 @@ def get_states_by_order(
     Returns:
         Список состояний.
     """
-    states = []
-    for state_commands in states_com_ans:
-        states.append(state_commands[1])
-    return states
+    return [state_commands[1] for state_commands in states_com_ans]
 
 
 def get_all_commands(
@@ -114,10 +111,7 @@ def get_all_commands(
     Returns:
         Список команд.
     """
-    commands = []
-    for state_commands in structure:
-        commands.append(state_commands[0].lower())
-    return commands
+    return [state_commands[0].lower() for state_commands in structure]
 
 
 def is_alice_commands(command: str) -> bool:
@@ -355,6 +349,6 @@ def limit_response_text_length(
     text_len = len(response.text)
     if text_len > max_length:
         logger.warning(
-            "TEXT LENGTH ERROR: {} for {}".format(text_len, response.text)
+            "TEXT LENGTH ERROR: {} for {}".format(text_len, response.text),
         )
         response.text = response.text[: max_length - 3] + "..."

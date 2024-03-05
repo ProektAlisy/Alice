@@ -70,6 +70,7 @@ async def root(data: RequestData) -> ResponseData:
         if command_obj.condition(intents, command, is_new):
             result = command_obj.execute(intents, command, is_new)
             break
+    # ic(len(skill.progress), skill.max_progress)
     if skill.is_completed():
         result = skill.get_output(
             another_answers_documents.get(
@@ -78,8 +79,12 @@ async def root(data: RequestData) -> ResponseData:
             ),
         )
         skill.progress = []
+
     ic(command, skill.progress, skill.history)
     skill.previous_command = command
+    # возможно тут надо повторно выполнить dump_session_state
+    # т.к. поменялись progress
+    result.session_state = skill.dump_session_state()
     limit_response_text_length(result.response)
     logger.info(
         "HISTORY",

@@ -17,6 +17,8 @@ from app.constants.states import (
     STATES_BY_GROUP,
     HELP_STATES,
 )
+from app.core.exceptions import StateDumpError, StateLoadError
+from app.core.logger_initialize import logger
 from app.core.utils import (
     compose_message,
     disagree_answer_by_state,
@@ -295,6 +297,70 @@ class FiniteStateMachine:
             "",
         )
 
+    def _dump_states(
+        self,
+        states: list[str],
+        ordered_states: list[str],
+    ) -> list[int]:
+        """Формирование списка номеров состояний для сохранения в сессии.
+
+        Args:
+            state: Список состояний навыка (history или progress).
+            ordered_states: Упорядоченный список состояний.
+
+        Raises:
+            StateDumpError: Если в states обнаружено состояние,
+                отсутствующее в ordered_states.
+
+        Returns:
+            Упорядоченный список, в котором каждое из состояний states
+            заменено соответствующим индексом этого состояния в ordered_states.
+        """
+        result = []
+        for state in states:
+            try:
+                result.append(ordered_states.index(state))
+            except ValueError:
+                # logger.error(
+                #     f"Ошибка сохранения: неизвестное состояние {state}"
+                # )
+                raise StateDumpError(
+                    f"Ошибка сохранения: неизвестное состояние {state}"
+                )
+        return result
+
+    def _load_states(
+        self,
+        state_indexes: list[int],
+        ordered_states: list[str],
+    ) -> list[int]:
+        """Формирование списка состояний после загрузки из сессии.
+
+        Args:
+            state_indexes: Список номеров состояний из сессии.
+            ordered_states: Упорядоченный список состояний.
+
+        Raises:
+            StateLoadError: Если в state_index обнаружен index,
+                выходящий за пределы ordered_states.
+
+        Returns:
+            Упорядоченный список, в котором каждое из значений states_indexes
+            заменено соответствующим состоянием из ordered_states.
+        """
+        result = []
+        for index in state_indexes:
+            try:
+                result.append(ordered_states[index])
+            except ValueError:
+                # logger.error(
+                #     f"Ошибка загрузки: ошибка индекса состояния {index}"
+                # )
+                raise StateLoadError(
+                    f"Ошибка загрузки: ошибка индекса состояния {index}"
+                )
+        return result
+
     def dump_session_state(self) -> dict:
         """Функция возвращает словарь ответа для сохранения состояния навыка.
 
@@ -304,13 +370,18 @@ class FiniteStateMachine:
         Examples:
             {
                 "quiz_state": {....} - параметры состояния викторины
-                ...
+                "progress": []  - индексы состояний прогресса
+                "history": []  - индексы состояний истории
             }
         """
-        # state["test_value"] = 123
         # тут добавляем другие ключи для других разделов,
         # если нужно что-то хранить, например текущее состояние
-        return {QUIZ_SESSION_STATE_KEY: self.quiz_skill.dump_state()}
+        return {
+            QUIZ_SESSION_STATE_KEY: self.quiz_skill.dump_state(),
+            "progress": self._dump_states(self.progress, ORDERED_STATES),
+            "history": self._dump_states(self.history, ORDERED_STATES),
+            "previous_command": self.previous_command,
+        }
 
     def load_session_state(self, session_state: dict) -> None:
         """Загружает текущее состояние из словаря session_state."""
@@ -319,6 +390,11 @@ class FiniteStateMachine:
             quiz_state = session_state.pop(QUIZ_SESSION_STATE_KEY)
         self.quiz_skill.load_state(quiz_state)
         # тут возможна загрузка других ключей при необходимости
+        dumped_progress = session_state.get("progress", [])
+        self.progress = self._load_states(dumped_progress, ORDERED_STATES)
+        dumped_history = session_state.get("history", [])
+        self.history = self._load_states(dumped_history, ORDERED_STATES)
+        self.previous_command = session_state.get("previous_command", "")
 
     def is_completed(self) -> bool:  # noqa
         """Проверяет, завершено ли обучение.
@@ -375,6 +451,8 @@ class FiniteStateMachine:
             directives: Команды для аудиоплеера.
             end_session: Ключ для завершения сессии.
         """
+        if answer_text is None:
+            answer_text = " "
         return ResponseData(
             response=InnerResponse(
                 text=answer_text,
