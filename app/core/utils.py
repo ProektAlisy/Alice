@@ -313,6 +313,6 @@ def limit_response_text_length(
     text_len = len(response.text)
     if text_len > max_length:
         logger.warning(
-            "TEXT LENGTH ERROR: {} for {}".format(text_len, response.text)
+            "TEXT LENGTH ERROR: {} for {}".format(text_len, response.text),
         )
         response.text = response.text[: max_length - 3] + "..."
