@@ -8,3 +8,11 @@ class APIError(Exception):
             "Что-то случилось с API яндекса или с интернетом. "
             "Попробуйте позже."
         )
+
+
+class StateDumpError(Exception):
+    pass
+
+
+class StateLoadError(Exception):
+    pass

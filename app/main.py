@@ -77,8 +77,12 @@ async def root(data: RequestData) -> ResponseData:
             ),
         )
         skill.progress = []
+
     ic(command, skill.progress, skill.history)
     skill.previous_command = command
+    # возможно тут надо повторно выполнить dump_session_state
+    # т.к. поменялись progress
+    result.session_state = skill.dump_session_state()
     limit_response_text_length(result.response)
     logger.info(
         "HISTORY",
