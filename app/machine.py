@@ -4,6 +4,7 @@ from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
     ORDERED_STATES,
     another_answers_documents,
+    after_answers_documents,
 )
 from app.constants.commands import ServiceCommands
 from app.constants.intents import ServiceIntents
@@ -28,7 +29,6 @@ from app.core.utils import (
 from app.manual_training_player.manual_training_player import (
     ManualTrainingPlayer,
 )
-from app.monga.monga_initialize import after_answers_collection
 from app.quiz.quizskill import QuizSkill
 from app.schemas import InnerResponse, ResponseData
 
@@ -237,8 +237,10 @@ class FiniteStateMachine:
             step = self.next_state_by_history(
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        if self.is_completed():
-            return another_answers_documents.get("all_completed")
+        if len(self.progress) == self.max_progress - 2:
+            return after_answers_documents.get(
+                "instructions_for_launching_podcast"
+            )
         # исправляем side effect, когда в помощи появляется `after_answer`
         if step == STATE_HELP_MAIN:
             print("!!!!!!!!!!!!!!!!!!!!!")
@@ -320,6 +322,7 @@ class FiniteStateMachine:
             True, если все элементы навыка завершены, иначе False.
         """
         try:
+            print(len(self.progress), self.max_progress)
             result = len(self.progress) == self.max_progress
         except TypeError:
             result = False

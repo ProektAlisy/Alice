@@ -76,7 +76,7 @@ async def root(data: RequestData) -> ResponseData:
             ),
         )
         skill.progress = []
-    # ic(command, skill.progress, skill.history)
+    ic(command, skill.progress, skill.history)
     skill.previous_command = command
     limit_response_text_length(result.response)
     logger.info(
