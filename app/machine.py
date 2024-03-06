@@ -14,7 +14,6 @@ from app.constants.states import (
     STATES_BY_GROUP,
 )
 from app.core.exceptions import StateDumpError, StateLoadError
-from app.core.logger_initialize import logger
 from app.core.utils import (
     compose_message,
     disagree_answer_by_state,
@@ -313,7 +312,7 @@ class FiniteStateMachine:
                 #     f"Ошибка сохранения: неизвестное состояние {state}"
                 # )
                 raise StateDumpError(
-                    f"Ошибка сохранения: неизвестное состояние {state}"
+                    f"Ошибка сохранения: неизвестное состояние {state}",
                 )
         return result
 
@@ -345,7 +344,7 @@ class FiniteStateMachine:
                 #     f"Ошибка загрузки: ошибка индекса состояния {index}"
                 # )
                 raise StateLoadError(
-                    f"Ошибка загрузки: ошибка индекса состояния {index}"
+                    f"Ошибка загрузки: ошибка индекса состояния {index}",
                 )
         return result
 
