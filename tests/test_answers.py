@@ -9,16 +9,16 @@ from app.constants.comands_states_answers import (
     answers_documents,
     after_answers_documents,
 )
-from app.constants.commands import Commands
+from app.constants.commands import Commands, ServiceCommands
+from app.constants.states import STATES
 from app.core.command_classes import skill
 from app.main import application
 
-# from tests.fixtures.answers_fixtures import data
 
 client = TestClient(application)
 
 
-def test_root(data, load_session_state_mock):
+def test_direct_commands(data, load_session_state_mock):
     response = client.post("/", json=data)
     assert response.status_code == HTTP_200_OK, "Status code is not 200"
     assert response.json()["response"][
@@ -59,3 +59,26 @@ def test_root(data, load_session_state_mock):
         assert (
             response.json()["response"]["text"][:1009] == true_answer[:1009]
         ), "Key value mismatch in response"
+
+
+# def test_agree_commands(data, load_session_state_mock):
+#     skill.history = []
+#     skill.progress = []
+#     data["session"]["new"] = False
+#     data["request"]["command"] = ServiceCommands.AGREE[0]
+#
+#     load_session_state_mock()
+#     for state, answer in zip(STATES[1:3], true_answers[:2]):
+#         ic(list(zip(STATES[1:3], true_answers)))
+#         if state.upper() in [
+#             "TAKE_QUIZ",
+#             "TAKE_MANUAL_TRAINING",
+#         ]:
+#             ic(state, "55555555555555555555555555")
+#             continue
+#         # load_session_state_mock()
+#         response = client.post("/", json=data)
+#         assert response.status_code == HTTP_200_OK, "Status code is not 200"
+#         assert (
+#             response.json()["response"]["text"][:1009] == answer[:1009]
+#         ), "Key value mismatch in response"

@@ -1,13 +1,12 @@
 from icecream import ic
 
 from app.constants.comands_states_answers import (
-    answers_documents,
-    after_answers_documents,
     COMMANDS_STATES_ANSWERS_INTENTS,
+    after_answers_documents,
+    answers_documents,
 )
 from app.constants.states import HELP_STATES
-from app.core.utils import get_state_by_answer, get_state_by_after_answer
-
+from app.core.utils import get_state_by_after_answer, get_state_by_answer
 
 num_of_errors = 0
 for answer in answers_documents.values():
@@ -29,7 +28,7 @@ for answer in answers_documents.values():
                 answer,
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-            print(
+            ic(
                 f"_________________\nanswer:  {bad_answer}",
                 f"\nafter_answer: {bad_after_answer}",
                 f"\nПревышение  на: {len(after_answer) + len(answer) - 1009}",

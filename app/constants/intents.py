@@ -24,9 +24,17 @@ class Intents:
         Returns:
             Подмножество из intents, которые объявлены в классе.
         """
-        return set(STATES + HELP_STATES) & {
-            intent.lower() for intent in intents.keys()
-        }
+        return set(STATES) & {intent.lower() for intent in intents.keys()}
+
+    @staticmethod
+    def get_help_available(intents: dict[str] | None) -> set[str]:
+        """Возвращает список разрешенных интентов.
+        Args:
+            intents: Список интентов (получен от диалогов)
+        Returns:
+            Подмножество из intents, которые объявлены в классе.
+        """
+        return set(HELP_STATES) & {intent.lower() for intent in intents.keys()}
 
 
 INTENTS = Intents()

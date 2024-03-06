@@ -1,3 +1,4 @@
+from icecream import ic
 from pydantic import BaseModel
 from pymongo.collection import Collection
 
@@ -104,7 +105,16 @@ def get_states_by_order(
 
 
 def get_all_commands(
-    structure: list[tuple[str, str, str, str, str, str]]
+    structure: list[
+        tuple[
+            str,
+            str,
+            str,
+            str,
+            str,
+            str,
+        ],
+    ],
 ) -> list[str]:
     """Возвращает список команд.
 
@@ -186,7 +196,7 @@ def get_after_answer_by_state(
 
 def get_answer_by_state(
     state: str,
-    structure: list[tuple[str]],
+    structure: list[tuple[str, str, str, str, str, str]],
 ):
     """Возвращает соответствующий ответ.
 
@@ -199,6 +209,7 @@ def get_answer_by_state(
         не найдено, возвращает None.
     """
     for state_com_ans in structure:
+        ic(state_com_ans)
         if state_com_ans[1] == state:
             return state_com_ans[2]
     return ""

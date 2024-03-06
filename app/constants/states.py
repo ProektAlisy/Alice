@@ -56,7 +56,7 @@ STATES_BY_GROUP: Final = [
         "about_legislation_accessibility",
         "about_transportation_by_land_transport",
         "about_transportation_by_rail",
-        "about_transportation_by_air",
+        "about_air_transportation",
         "about_transportation_by_water",
         "self_defense_phrase",
     ),

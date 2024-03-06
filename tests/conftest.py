@@ -4,7 +4,7 @@ from app.core.command_classes import skill
 from app.machine import FiniteStateMachine
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def load_session_state_mock(mocker):
     return mocker.patch.object(
         FiniteStateMachine,
@@ -13,7 +13,7 @@ def load_session_state_mock(mocker):
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def data():
     return {
         "session": {

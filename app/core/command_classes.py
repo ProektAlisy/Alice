@@ -5,12 +5,12 @@
 from icecream import ic
 
 from app.constants.comands_states_answers import (
+    ALL_COMMANDS,
     COMMANDS_STATES_ANSWERS_INTENTS,
-    ORDERED_STATES,
-    another_answers_documents,
     HELP_COMMANDS,
     HELP_COMMANDS_STATES_ANSWERS_INTENTS,
-    ALL_COMMANDS,
+    ORDERED_STATES,
+    another_answers_documents,
 )
 from app.constants.commands import Commands, ServiceCommands
 from app.constants.intents import INTENTS, ServiceIntents
@@ -19,7 +19,6 @@ from app.constants.states import MANUAL_TRAINING_STATE, QUIZ_STATE
 from app.core.utils import (
     compose_message,
     get_after_answer_by_state,
-    get_all_commands,
     get_last_in_history,
     get_states_by_command,
     is_alice_commands,
@@ -422,7 +421,10 @@ class HelpCommandsCommand(Command):
         )
 
     def execute(
-        self, intents: dict[str], command: str, is_new: bool
+        self,
+        intents: dict[str],
+        command: str,
+        is_new: bool,
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = False

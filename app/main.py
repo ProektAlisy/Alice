@@ -5,7 +5,6 @@
 from fastapi import FastAPI
 from icecream import ic
 
-from app.constants.comands_states_answers import another_answers_documents
 from app.core.action_classes import Action
 from app.core.command_classes import (
     AgreeCommand,
@@ -14,13 +13,13 @@ from app.core.command_classes import (
     DisagreeCommand,
     ExitCommand,
     GreetingsCommand,
+    HelpCommandsCommand,
     ManualTrainingCommand,
     ManualTrainingSetState,
     QuizCommand,
     QuizSetState,
     RepeatCommand,
     skill,
-    HelpCommandsCommand,
 )
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger

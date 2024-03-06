@@ -1,7 +1,7 @@
 from app.constants.commands import Commands, HelpCommands
 from app.constants.intents import INTENTS
 from app.constants.states import HELP_STATES, STATES
-from app.core.utils import get_states_by_order, read_from_db, get_all_commands
+from app.core.utils import get_all_commands, get_states_by_order, read_from_db
 from app.monga.monga_initialize import (
     after_answers_collection,
     another_answers_collection,

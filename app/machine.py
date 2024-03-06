@@ -2,23 +2,15 @@ from icecream import ic
 
 from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
-    ORDERED_STATES,
-    another_answers_documents,
-    after_answers_documents,
     HELP_COMMANDS,
     HELP_COMMANDS_STATES_ANSWERS_INTENTS,
+    ORDERED_STATES,
+    another_answers_documents,
 )
-from app.constants.commands import ServiceCommands, Commands, HelpCommands
-from app.constants.intents import ServiceIntents, INTENTS
-from app.constants.states import (
-    CORE_STATES,
-    STATE_HELP_MAIN,
-    STATES,
-    STATES_BY_GROUP,
-    HELP_STATES,
-)
+from app.constants.commands import ServiceCommands
+from app.constants.intents import INTENTS, ServiceIntents
+from app.constants.states import CORE_STATES, STATES, STATES_BY_GROUP
 from app.core.exceptions import StateDumpError, StateLoadError
-from app.core.logger_initialize import logger
 from app.core.utils import (
     compose_message,
     disagree_answer_by_state,
@@ -29,7 +21,6 @@ from app.core.utils import (
     get_states_by_order,
     get_states_group_by_state,
     last_states,
-    next_state,
 )
 from app.manual_training_player.manual_training_player import (
     ManualTrainingPlayer,
@@ -171,9 +162,7 @@ class FiniteStateMachine:
             )
         else:
             self.save_history(state)
-        disagree_answer = self.get_next_disagree_answer(
-            state,
-        )
+        disagree_answer = self.get_next_disagree_answer()
         self.message = disagree_answer
         self.incorrect_answers = 0
 
@@ -186,7 +175,7 @@ class FiniteStateMachine:
         Returns:
             Ответ навыка.
         """
-        if self.command in HELP_COMMANDS or INTENTS.get_available(
+        if self.command in HELP_COMMANDS or INTENTS.get_help_available(
             self.intents,
         ):
             structure = HELP_COMMANDS_STATES_ANSWERS_INTENTS
@@ -211,14 +200,15 @@ class FiniteStateMachine:
         Returns:
             Подсказка.
         """
+        ic(self.is_completed())
         if self.is_completed():
             self.progress = []
             self.history = []
             return another_answers_documents.get("all_completed")
         if self.is_agree() and not self._is_repeat_and_previous_disagree():
-            return get_after_answer_by_state(
+            ic(state, "get_next_after_answer")
+            return self.get_next_after_answer(
                 state,
-                COMMANDS_STATES_ANSWERS_INTENTS,
             )
         if not self._is_repeat_and_previous_disagree():
             return self.get_next_after_answer(state)
@@ -252,28 +242,22 @@ class FiniteStateMachine:
             step = self.next_state_by_history(
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-            ic(step)
         pre_step = find_previous_state(step, ORDERED_STATES)
+        ic(step, pre_step)
         return get_after_answer_by_state(
             pre_step,
             COMMANDS_STATES_ANSWERS_INTENTS,
         )
 
-    def get_next_disagree_answer(self, step: str) -> str:
+    def get_next_disagree_answer(
+        self,
+    ) -> str:
         """Возвращает следующий ответ с вариантами действия пользователя.
-
-        Args:
-            step: Текущее состояние.
 
         Returns:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
-        while step in self.history:
-            step = next_state(
-                step,
-                ORDERED_STATES,
-            )
         return get_disagree_answer_by_state(
             self.history[-1],
             COMMANDS_STATES_ANSWERS_INTENTS,
@@ -324,7 +308,7 @@ class FiniteStateMachine:
                 #     f"Ошибка сохранения: неизвестное состояние {state}"
                 # )
                 raise StateDumpError(
-                    f"Ошибка сохранения: неизвестное состояние {state}"
+                    f"Ошибка сохранения: неизвестное состояние {state}",
                 )
         return result
 
@@ -356,7 +340,7 @@ class FiniteStateMachine:
                 #     f"Ошибка загрузки: ошибка индекса состояния {index}"
                 # )
                 raise StateLoadError(
-                    f"Ошибка загрузки: ошибка индекса состояния {index}"
+                    f"Ошибка загрузки: ошибка индекса состояния {index}",
                 )
         return result
 
@@ -404,7 +388,6 @@ class FiniteStateMachine:
             True, если все элементы навыка завершены, иначе False.
         """
         try:
-            print(len(self.progress), self.max_progress)
             result = len(self.progress) == self.max_progress
         except TypeError:
             result = False
@@ -412,7 +395,7 @@ class FiniteStateMachine:
 
     def next_state_by_history(
         self,
-        states: list[tuple[str, str, str, str, str, str]],
+        structure: list[tuple[str, str, str, str, str, str]],
     ) -> str:
         """Возвращает следующее состояние.
 
@@ -420,21 +403,24 @@ class FiniteStateMachine:
         Учитывается прогресс пользователя.
 
         Args:
-            states: Список всех состояний.
+            structure: Список всех состояний.
 
         Returns:
             Состояние, соответствующее первой непройденной истории/возможности
             после последнего выполненного действия.
         """
         state = last_states(self.history)
-        ordered_states = get_states_by_order(states)
+        ic(state)
+        ordered_states = get_states_by_order(structure)
         if state is None:
             return ordered_states[0]
         state_index = ordered_states.index(state)
+        ic(state_index)
         len_states = len(ordered_states)
         for index in range(state_index, len_states + state_index):
             if ordered_states[index % len_states] in self.history:
                 continue
+            ic(ordered_states[index % len_states])
             return ordered_states[index % len_states]
 
     def get_output(
