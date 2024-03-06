@@ -219,3 +219,56 @@ class ManualTrainingPlayer:
 
     def get_chapter_name_by_number(self, chapter_number):
         return self.human_readable_chapter_titles.get(str(chapter_number))
+
+    def dump_state(self):
+        """Возвращает словарь текущего состояния обучения.
+
+        Returns:
+            dict() - словарь текущего состояния вида::
+
+            {
+                "greetings": bool,
+                "token": str | None,
+                "chapter": str | None,
+                "is_playing": bool,
+                "is_finish": bool,
+            }
+        """
+        return {
+            "greetings": self.greetings,
+            "token": self.current_token,
+            "chapter": self.current_chapter,
+            "is_playing": self.is_playing,
+            # "start_time": self.audio_playback_start_time,
+            # "token_offsets": self.token_offsets = {},
+            "is_finish": self.is_finish,
+        }
+
+    def load_state(self, state: dict[str, str] | None):
+        """Загружает информацию о состоянии обучения из словаря.
+
+        Args:
+            state - словарь сохраненного состояния вида::
+
+            {
+                "greetings": bool,
+                "token": str | None,
+                "chapter": str | None,
+                "is_playing": bool,
+                "is_finish": bool,
+            }
+        """
+        if not state:
+            self.greetings = False
+            self.current_token = None
+            self.current_chapter = None
+            self.is_playing = False
+            # self.audio_playback_start_time = 0
+            # self.token_offsets = {}
+            self.is_finish = True
+            return
+        self.greetings = state.get("greetings", False)
+        self.current_token = state.get("token", None)
+        self.current_chapter = state.get("chapter", None)
+        self.is_playing = state.get("is_playing", False)
+        self.is_finish = state.get("is_finish", True)
