@@ -357,9 +357,10 @@ class FiniteStateMachine:
 
         Examples:
             {
-                "quiz_state": {....} - параметры состояния викторины
+                "quiz_state": {...} - параметры состояния викторины
                 "progress": []  - индексы состояний прогресса
                 "history": []  - индексы состояний истории
+                "training": {...} - параметры состояния обучения (плеер)
             }
         """
         # тут добавляем другие ключи для других разделов,
@@ -368,6 +369,7 @@ class FiniteStateMachine:
             QUIZ_SESSION_STATE_KEY: self.quiz_skill.dump_state(),
             "progress": self._dump_states(self.progress, ORDERED_STATES),
             "history": self._dump_states(self.history, ORDERED_STATES),
+            "training": self.manual_training.dump_state(),
             "previous_command": self.previous_command,
         }
 
@@ -383,6 +385,7 @@ class FiniteStateMachine:
         dumped_history = session_state.get("history", [])
         self.history = self._load_states(dumped_history, ORDERED_STATES)
         self.previous_command = session_state.get("previous_command", "")
+        self.manual_training.load_state(session_state.get("training"))
 
     def is_completed(self) -> bool:  # noqa
         """Проверяет, завершено ли обучение.
