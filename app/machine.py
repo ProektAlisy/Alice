@@ -211,6 +211,10 @@ class FiniteStateMachine:
         Returns:
             Подсказка.
         """
+        if self.is_completed():
+            self.progress = []
+            self.history = []
+            return another_answers_documents.get("all_completed")
         if self.is_agree() and not self._is_repeat_and_previous_disagree():
             return get_after_answer_by_state(
                 state,
@@ -248,12 +252,7 @@ class FiniteStateMachine:
             step = self.next_state_by_history(
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        # исправляем side effect, когда в помощи появляется `after_answer`
-        if (
-            self.command == HelpCommands.HELP_MAIN.lower()
-            or INTENTS.HELP_MAIN in self.intents
-        ):
-            return ""
+            ic(step)
         pre_step = find_previous_state(step, ORDERED_STATES)
         return get_after_answer_by_state(
             pre_step,
@@ -305,7 +304,7 @@ class FiniteStateMachine:
         """Формирование списка номеров состояний для сохранения в сессии.
 
         Args:
-            state: Список состояний навыка (history или progress).
+            states: Список состояний навыка (history или progress).
             ordered_states: Упорядоченный список состояний.
 
         Raises:

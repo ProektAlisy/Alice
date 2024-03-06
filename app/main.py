@@ -71,14 +71,15 @@ async def root(data: RequestData) -> ResponseData:
             result = command_obj.execute(intents, command, is_new)
             break
     # ic(len(skill.progress), skill.max_progress)
-    if skill.is_completed():
-        result = skill.get_output(
-            another_answers_documents.get(
-                "all_completed",
-                "",
-            ),
-        )
-        skill.progress = []
+    # if skill.is_completed():
+    #     result = skill.get_output(
+    #         another_answers_documents.get(
+    #             "all_completed",
+    #             "",
+    #         ),
+    #     )
+    #     skill.progress = []
+    # skill.history = []
 
     ic(command, skill.progress, skill.history)
     skill.previous_command = command

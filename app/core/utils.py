@@ -44,7 +44,7 @@ def find_previous_state(
     index = ordered_states.index(state)
     if index > 0:
         return ordered_states[index - 1]
-    return None  # Если элемент является первым в списке
+    return ordered_states[-1]  # Если элемент является первым в списке
 
 
 def get_states_by_command(
