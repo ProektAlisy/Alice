@@ -21,6 +21,7 @@ from app.core.utils import (
     get_states_by_order,
     get_states_group_by_state,
     last_states,
+    get_last_in_history,
 )
 from app.manual_training_player.manual_training_player import (
     ManualTrainingPlayer,
@@ -94,7 +95,7 @@ class FiniteStateMachine:
             state_name: Название состояния.
             self: Объект FiniteStateMachine.
         """
-
+        ic(state_name)
         if self.is_disagree():
             self.disagree_function(state_name)
         else:
@@ -152,6 +153,7 @@ class FiniteStateMachine:
         Args:
             state: Состояние, в которое переходим.
         """
+        ic(state)
         self.save_progress(state)
         if state in CORE_STATES:
             self.history.extend(
@@ -200,13 +202,11 @@ class FiniteStateMachine:
         Returns:
             Подсказка.
         """
-        ic(self.is_completed())
         if self.is_completed():
             self.progress = []
             self.history = []
             return another_answers_documents.get("all_completed")
         if self.is_agree() and not self._is_repeat_and_previous_disagree():
-            ic(state, "get_next_after_answer")
             return self.get_next_after_answer(
                 state,
             )
@@ -259,7 +259,7 @@ class FiniteStateMachine:
             пользователя.
         """
         return get_disagree_answer_by_state(
-            self.history[-1],
+            get_last_in_history(self.history),
             COMMANDS_STATES_ANSWERS_INTENTS,
         )
 
@@ -316,7 +316,7 @@ class FiniteStateMachine:
         self,
         state_indexes: list[int],
         ordered_states: list[str],
-    ) -> list[int]:
+    ) -> list[str]:
         """Формирование списка состояний после загрузки из сессии.
 
         Args:
@@ -413,17 +413,14 @@ class FiniteStateMachine:
             после последнего выполненного действия.
         """
         state = last_states(self.history)
-        ic(state)
         ordered_states = get_states_by_order(structure)
         if state is None:
             return ordered_states[0]
         state_index = ordered_states.index(state)
-        ic(state_index)
         len_states = len(ordered_states)
         for index in range(state_index, len_states + state_index):
             if ordered_states[index % len_states] in self.history:
                 continue
-            ic(ordered_states[index % len_states])
             return ordered_states[index % len_states]
 
     def get_output(

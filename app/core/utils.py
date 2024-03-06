@@ -2,7 +2,7 @@ from icecream import ic
 from pydantic import BaseModel
 from pymongo.collection import Collection
 
-from app.constants.states import POSSIBILITIES_STATE
+from app.constants.states import POSSIBILITIES_STATE, STATES
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
 from app.schemas import InnerResponse
@@ -236,19 +236,22 @@ def get_states_group_by_state(
     return None
 
 
-def get_last_in_history(history: list[str]) -> str:
+def get_last_in_history(
+    history: list[str],
+) -> str:
     """Получить последнее действие из истории.
 
     Args:
-        history: Список действий (переходов) пользователя в навыке.
+         history: Список действий (переходов) пользователя в навыке.
 
     Returns:
         Последнее действие из истории.
     """
     try:
+        ic(history)
         result = history[-1]
     except (IndexError, TypeError):
-        result = None
+        result = STATES[1]
     return result
 
 
