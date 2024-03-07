@@ -2,13 +2,12 @@ from starlette.status import HTTP_200_OK
 from starlette.testclient import TestClient
 
 from app.constants.comands_states_answers import (
+    after_answers_documents,
     another_answers_documents,
     answers_documents,
-    after_answers_documents,
 )
 from app.constants.commands import Commands
 from app.main import application
-
 
 client = TestClient(application)
 
@@ -19,7 +18,7 @@ def test_direct_commands(data, load_session_state_mock):
     assert response.json()["response"][
         "text"
     ] == another_answers_documents.get(
-        "full_greetings"
+        "full_greetings",
     ), "Key value mismatch in response"
     data["session"]["new"] = False
     command_names = Commands.__annotations__
