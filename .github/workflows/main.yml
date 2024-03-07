@@ -71,6 +71,7 @@ jobs:
             echo ME_CONFIG_MONGODB_URL=${{ secrets.ME_CONFIG_MONGODB_URL }} >> .env
             echo MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} >> .env
             echo MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} >> .env
+            echo SENTRY_DSN=${{ secrets.SENTRY_DSN}} >> .env
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
             sudo docker-compose up -d
             sleep 10s
