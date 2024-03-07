@@ -5,7 +5,6 @@
 from fastapi import FastAPI
 from icecream import ic
 
-from app.constants.comands_states_answers import another_answers_documents
 from app.core.action_classes import Action
 from app.core.command_classes import (
     AgreeCommand,
@@ -14,6 +13,7 @@ from app.core.command_classes import (
     DisagreeCommand,
     ExitCommand,
     GreetingsCommand,
+    HelpCommandsCommand,
     ManualTrainingCommand,
     ManualTrainingSetState,
     QuizCommand,
@@ -61,6 +61,7 @@ async def root(data: RequestData) -> ResponseData:
         AllCommandsCommand(skill, command_instance),
         AgreeCommand(skill, command_instance),
         DisagreeCommand(skill, command_instance),
+        HelpCommandsCommand(skill, command_instance),
         ExitCommand(skill, command_instance),
     ]
     result = skill.get_output(skill.dont_understand())
@@ -68,16 +69,6 @@ async def root(data: RequestData) -> ResponseData:
         if command_obj.condition(intents, command, is_new):
             result = command_obj.execute(intents, command, is_new)
             break
-    # ic(len(skill.progress), skill.max_progress)
-    if skill.is_completed():
-        result = skill.get_output(
-            another_answers_documents.get(
-                "all_completed",
-                "",
-            ),
-        )
-        skill.progress = []
-
     ic(command, skill.progress, skill.history)
     skill.previous_command = command
     # возможно тут надо повторно выполнить dump_session_state

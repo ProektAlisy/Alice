@@ -1,7 +1,8 @@
+from icecream import ic
 from pydantic import BaseModel
 from pymongo.collection import Collection
 
-from app.constants.states import POSSIBILITIES_STATE
+from app.constants.states import POSSIBILITIES_STATE, STATES
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
 from app.schemas import InnerResponse
@@ -32,7 +33,7 @@ def find_previous_state(
     state: str,
     ordered_states: list[str],
 ) -> str | None:
-    """Возвращает предыдущее состояние.
+    """Возвращает предыдущее состояние по списку состояний `state`.
 
     Args:
         state: Текущее состояние.
@@ -44,7 +45,7 @@ def find_previous_state(
     index = ordered_states.index(state)
     if index > 0:
         return ordered_states[index - 1]
-    return None  # Если элемент является первым в списке
+    return ordered_states[-1]  # Если элемент является первым в списке
 
 
 def get_states_by_command(
@@ -103,7 +104,18 @@ def get_states_by_order(
     return [state_commands[1] for state_commands in states_com_ans]
 
 
-def get_all_commands(structure: tuple) -> list[str]:
+def get_all_commands(
+    structure: list[
+        tuple[
+            str,
+            str,
+            str,
+            str,
+            str,
+            str,
+        ],
+    ],
+) -> list[str]:
     """Возвращает список команд.
 
     Returns:
@@ -184,7 +196,7 @@ def get_after_answer_by_state(
 
 def get_answer_by_state(
     state: str,
-    structure: list[tuple[str]],
+    structure: list[tuple[str, str, str, str, str, str]],
 ):
     """Возвращает соответствующий ответ.
 
@@ -197,6 +209,7 @@ def get_answer_by_state(
         не найдено, возвращает None.
     """
     for state_com_ans in structure:
+        ic(state_com_ans)
         if state_com_ans[1] == state:
             return state_com_ans[2]
     return ""
@@ -223,19 +236,22 @@ def get_states_group_by_state(
     return None
 
 
-def get_last_in_history(history: list[str]) -> str:
+def get_last_in_history(
+    history: list[str],
+) -> str:
     """Получить последнее действие из истории.
 
     Args:
-        history: Список действий (переходов) пользователя в навыке.
+         history: Список действий (переходов) пользователя в навыке.
 
     Returns:
         Последнее действие из истории.
     """
     try:
+        ic(history)
         result = history[-1]
     except (IndexError, TypeError):
-        result = None
+        result = STATES[1]
     return result
 
 
@@ -292,6 +308,46 @@ def compose_message(answer: str, after_answer: str) -> str:
         Полный ответ.
     """
     return f"{answer} sil<[400]> {after_answer}"
+
+
+def get_state_by_answer(
+    answer: str,
+    structure: list[tuple[str]],
+):
+    """Возвращает соответствующее состояние.
+
+    Args:
+        answer: Состояние, в которое переходим.
+        structure: Структура, содержащая соответствующие команды и состояния.
+
+    Returns:
+        Состояние, соответствующее команде. Если соответствующее состояние
+        не найдено, возвращает None.
+    """
+    for state_com_ans in structure:
+        if state_com_ans[2] == answer:
+            return state_com_ans[1]
+    return ""
+
+
+def get_state_by_after_answer(
+    after_answer: str,
+    structure: list[tuple[str]],
+):
+    """Возвращает соответствующее состояние.
+
+    Args:
+        after_answer: Состояние, в которое переходим.
+        structure: Структура, содержащая соответствующие команды и состояния.
+
+    Returns:
+        Состояние, соответствующее команде. Если соответствующее состояние
+        не найдено, возвращает None.
+    """
+    for state_com_ans in structure:
+        if state_com_ans[3] == after_answer:
+            return state_com_ans[1]
+    return ""
 
 
 def limit_response_text_length(

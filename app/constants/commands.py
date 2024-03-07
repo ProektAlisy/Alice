@@ -1,75 +1,69 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class Commands:
-    """Класс для хранения команд пользователя.
+    """Класс для хранения команд пользователя."""
 
-    Будут заменены на интенты в будущем.
-    """
-
-    def setattr(self, key, value):
-        raise AttributeError("Команды изменять нельзя!")
-
-    ABOUT_TRAINING_CENTER = (
-        "Прослушать информацию об учебно-кинологическом "
-        "центре собаки-помощники"
+    ABOUT_TRAINING_CENTER: str = "Прослушать информацию об учебно-кинологическом центре собаки-помощники"
+    ABOUT_FACILITY: str = "Прослушать описание помещения центра"
+    ABOUT_STAFF_1: str = "Прослушать информацию о персонале центра"
+    ABOUT_STAFF_2: str = "Прослушать информацию о персонале центра продолжение"
+    ABOUT_STAFF_3: str = (
+        "Прослушать информацию о персонале центра продолжение 2"
     )
-    ABOUT_FACILITY = "Прослушать описание помещения центра"
-    ABOUT_STAFF_1 = "Прослушать информацию о персонале центра"
-    ABOUT_STAFF_2 = "Прослушать информацию о персонале центра продолжение"
-    ABOUT_STAFF_3 = "Прослушать информацию о персонале центра продолжение 2"
-    ABOUT_TRAINING_COURSE = "Прослушать информацию о курсе обучения"
-    TAKE_MANUAL_TRAINING = "пройти обучение по методичке"
-    TAKE_QUIZ = "Пройти викторину"
-    LISTEN_TO_LEGISLATION = "Прослушать выдержки из законодательства"
-    ABOUT_LEGISLATION_ACCESSIBILITY = (
+    ABOUT_TRAINING_COURSE: str = "Прослушать информацию о курсе обучения"
+    TAKE_MANUAL_TRAINING: str = "пройти обучение по методичке"
+    TAKE_QUIZ: str = "Пройти викторину"
+    LISTEN_TO_LEGISLATION: str = "Прослушать выдержки из законодательства"
+    ABOUT_LEGISLATION_ACCESSIBILITY: str = (
         "Прослушать информацию о основаниях для доступа к "
         "объектам инфраструктуры"
     )
-    ABOUT_GUIDE_DOG_TRANSPORTATION = "Прослушать информацию о провозе собак"
-    CHOICE_BY_LAND_RAIL_AIR_WATER = (
+    CHOICE_BY_LAND_RAIL_AIR_WATER: str = (
         "Выбор информации о провозе собаки в различных видах транспорта"
     )
-    ABOUT_TRANSPORTATION_BY_LAND_TRANSPORT = (
+    ABOUT_TRANSPORTATION_BY_LAND_TRANSPORT: str = (
         "Узнать о провозе собак-проводников в наземном транспорте"
     )
-    ABOUT_TRANSPORTATION_BY_RAIL = (
+    ABOUT_TRANSPORTATION_BY_RAIL: str = (
         "Узнать о провозе собак-проводников в железнодорожном транспорте"
     )
-    ABOUT_AIR_TRANSPORTATION = (
+    ABOUT_AIR_TRANSPORTATION: str = (
         "Узнать о провозе собак-проводников в воздушном транспорте"
     )
-    ABOUT_TRANSPORTATION_BY_WATER = (
+    ABOUT_TRANSPORTATION_BY_WATER: str = (
         "Узнать о провозе собак-проводников в водном транспорте"
     )
-    SELF_DEFENSE_PHRASE = "Прослушать фразу для самозащиты"
-
-    ABOUT_DISCOUNTS_AND_FREE_SERVICES = (
-        "Узнать о скидках/льготах и бесплатных услугах"
-    )
-    DISCOUNTS_FOR_FOOD = "Узнать о скидках для питания"
-    DISCOUNTS_FOR_DELICACY = "Узнать о скидках на лакомства"
-    SPECIAL_OFFERS_FOR_VETERINARIES = (
-        "Узнать о компенсации расходов на ветеринарию"
-    )
-    EXIT_DISCOUNTS_AND_FREE_SERVICES = "Выход из скидок и бесплатных услуг"
-
-    ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS = (
+    SELF_DEFENSE_PHRASE: str = "Прослушать фразу для самозащиты"
+    ABOUT_SUPPORT_SERVICES_FOR_BLIND_PASSENGERS: str = (
         "Узнать о службах поддержки незрячих пассажиров на транспорте"
     )
-
-    ABOUT_SERVICES_UNITING_BLIND_PEOPLE = (
+    ABOUT_DISCOUNTS_AND_FREE_SERVICES: str = (
+        "Узнать о скидках/льготах и бесплатных услугах"
+    )
+    DISCOUNTS_FOR_FOOD: str = "Узнать о скидках для питания"
+    DISCOUNTS_FOR_DELICACY: str = "Узнать о скидках на лакомства"
+    SPECIAL_OFFERS_FOR_VETERINARIES: str = (
+        "Узнать о компенсации расходов на ветеринарию"
+    )
+    ABOUT_SERVICES_UNITING_BLIND_PEOPLE: str = (
         "Узнать о службах объединяющие незрячих"
     )
-    ABOUT_REGIONAL_CLUBS = "Прослушать о региональных клубах"
-    ABOUT_SPECIAL_VIEW_FOUNDATION = "Узнать о фонде особый взгляд"
-    EXIT_SERVICES_FOR_BLIND = "Выход из служб поддержки незрячих"
-
-    ABOUT_PODCAST = "Узнать о подкасте"
-    INSTRUCTIONS_FOR_LAUNCHING_PODCAST = (
+    ABOUT_REGIONAL_CLUBS: str = "Прослушать о региональных клубах"
+    ABOUT_SPECIAL_VIEW_FOUNDATION: str = "Узнать о фонде особый взгляд"
+    ABOUT_PODCAST: str = "Узнать о подкасте"
+    INSTRUCTIONS_FOR_LAUNCHING_PODCAST: str = (
         "Узнать инструкцию запуска подкаста министерства наших собачьих дел"
     )
-    HELP_MAIN = "Помощь"
-    HELP_PHRASE = "Хочу узнать фразы"
-    POSSIBILITIES = "Возможности"
-    USEFUL_INFORMATION = "Полезная информация"
+
+
+@dataclass
+class HelpCommands:
+    HELP_MAIN: str = "помощь"
+    HELP_PHRASE: str = "хочу узнать фразы"
+    POSSIBILITIES: str = "возможности"
+    USEFUL_INFORMATION: str = "полезная информация"
 
 
 class ServiceCommands:

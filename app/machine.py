@@ -2,17 +2,14 @@ from icecream import ic
 
 from app.constants.comands_states_answers import (
     COMMANDS_STATES_ANSWERS_INTENTS,
+    HELP_COMMANDS,
+    HELP_COMMANDS_STATES_ANSWERS_INTENTS,
     ORDERED_STATES,
     another_answers_documents,
 )
 from app.constants.commands import ServiceCommands
-from app.constants.intents import ServiceIntents
-from app.constants.states import (
-    CORE_STATES,
-    STATE_HELP_MAIN,
-    STATES,
-    STATES_BY_GROUP,
-)
+from app.constants.intents import INTENTS, ServiceIntents
+from app.constants.states import CORE_STATES, STATES, STATES_BY_GROUP
 from app.core.exceptions import StateDumpError, StateLoadError
 from app.core.utils import (
     compose_message,
@@ -24,7 +21,7 @@ from app.core.utils import (
     get_states_by_order,
     get_states_group_by_state,
     last_states,
-    next_state,
+    get_last_in_history,
 )
 from app.manual_training_player.manual_training_player import (
     ManualTrainingPlayer,
@@ -92,13 +89,13 @@ class FiniteStateMachine:
         )
 
     def action_func(self, state_name: str) -> callable:
-        """Флаг согласия/отказа.
+        """Функция действия.
 
         Args:
             state_name: Название состояния.
             self: Объект FiniteStateMachine.
         """
-
+        ic(state_name)
         if self.is_disagree():
             self.disagree_function(state_name)
         else:
@@ -145,7 +142,6 @@ class FiniteStateMachine:
         """
         self.save_progress(state)
         self.save_history(state)
-        ic(self.history, self.progress)
         answer = self._get_answer(state)
         after_answer = self._get_after_answer(state)
         self.message = compose_message(answer, after_answer)
@@ -157,6 +153,7 @@ class FiniteStateMachine:
         Args:
             state: Состояние, в которое переходим.
         """
+        ic(state)
         self.save_progress(state)
         if state in CORE_STATES:
             self.history.extend(
@@ -167,9 +164,7 @@ class FiniteStateMachine:
             )
         else:
             self.save_history(state)
-        disagree_answer = self.get_next_disagree_answer(
-            state,
-        )
+        disagree_answer = self.get_next_disagree_answer()
         self.message = disagree_answer
         self.incorrect_answers = 0
 
@@ -182,29 +177,38 @@ class FiniteStateMachine:
         Returns:
             Ответ навыка.
         """
+        if self.command in HELP_COMMANDS or INTENTS.get_help_available(
+            self.intents,
+        ):
+            structure = HELP_COMMANDS_STATES_ANSWERS_INTENTS
+        else:
+            structure = COMMANDS_STATES_ANSWERS_INTENTS
         if self._is_repeat_and_previous_disagree():
             return disagree_answer_by_state(
                 state,
-                COMMANDS_STATES_ANSWERS_INTENTS,
+                structure,
             )
         return get_answer_by_state(
             state,
-            COMMANDS_STATES_ANSWERS_INTENTS,
+            structure,
         )
 
     def _get_after_answer(self, state: str) -> str:
         """Генерирует вторую часть ответа с подсказкой о продолжении.
 
         Args:
-            state: Триггер, по которому генерируем подсказку.
+            state: состояние, по которому генерируем подсказку.
 
         Returns:
             Подсказка.
         """
+        if self.is_completed():
+            self.progress = []
+            self.history = []
+            return another_answers_documents.get("all_completed")
         if self.is_agree() and not self._is_repeat_and_previous_disagree():
-            return get_after_answer_by_state(
+            return self.get_next_after_answer(
                 state,
-                COMMANDS_STATES_ANSWERS_INTENTS,
             )
         if not self._is_repeat_and_previous_disagree():
             return self.get_next_after_answer(state)
@@ -238,32 +242,24 @@ class FiniteStateMachine:
             step = self.next_state_by_history(
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-        # исправляем side effect, когда в помощи появляется `after_answer`
-        if step == STATE_HELP_MAIN:
-            return ""
         pre_step = find_previous_state(step, ORDERED_STATES)
+        ic(step, pre_step)
         return get_after_answer_by_state(
             pre_step,
             COMMANDS_STATES_ANSWERS_INTENTS,
         )
 
-    def get_next_disagree_answer(self, step: str) -> str:
+    def get_next_disagree_answer(
+        self,
+    ) -> str:
         """Возвращает следующий ответ с вариантами действия пользователя.
-
-        Args:
-            step: Текущее состояние.
 
         Returns:
             Добавленный ответ к основному, содержит варианты действия
             пользователя.
         """
-        while step in self.history:
-            step = next_state(
-                step,
-                ORDERED_STATES,
-            )
         return get_disagree_answer_by_state(
-            self.history[-1],
+            get_last_in_history(self.history),
             COMMANDS_STATES_ANSWERS_INTENTS,
         )
 
@@ -292,7 +288,7 @@ class FiniteStateMachine:
         """Формирование списка номеров состояний для сохранения в сессии.
 
         Args:
-            state: Список состояний навыка (history или progress).
+            states: Список состояний навыка (history или progress).
             ordered_states: Упорядоченный список состояний.
 
         Raises:
@@ -320,7 +316,7 @@ class FiniteStateMachine:
         self,
         state_indexes: list[int],
         ordered_states: list[str],
-    ) -> list[int]:
+    ) -> list[str]:
         """Формирование списка состояний после загрузки из сессии.
 
         Args:
@@ -402,7 +398,7 @@ class FiniteStateMachine:
 
     def next_state_by_history(
         self,
-        states: list,
+        structure: list[tuple[str, str, str, str, str, str]],
     ) -> str:
         """Возвращает следующее состояние.
 
@@ -410,14 +406,14 @@ class FiniteStateMachine:
         Учитывается прогресс пользователя.
 
         Args:
-            states: Список всех триггеров.
+            structure: Список всех состояний.
 
         Returns:
-            Триггер, соответствующий первой непройденной истории/возможности
+            Состояние, соответствующее первой непройденной истории/возможности
             после последнего выполненного действия.
         """
         state = last_states(self.history)
-        ordered_states = get_states_by_order(states)
+        ordered_states = get_states_by_order(structure)
         if state is None:
             return ordered_states[0]
         state_index = ordered_states.index(state)

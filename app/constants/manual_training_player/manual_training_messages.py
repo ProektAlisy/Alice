@@ -21,9 +21,12 @@ class ManualPlayerMessages:
     NO_CURRENT_CHAPTER: Final = "Нет текущей главы для продолжения."
     PLAYBACK_STOP: Final = "Остановила."
     ALREADY_FINISHED: Final = "Обучение по методичке уже завершено."
-    PLAYBACK_START: Final = ("Начинаю проигрывание главы номер "
-                             "{chapter_number} - {chapter_name}.")
-    AUDIO_URL: Final = ("https://www.guidedogs.acceleratorpracticum.ru/"
-                        "{chapter_name}.mp3")
+    PLAYBACK_START: Final = (
+        "Начинаю проигрывание главы номер "
+        "{chapter_number} - {chapter_name}."
+    )
+    AUDIO_URL: Final = (
+        "https://www.guidedogs.acceleratorpracticum.ru/" "{chapter_name}.mp3"
+    )
     CONTENT: Final = "Оглавление: sil <[300]>"
     CONTENT_CHAPTER: Final = "Глава {chapter_num} - {title}. sil <[300]>"
