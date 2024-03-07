@@ -142,7 +142,7 @@ class FiniteStateMachine:
         """
         self.save_progress(state)
         self.save_history(state)
-        answer = self._get_answer(state)
+        answer = self.get_answer(state)
         after_answer = self._get_after_answer(state)
         self.message = compose_message(answer, after_answer)
         self.incorrect_answers = 0
@@ -168,7 +168,7 @@ class FiniteStateMachine:
         self.message = disagree_answer
         self.incorrect_answers = 0
 
-    def _get_answer(self, state: str) -> str:
+    def get_answer(self, state: str) -> str:
         """Генерирует основной ответ навыка по состоянию.
 
         Args:

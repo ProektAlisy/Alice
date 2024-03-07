@@ -431,7 +431,7 @@ class HelpCommandsCommand(Command):
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = False
-        result = self.skill._get_answer(
+        result = self.skill.get_answer(
             get_states_by_command(
                 command,
                 intents,
