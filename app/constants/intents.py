@@ -50,3 +50,4 @@ class ServiceIntents:
     DISAGREE = "YANDEX.REJECT"
     REPEAT = "YANDEX.REPEAT"
     NEXT = "NEXT"
+    EXIT_FROM_SKILL = "EXIT_FROM_SKILL"

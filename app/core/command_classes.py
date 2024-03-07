@@ -393,7 +393,10 @@ class ExitCommand(Command):
 
     def condition(self, intents: dict[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
-        return command == ServiceCommands.EXIT
+        return (
+            command == ServiceCommands.EXIT
+            or ServiceIntents.EXIT_FROM_SKILL in intents
+        )
 
     def execute(
         self,

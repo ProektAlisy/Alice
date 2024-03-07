@@ -84,6 +84,6 @@ class ServiceCommands:
         "нет",
         "не надо",
     )
-    EXIT = "выход"
+    EXIT = "выход из навыка"
     NEXT = "дальше"
     REPEAT = "повтори"
