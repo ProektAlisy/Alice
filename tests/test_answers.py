@@ -1,6 +1,3 @@
-from unittest.mock import MagicMock
-
-from icecream import ic
 from starlette.status import HTTP_200_OK
 from starlette.testclient import TestClient
 
@@ -9,9 +6,7 @@ from app.constants.comands_states_answers import (
     answers_documents,
     after_answers_documents,
 )
-from app.constants.commands import Commands, ServiceCommands
-from app.constants.states import STATES
-from app.core.command_classes import skill
+from app.constants.commands import Commands
 from app.main import application
 
 
