@@ -2,6 +2,7 @@ from icecream import ic
 from pydantic import BaseModel
 from pymongo.collection import Collection
 
+from app.constants.commands import ALICE_COMMANDS
 from app.constants.states import POSSIBILITIES_STATE, STATES
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
@@ -133,13 +134,7 @@ def is_alice_commands(command: str) -> bool:
     Returns:
         True, если команда является командой Алисы, иначе False.
     """
-    with open(
-        "app/constants/alice_commands.txt",
-        "r",
-        encoding="utf-8",
-    ) as file:
-        commands = [line.strip() for line in file]
-    return command in commands
+    return command in ALICE_COMMANDS
 
 
 def last_states(states: list) -> str:

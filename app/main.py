@@ -2,6 +2,10 @@
 Точка входа в приложение.
 """
 
+import os
+
+import sentry_sdk
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from icecream import ic
 
@@ -25,6 +29,14 @@ from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
 from app.core.utils import check_api, get_api_data, limit_response_text_length
 from app.schemas import RequestData, ResponseData
+
+load_dotenv()
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 
 application = FastAPI()
 

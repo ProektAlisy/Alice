@@ -87,3 +87,12 @@ class ServiceCommands:
     EXIT = "выход из навыка"
     NEXT = "дальше"
     REPEAT = "повтори"
+
+
+ALICE_COMMANDS = set()
+with open(
+    "app/constants/alice_commands.txt",
+    "r",
+    encoding="utf-8",
+) as file:
+    ALICE_COMMANDS = {line.strip() for line in file}
