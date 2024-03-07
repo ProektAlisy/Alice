@@ -18,10 +18,10 @@ from app.core.utils import (
     get_after_answer_by_state,
     get_answer_by_state,
     get_disagree_answer_by_state,
+    get_last_in_history,
     get_states_by_order,
     get_states_group_by_state,
     last_states,
-    get_last_in_history,
 )
 from app.manual_training_player.manual_training_player import (
     ManualTrainingPlayer,

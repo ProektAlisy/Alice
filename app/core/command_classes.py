@@ -15,7 +15,7 @@ from app.constants.comands_states_answers import (
 from app.constants.commands import Commands, ServiceCommands
 from app.constants.intents import INTENTS, ServiceIntents
 from app.constants.quiz.intents import QuizIntents
-from app.constants.states import MANUAL_TRAINING_STATE, QUIZ_STATE, STATES
+from app.constants.states import MANUAL_TRAINING_STATE, QUIZ_STATE
 from app.core.utils import (
     compose_message,
     get_after_answer_by_state,
