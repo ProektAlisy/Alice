@@ -39,15 +39,15 @@ def test_direct_commands(data, load_session_state_mock):
         assert response.status_code == HTTP_200_OK, "Status code is not 200"
         if command_name == "INSTRUCTIONS_FOR_LAUNCHING_PODCAST":
             true_answer = (
-                answers_documents.get("instructions_for_launching_podcast")
+                answers_documents.get("instructions_for_launching_podcast", "")
                 + " sil<[400]> "
-                + after_answers_documents.get("about_training_course")
+                + after_answers_documents.get("about_training_course", "")
             )
         else:
             true_answer = (
-                answers_documents.get(command_name.lower())
+                answers_documents.get(command_name.lower(), "")
                 + " sil<[400]> "
-                + after_answers_documents.get(command_name.lower())
+                + after_answers_documents.get(command_name.lower(), "")
             )
 
         assert (
