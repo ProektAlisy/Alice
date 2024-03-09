@@ -68,7 +68,6 @@ def test_direct_commands(data, load_session_state_mock):
 #             "TAKE_QUIZ",
 #             "TAKE_MANUAL_TRAINING",
 #         ]:
-#             ic(state, "55555555555555555555555555")
 #             continue
 #         # load_session_state_mock()
 #         response = client.post("/", json=data)

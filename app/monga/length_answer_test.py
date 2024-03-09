@@ -28,9 +28,9 @@ for answer in answers_documents.values():
                 answer,
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
-            ic(
+            print(
                 f"_________________\nanswer:  {bad_answer}",
                 f"\nafter_answer: {bad_after_answer}",
                 f"\nПревышение  на: {len(after_answer) + len(answer) - 1009}",
             )
-ic(f"Число превышений 1024 символа: {num_of_errors}")
+print(f"Число превышений 1024 символа: {num_of_errors}")

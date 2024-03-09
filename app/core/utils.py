@@ -45,10 +45,12 @@ def find_previous_state(
     Returns:
         Предыдущее состояние или None.
     """
-    index = ordered_states.index(state)
-    if index > 0:
+    try:
+        index = ordered_states.index(state)
         return ordered_states[index - 1]
-    return ordered_states[-1]  # Если элемент является первым в списке
+    except ValueError:
+        logger.error(f"State {state} not found in {ordered_states}")
+        return None
 
 
 def get_states_by_command(
@@ -108,16 +110,7 @@ def get_states_by_order(
 
 
 def get_all_commands(
-    structure: list[
-        tuple[
-            str,
-            str,
-            str,
-            str,
-            str,
-            str,
-        ],
-    ],
+    structure: list[tuple[str, str, str, str, str, str],],
 ) -> list[str]:
     """Возвращает список команд.
 
@@ -173,7 +166,7 @@ def read_from_db(collection: Collection):
 
 def get_after_answer_by_state(
     state: str,
-    structure: list[tuple[str]],
+    structure: list[tuple[str, str, str, str, str, str]],
 ) -> str:
     """Возвращает соответствующий направляющий вопрос.
 
@@ -206,7 +199,6 @@ def get_answer_by_state(
         не найдено, возвращает пустую строку "".
     """
     for state_com_ans in structure:
-        ic(state_com_ans)
         if state_com_ans[1] == state:
             return state_com_ans[2]
     return ""
@@ -245,7 +237,6 @@ def get_last_in_history(
         Последнее действие из истории.
     """
     try:
-        ic(history)
         result = history[-1]
     except (IndexError, TypeError):
         result = STATES[1]
@@ -329,7 +320,16 @@ def get_state_by_answer(
 
 def get_state_by_after_answer(
     after_answer: str,
-    structure: list[tuple[str]],
+    structure: list[
+        tuple[
+            str,
+            str,
+            str,
+            str,
+            str,
+            str,
+        ]
+    ],
 ):
     """Возвращает соответствующее состояние.
 

@@ -308,7 +308,6 @@ class AllCommandsCommand(Command):
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
-        ic(self.skill.progress)
         result = self.command_instance.execute(
             self.skill,
             get_states_by_command(

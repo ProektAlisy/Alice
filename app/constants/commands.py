@@ -89,7 +89,6 @@ class ServiceCommands:
     REPEAT = "повтори"
 
 
-ALICE_COMMANDS = set()
 with open(
     "app/constants/alice_commands.txt",
     "r",

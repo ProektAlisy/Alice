@@ -42,6 +42,5 @@ class Action(BaseAction):
                     "",
                 ),
             )
-        ic(state_name)
         skill_obj.action_func(state_name)
         return skill_obj.get_output(skill_obj.message)

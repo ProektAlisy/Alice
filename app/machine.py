@@ -74,7 +74,7 @@ class FiniteStateMachine:
             or ServiceIntents.AGREE in self.intents
         )
 
-    def is_disagree(self):
+    def is_disagree(self) -> bool:
         """Функция состояния.
 
         Проверяет, ответил ли пользователем отказом.
@@ -95,7 +95,6 @@ class FiniteStateMachine:
             state_name: Название состояния.
             self: Объект FiniteStateMachine.
         """
-        ic(state_name)
         if self.is_disagree():
             self.disagree_function(state_name)
         else:
@@ -153,7 +152,6 @@ class FiniteStateMachine:
         Args:
             state: Состояние, в которое переходим.
         """
-        ic(state)
         self.save_progress(state)
         if state in CORE_STATES:
             self.history.extend(
@@ -243,7 +241,6 @@ class FiniteStateMachine:
                 COMMANDS_STATES_ANSWERS_INTENTS,
             )
         pre_step = find_previous_state(step, ORDERED_STATES)
-        ic(step, pre_step)
         return get_after_answer_by_state(
             pre_step,
             COMMANDS_STATES_ANSWERS_INTENTS,
