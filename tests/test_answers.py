@@ -1,3 +1,4 @@
+from icecream import ic
 from starlette.status import HTTP_200_OK
 from starlette.testclient import TestClient
 
@@ -5,14 +6,31 @@ from app.constants.comands_states_answers import (
     after_answers_documents,
     another_answers_documents,
     answers_documents,
+    COMMANDS_STATES_ANSWERS_INTENTS,
 )
-from app.constants.commands import Commands
+from app.constants.commands import Commands, ServiceCommands, HelpCommands
+from app.constants.states import STATES
+from app.core.command_classes import skill
+from app.core.utils import (
+    get_answer_by_state,
+    get_after_answer_by_state,
+    compose_message,
+)
 from app.main import application
 
 client = TestClient(application)
 
 
 def test_direct_commands(data, load_session_state_mock):
+    """Тест базового сценария навыка.
+
+    После старта навыка пользователь по порядку обращается прямым запросом ко
+    всем историям навыка, кроме "take_quiz" и "take_manual_training".
+
+    Args:
+        data: Данные для запроса.
+        load_session_state_mock: Мокнутая функция `load_session_state`.
+    """
     response = client.post("/", json=data)
     assert response.status_code == HTTP_200_OK, "Status code is not 200"
     assert response.json()["response"][
@@ -38,16 +56,16 @@ def test_direct_commands(data, load_session_state_mock):
         response = client.post("/", json=data)
         assert response.status_code == HTTP_200_OK, "Status code is not 200"
         if command_name == "INSTRUCTIONS_FOR_LAUNCHING_PODCAST":
-            true_answer = (
-                answers_documents.get("instructions_for_launching_podcast", "")
-                + " sil<[400]> "
-                + after_answers_documents.get("about_training_course", "")
+            true_answer = compose_message(
+                answers_documents.get(
+                    "instructions_for_launching_podcast", ""
+                ),
+                after_answers_documents.get("about_training_course", ""),
             )
         else:
-            true_answer = (
-                answers_documents.get(command_name.lower(), "")
-                + " sil<[400]> "
-                + after_answers_documents.get(command_name.lower(), "")
+            true_answer = compose_message(
+                answers_documents.get(command_name.lower(), ""),
+                after_answers_documents.get(command_name.lower(), ""),
             )
 
         assert (
@@ -55,23 +73,46 @@ def test_direct_commands(data, load_session_state_mock):
         ), "Key value mismatch in response"
 
 
-# def test_agree_commands(data, load_session_state_mock):
-#     skill.history = []
-#     skill.progress = []
-#     data["session"]["new"] = False
-#     data["request"]["command"] = ServiceCommands.AGREE[0]
-#
-#     load_session_state_mock()
-#     for state, answer in zip(STATES[1:3], true_answers[:2]):
-#         ic(list(zip(STATES[1:3], true_answers)))
-#         if state.upper() in [
-#             "TAKE_QUIZ",
-#             "TAKE_MANUAL_TRAINING",
-#         ]:
-#             continue
-#         # load_session_state_mock()
-#         response = client.post("/", json=data)
-#         assert response.status_code == HTTP_200_OK, "Status code is not 200"
-#         assert (
-#             response.json()["response"]["text"][:1009] == answer[:1009]
-#         ), "Key value mismatch in response"
+def test_agree_commands(data, load_session_state_mock):
+    """Тест `agree` сценария навыка.
+
+    После старта навыка пользователь соглашается с предложениями навыка,
+    кроме "take_quiz" и "take_manual_training".
+
+    Args:
+        data: Данные для запроса.
+        load_session_state_mock: Мокнутая функция `load_session_state`.
+    """
+    skill.history = []
+    skill.progress = []
+
+    data["session"]["new"] = False
+    for state in STATES[1:]:
+        data["request"]["command"] = ServiceCommands.AGREE[0]
+        if state in [
+            "take_quiz",
+            "take_manual_training",
+        ]:
+            data["request"]["command"] = ServiceCommands.DISAGREE[0]
+            client.post("/", json=data)
+            continue
+        if state == "instructions_for_launching_podcast":
+            true_answer = compose_message(
+                answers_documents.get(
+                    "instructions_for_launching_podcast", ""
+                ),
+                after_answers_documents.get("about_training_course", ""),
+            )
+        else:
+            true_answer = compose_message(
+                get_answer_by_state(state, COMMANDS_STATES_ANSWERS_INTENTS),
+                get_after_answer_by_state(
+                    state, COMMANDS_STATES_ANSWERS_INTENTS
+                ),
+            )
+        load_session_state_mock()
+        response = client.post("/", json=data)
+        assert response.status_code == HTTP_200_OK, "Status code is not 200"
+        assert (
+            response.json()["response"]["text"][:1009] == true_answer[:1009]
+        ), "Key value mismatch in response"

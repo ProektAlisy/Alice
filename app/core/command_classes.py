@@ -325,7 +325,7 @@ class AgreeCommand(Command):
     def condition(self, intents: dict[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
         return (
-            command == ServiceCommands.AGREE or ServiceIntents.AGREE in intents
+            command in ServiceCommands.AGREE or ServiceIntents.AGREE in intents
         )
 
     def execute(

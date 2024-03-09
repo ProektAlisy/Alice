@@ -9,6 +9,10 @@ from app.constants.states import POSSIBILITIES_STATE, STATES
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
 from app.schemas import InnerResponse
+from typing import Tuple, List, TypeAlias
+
+
+CommandStructure: TypeAlias = list[tuple[str, str, str, str, str, str]]
 
 
 def next_state(state: str, states: list) -> str | None:
@@ -96,7 +100,7 @@ def get_disagree_answer_by_state(state: str, structure: tuple):
 
 
 def get_states_by_order(
-    states_com_ans: list[tuple[str, str, str, str, str, str]],
+    states_com_ans: CommandStructure,
 ) -> list[str]:
     """Возвращает список состояний.
 
@@ -166,7 +170,7 @@ def read_from_db(collection: Collection):
 
 def get_after_answer_by_state(
     state: str,
-    structure: list[tuple[str, str, str, str, str, str]],
+    structure: CommandStructure,
 ) -> str:
     """Возвращает соответствующий направляющий вопрос.
 
@@ -186,7 +190,7 @@ def get_after_answer_by_state(
 
 def get_answer_by_state(
     state: str,
-    structure: list[tuple[str, str, str, str, str, str]],
+    structure: CommandStructure,
 ) -> str:
     """Возвращает соответствующий ответ.
 
@@ -245,7 +249,7 @@ def get_last_in_history(
 
 def disagree_answer_by_state(
     state: str,
-    structure: list[tuple[str]],
+    structure: CommandStructure,
 ):
     """Возвращает соответствующий ответ.
 
@@ -318,19 +322,7 @@ def get_state_by_answer(
     return ""
 
 
-def get_state_by_after_answer(
-    after_answer: str,
-    structure: list[
-        tuple[
-            str,
-            str,
-            str,
-            str,
-            str,
-            str,
-        ]
-    ],
-):
+def get_state_by_after_answer(after_answer: str, structure: CommandStructure):
     """Возвращает соответствующее состояние.
 
     Args:
