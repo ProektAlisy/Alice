@@ -1,5 +1,6 @@
 import random
 from enum import IntEnum
+from pathlib import Path
 
 from app.constants.quiz.intents import QuizIntents
 from app.constants.quiz.messages import QuizMessages
@@ -7,7 +8,7 @@ from app.core.logger_initialize import logger
 from app.quiz.exceptions import QuizException
 from app.quiz.quiz import Quiz
 
-QUIZ_FILE_PATH = "app/constants/quiz/quiz.json"
+QUIZ_FILE_PATH = Path(__file__).resolve().parent / "quiz.json"
 
 
 class QuizState(IntEnum):
