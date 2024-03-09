@@ -1,6 +1,7 @@
 import random
 from enum import IntEnum
 from pathlib import Path
+from typing import Any
 
 from app.constants.quiz.intents import QuizIntents
 from app.constants.quiz.messages import QuizMessages
@@ -167,7 +168,7 @@ class QuizSkill:
 
     def _process_rules_state(
         self,
-        intents: dict[str],
+        intents: dict[str:Any],
         *args,
     ) -> tuple[bool, str]:
         """Обработчик первоначального показа правил."""
@@ -192,7 +193,7 @@ class QuizSkill:
 
     def _process_in_progress_state(
         self,
-        intents: dict[str],
+        intents: dict[str:Any],
         command: str,
     ) -> tuple[bool, str]:
         """Обработчик в режиме прогресса викторины."""
@@ -240,7 +241,7 @@ class QuizSkill:
 
     def _process_restart_state(
         self,
-        intents: dict[str],
+        intents: dict[str:Any],
         command: str,
     ) -> tuple[bool, str]:
         """Обработчик диалога викторины 'начать заново'."""
@@ -271,7 +272,7 @@ class QuizSkill:
 
     def _process_terminated_state(
         self,
-        intents: dict[str],
+        intents: dict[str:Any],
         *args,
     ) -> tuple[bool, str]:
         """Обработчик досрочно завершенной викторины."""
@@ -285,7 +286,7 @@ class QuizSkill:
 
     def _process_resume_state(
         self,
-        intents: dict[str],
+        intents: dict[str:Any],
         *args,
     ) -> tuple[bool, str]:
         """Обработчик диалога возобновления викторины."""
@@ -315,7 +316,7 @@ class QuizSkill:
     def execute_command(
         self,
         command: str,
-        intents: dict[str],
+        intents: dict[str:Any],
     ) -> tuple[bool, str]:
         """Анализ и исполнение команды/интента.
 
