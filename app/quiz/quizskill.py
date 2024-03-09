@@ -206,7 +206,7 @@ class QuizSkill:
             # досрочно завершить викторину
             self._state = QuizState.TERMINATED
             return True, self._get_current_result()
-        if command in "абв":
+        if command in ["а", "б", "в"]:
             # обработка ответа
             is_correct_answer = self._quiz.is_user_choice_correct(command)
             answer_result = self._get_answer_result(is_correct_answer)
