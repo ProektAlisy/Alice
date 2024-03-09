@@ -1,3 +1,5 @@
+from typing import Any
+
 from icecream import ic
 from pydantic import BaseModel
 from pymongo.collection import Collection
@@ -51,7 +53,7 @@ def find_previous_state(
 
 def get_states_by_command(
     command: str,
-    intents: dict[str],
+    intents: dict[str:Any],
     structure: tuple,
 ) -> str | None:
     """Возвращает состояние, соответствующее заданной команде.
