@@ -192,7 +192,7 @@ def get_after_answer_by_state(
 def get_answer_by_state(
     state: str,
     structure: list[tuple[str, str, str, str, str, str]],
-):
+) -> str:
     """Возвращает соответствующий ответ.
 
     Args:
@@ -201,7 +201,7 @@ def get_answer_by_state(
 
     Returns:
         Состояние, соответствующее команде. Если соответствующее состояние
-        не найдено, возвращает None.
+        не найдено, возвращает пустую строку "".
     """
     for state_com_ans in structure:
         ic(state_com_ans)
