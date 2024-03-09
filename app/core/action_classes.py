@@ -1,5 +1,3 @@
-from icecream import ic
-
 from app.constants.comands_states_answers import another_answers_documents
 from app.machine import FiniteStateMachine
 from app.schemas import ResponseData

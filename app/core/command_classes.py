@@ -2,8 +2,6 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
-from icecream import ic
-
 from app.constants.comands_states_answers import (
     ALL_COMMANDS,
     COMMANDS_STATES_ANSWERS_INTENTS,

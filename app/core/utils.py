@@ -1,6 +1,5 @@
-from typing import Any
+from typing import Any, TypeAlias
 
-from icecream import ic
 from pydantic import BaseModel
 from pymongo.collection import Collection
 
@@ -9,8 +8,6 @@ from app.constants.states import POSSIBILITIES_STATE, STATES
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
 from app.schemas import InnerResponse
-from typing import Tuple, List, TypeAlias
-
 
 CommandStructure: TypeAlias = list[tuple[str, str, str, str, str, str]]
 

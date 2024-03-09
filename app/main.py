@@ -7,7 +7,6 @@ import os
 import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from icecream import ic
 
 from app.core.action_classes import Action
 from app.core.command_classes import (

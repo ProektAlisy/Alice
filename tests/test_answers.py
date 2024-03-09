@@ -1,20 +1,19 @@
-from icecream import ic
 from starlette.status import HTTP_200_OK
 from starlette.testclient import TestClient
 
 from app.constants.comands_states_answers import (
+    COMMANDS_STATES_ANSWERS_INTENTS,
     after_answers_documents,
     another_answers_documents,
     answers_documents,
-    COMMANDS_STATES_ANSWERS_INTENTS,
 )
-from app.constants.commands import Commands, ServiceCommands, HelpCommands
+from app.constants.commands import Commands, ServiceCommands
 from app.constants.states import STATES
 from app.core.command_classes import skill
 from app.core.utils import (
-    get_answer_by_state,
-    get_after_answer_by_state,
     compose_message,
+    get_after_answer_by_state,
+    get_answer_by_state,
 )
 from app.main import application
 
@@ -58,7 +57,8 @@ def test_direct_commands(data, load_session_state_mock):
         if command_name == "INSTRUCTIONS_FOR_LAUNCHING_PODCAST":
             true_answer = compose_message(
                 answers_documents.get(
-                    "instructions_for_launching_podcast", ""
+                    "instructions_for_launching_podcast",
+                    "",
                 ),
                 after_answers_documents.get("about_training_course", ""),
             )
@@ -99,7 +99,8 @@ def test_agree_commands(data, load_session_state_mock):
         if state == "instructions_for_launching_podcast":
             true_answer = compose_message(
                 answers_documents.get(
-                    "instructions_for_launching_podcast", ""
+                    "instructions_for_launching_podcast",
+                    "",
                 ),
                 after_answers_documents.get("about_training_course", ""),
             )
@@ -107,7 +108,8 @@ def test_agree_commands(data, load_session_state_mock):
             true_answer = compose_message(
                 get_answer_by_state(state, COMMANDS_STATES_ANSWERS_INTENTS),
                 get_after_answer_by_state(
-                    state, COMMANDS_STATES_ANSWERS_INTENTS
+                    state,
+                    COMMANDS_STATES_ANSWERS_INTENTS,
                 ),
             )
         load_session_state_mock()
