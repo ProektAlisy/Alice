@@ -1,22 +1,20 @@
+![YaMdB workflow](https://github.com/ProektAlisy/Alice/actions/workflows/yamdb_workflow.yml/badge.svg)
 # Alice
 Навык для голосового помощника Алиса
 
 ### Запуск проекта локально:
 
-- В дирректории `Alice/` создать виртуальное окружение:
+- В директории `Alice/` создать виртуальное окружение:
 
 `python -m venv venv`
 
 - Активировать виртуальное окружение:
 
 * Если у вас Linux/macOS:
-
     ```
     source venv/bin/activate
     ```
-
 * Если у вас windows:
-
     ```
     source venv/scripts/activate
     ```
@@ -36,6 +34,10 @@ ngrok http 8000
 ```
 python db_loader.py
 ```
+- Запустить проект:
+```
+uvicorn app.main:application --reload
+```
 
 ## Запуск проекта локально через docker-compose:
 
@@ -44,13 +46,13 @@ python db_loader.py
 MONGO_TEST_HOST="localhost"
 MONGO_TEST_USER="root"
 MONGO_TEST_PASSWORD="example"
-ME_CONFIG_MONGODB_ADMINUSERNAME="adminUser"
-ME_CONFIG_MONGODB_ADMINPASSWORD="adminPassword"
+ME_CONFIG_MONGODB_ADMINUSERNAME="adminuser"
+ME_CONFIG_MONGODB_ADMINPASSWORD="adminpassword"
 ME_CONFIG_MONGODB_URL="www.guidedogs.acceleratorpracticum.ru"
-MONGO_INITDB_ROOT_USERNAME="adminUser"
-MONGO_INITDB_ROOT_PASSWORD="adminPassword"
+MONGO_INITDB_ROOT_USERNAME="adminuser"
+MONGO_INITDB_ROOT_PASSWORD="adminpassword"
 MONGO_PORT="27017"
-SENTRY_DSN="https://87ba21cb41516820d19f45fe4cac1245@o4506869082357760.ingest.us.sentry.io/4506869085634560"
+SENTRY_DSN="https://somedsn"
 ```
 Эти же константы прописываем в GitHub Actions.
 
@@ -68,31 +70,43 @@ cd infra
 ```
 docker-compose up -d --build 
 ```
-
-
-- Наполнить БД ответами пользователю на сервере происходит автоматически, после изменений и команды git push в ветке main или develop.
-
-- Запустить проект:
+Наполняем базу данных:
 ```
-uvicorn app.main:application --reload
+sudo docker exec alice_app-app-1 python app/monga/db_loader.py
 ```
 
-- Создание и запуск проект через Docker-Compose (нужно находится в папке /infra):
+## Запуск проекта на сервере через docker-compose и GitHub Actions:
+Копируем файлы docker-compose и конфигурации nginx выполнив команду:
+```
+scp -r infra/* username@server:/home/alice_app/
+```
+- Автоматический деплой происходит при команде git push в ветку develop или main.
+- Предварительно проходит проверка flake8 и автотесты.
+- Базы данных наполнятся автоматически.
+
+## Если автоматического развёртывания не произошло:
+Копируем файлы docker-compose и конфигурации nginx выполнив команду:
+```
+scp -r infra/* username@server:/home/alice_app/
+```
+Переходим в папку c docker-compose:
+```
+cd ..
+cd home/alice_app/
+```
+Запускаем приложение командой:
 ```
 docker-compose up -d --build
 ```
-- Скопировать временный URL из ngrok и вставить его в настройки навыка Яндекс.Диалоги(Webhook URL)
 
-- Для копирования файлов docker-compose и конфигурации nginx выполните команду:
+
+- Если поменяется домен, то необходимо изменить домен в файле settings.py:
 ```
-scp -r infra/* root@80.87.108.69:/home/alice_app/
+BASE_AUDIO_URL = "https://www.new_addres.ru/"
+
 ```
 
-- Деплой происходит при команде git push.
-
-- Предварительно проходит проверка flake8 и автотесты.
-
-# Получение сертификата
+## Получение сертификата при смене домена
 
 Чтобы начать процесс получения сертификата, введите команду:
 ```
