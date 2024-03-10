@@ -37,6 +37,8 @@ ngrok http 8000
 python db_loader.py
 ```
 
+## Запуск проекта локально через docker-compose:
+
 ### Шаблон наполнения env-файла:
 ```
 MONGO_TEST_HOST="localhost"
