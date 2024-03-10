@@ -54,7 +54,6 @@ MONGO_INITDB_ROOT_PASSWORD="adminpassword"
 MONGO_PORT="27017"
 SENTRY_DSN="https://somedsn"
 ```
-Эти же константы прописываем в GitHub Actions.
 
 
 ### Как запустить проект:
@@ -80,16 +79,35 @@ sudo docker exec alice_app-app-1 python app/monga/db_loader.py
 ```
 scp -r infra/* username@server:/home/alice_app/
 ```
+
+### Используя этот шаблон наполнения env-файла прописываем константы в GitHub Actions:
+```
+MONGO_TEST_HOST="localhost"
+MONGO_TEST_USER="root"
+MONGO_TEST_PASSWORD="example"
+ME_CONFIG_MONGODB_ADMINUSERNAME="adminuser"
+ME_CONFIG_MONGODB_ADMINPASSWORD="adminpassword"
+ME_CONFIG_MONGODB_URL="www.guidedogs.acceleratorpracticum.ru"
+MONGO_INITDB_ROOT_USERNAME="adminuser"
+MONGO_INITDB_ROOT_PASSWORD="adminpassword"
+MONGO_PORT="27017"
+SENTRY_DSN="https://somedsn"
+```
+
 - Автоматический деплой происходит при команде git push в ветку develop или main.
 - Предварительно проходит проверка flake8 и автотесты.
 - Базы данных наполнятся автоматически.
 
 ## Если автоматического развёртывания не произошло:
+Копируем проект:
+```
+git clone https://github.com/ProektAlisy/Alice.git
+```
 Копируем файлы docker-compose и конфигурации nginx выполнив команду:
 ```
 scp -r infra/* username@server:/home/alice_app/
 ```
-Переходим в папку c docker-compose:
+Переходим на сервере в папку c docker-compose:
 ```
 cd ..
 cd home/alice_app/
@@ -98,8 +116,16 @@ cd home/alice_app/
 ```
 docker-compose up -d --build
 ```
+Наполняем базу данных:
+```
+sudo docker exec alice_app-app-1 python app/monga/db_loader.py
+```
+Проверить запущенные контейнеры можно командой:
+```
+docker-compose ps
+```
 
-- Если поменяется домен, то необходимо изменить домен в файле settings.py:
+Если поменяется домен, то необходимо изменить домен в файле settings.py:
 ```
 BASE_AUDIO_URL = "https://www.new_addres.ru/"
 ```
