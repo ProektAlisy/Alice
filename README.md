@@ -1,4 +1,4 @@
-![YaMdB workflow](https://github.com/ProektAlisy/Alice/actions/workflows/yamdb_workflow.yml/badge.svg)
+[![Alice-app workflow](https://github.com/ProektAlisy/Alice/actions/workflows/main.yml/badge.svg)](https://github.com/ProektAlisy/Alice/actions/workflows/main.yml)
 # Alice
 Навык для голосового помощника Алиса
 
@@ -99,11 +99,9 @@ cd home/alice_app/
 docker-compose up -d --build
 ```
 
-
 - Если поменяется домен, то необходимо изменить домен в файле settings.py:
 ```
 BASE_AUDIO_URL = "https://www.new_addres.ru/"
-
 ```
 
 ## Получение сертификата при смене домена
