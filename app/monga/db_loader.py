@@ -21,7 +21,6 @@ folders = [
     "disagree_answers",
     "another_answers",
 ]
-
 answers_collection.create_index("key", unique=True)
 after_answers_collection.create_index("key", unique=True)
 disagree_answers_collection.create_index("key", unique=True)

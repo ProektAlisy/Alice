@@ -2,8 +2,6 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
-from icecream import ic
-
 from app.constants.comands_states_answers import (
     ALL_COMMANDS,
     COMMANDS_STATES_ANSWERS_INTENTS,
@@ -308,7 +306,6 @@ class AllCommandsCommand(Command):
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
-        ic(self.skill.progress)
         result = self.command_instance.execute(
             self.skill,
             get_states_by_command(
@@ -326,7 +323,7 @@ class AgreeCommand(Command):
     def condition(self, intents: dict[str], command: str, is_new: bool):
         """Условие запуска `execute`."""
         return (
-            command == ServiceCommands.AGREE or ServiceIntents.AGREE in intents
+            command in ServiceCommands.AGREE or ServiceIntents.AGREE in intents
         )
 
     def execute(
@@ -431,7 +428,7 @@ class HelpCommandsCommand(Command):
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = False
-        result = self.skill._get_answer(
+        result = self.skill.get_answer(
             get_states_by_command(
                 command,
                 intents,

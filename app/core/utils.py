@@ -1,6 +1,5 @@
-from typing import Any
+from typing import Any, TypeAlias
 
-from icecream import ic
 from pydantic import BaseModel
 from pymongo.collection import Collection
 
@@ -9,6 +8,8 @@ from app.constants.states import POSSIBILITIES_STATE, STATES
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
 from app.schemas import InnerResponse
+
+CommandStructure: TypeAlias = list[tuple[str, str, str, str, str, str]]
 
 
 def next_state(state: str, states: list) -> str | None:
@@ -45,10 +46,12 @@ def find_previous_state(
     Returns:
         Предыдущее состояние или None.
     """
-    index = ordered_states.index(state)
-    if index > 0:
+    try:
+        index = ordered_states.index(state)
         return ordered_states[index - 1]
-    return ordered_states[-1]  # Если элемент является первым в списке
+    except ValueError:
+        logger.error(f"State {state} not found in {ordered_states}")
+        return None
 
 
 def get_states_by_command(
@@ -94,7 +97,7 @@ def get_disagree_answer_by_state(state: str, structure: tuple):
 
 
 def get_states_by_order(
-    states_com_ans: list[tuple[str, str, str, str, str, str]],
+    states_com_ans: CommandStructure,
 ) -> list[str]:
     """Возвращает список состояний.
 
@@ -108,16 +111,7 @@ def get_states_by_order(
 
 
 def get_all_commands(
-    structure: list[
-        tuple[
-            str,
-            str,
-            str,
-            str,
-            str,
-            str,
-        ],
-    ],
+    structure: list[tuple[str, str, str, str, str, str],],
 ) -> list[str]:
     """Возвращает список команд.
 
@@ -173,7 +167,7 @@ def read_from_db(collection: Collection):
 
 def get_after_answer_by_state(
     state: str,
-    structure: list[tuple[str]],
+    structure: CommandStructure,
 ) -> str:
     """Возвращает соответствующий направляющий вопрос.
 
@@ -193,7 +187,7 @@ def get_after_answer_by_state(
 
 def get_answer_by_state(
     state: str,
-    structure: list[tuple[str, str, str, str, str, str]],
+    structure: CommandStructure,
 ) -> str:
     """Возвращает соответствующий ответ.
 
@@ -206,7 +200,6 @@ def get_answer_by_state(
         не найдено, возвращает пустую строку "".
     """
     for state_com_ans in structure:
-        ic(state_com_ans)
         if state_com_ans[1] == state:
             return state_com_ans[2]
     return ""
@@ -245,7 +238,6 @@ def get_last_in_history(
         Последнее действие из истории.
     """
     try:
-        ic(history)
         result = history[-1]
     except (IndexError, TypeError):
         result = STATES[1]
@@ -254,7 +246,7 @@ def get_last_in_history(
 
 def disagree_answer_by_state(
     state: str,
-    structure: list[tuple[str]],
+    structure: CommandStructure,
 ):
     """Возвращает соответствующий ответ.
 
@@ -327,10 +319,7 @@ def get_state_by_answer(
     return ""
 
 
-def get_state_by_after_answer(
-    after_answer: str,
-    structure: list[tuple[str]],
-):
+def get_state_by_after_answer(after_answer: str, structure: CommandStructure):
     """Возвращает соответствующее состояние.
 
     Args:

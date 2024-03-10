@@ -7,7 +7,6 @@ import os
 import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from icecream import ic
 
 from app.core.action_classes import Action
 from app.core.command_classes import (
@@ -81,7 +80,7 @@ async def root(data: RequestData) -> ResponseData:
         if command_obj.condition(intents, command, is_new):
             result = command_obj.execute(intents, command, is_new)
             break
-    ic(command, skill.progress, skill.history)
+    # ic(command, skill.progress, skill.history)
     skill.previous_command = command
     # возможно тут надо повторно выполнить dump_session_state
     # т.к. поменялись progress
