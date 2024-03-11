@@ -3,6 +3,7 @@ import json
 import pytest
 
 from app.constants.quiz.intents import QuizIntents
+from app.constants.quiz.messages import QuizMessages
 from app.quiz.exceptions import (
     QuizFileNotFoundAliceException,
     QuizFileWrongAnswerAliceException,
@@ -67,6 +68,13 @@ quiz_state_restart = {
     "current_question_number": 3,
     "mistakes_count": 1,
     "state": int(QuizState.RESTART),
+}
+
+quiz_state_finished_mistakes_0 = {
+    "questions_order": [2, 1, 0],
+    "current_question_number": 3,
+    "mistakes_count": 0,
+    "state": int(QuizState.FINISHED),
 }
 
 
@@ -489,3 +497,51 @@ def test_quiz_skill_resume_transitions(
     assert (
         quiz_skill._state == new_state
     ), f"Ошибка перехода из RESUME по команде {intent}"
+
+
+@pytest.mark.parametrize(
+    "mistakes_count, expected_result",
+    [
+        (0, QuizMessages.RESULT_EXCELLENT.format(total=3)),
+        (1, QuizMessages.RESULT_GOOD_1),
+        (2, QuizMessages.RESULT_GOOD_2),
+        (3, QuizMessages.RESULT_NOT_BAD_3_4.format(mistakes=3)),
+        (4, QuizMessages.RESULT_NOT_BAD_3_4.format(mistakes=4)),
+        (5, QuizMessages.RESULT_BAD.format(mistakes=5)),
+        (6, QuizMessages.RESULT_BAD.format(mistakes=6)),
+        (7, QuizMessages.RESULT_VERY_BAD.format(mistakes=7)),
+        (11, QuizMessages.RESULT_VERY_BAD.format(mistakes=11)),
+    ],
+)
+def test_quiz_skill_get_final_result(
+    mistakes_count: int,
+    expected_result: str,
+):
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_finished_mistakes_0)
+    quiz_skill._quiz._mistakes_count = mistakes_count
+    result = quiz_skill._get_final_result()
+    assert result == expected_result, "Неверное сообщение результата"
+
+
+@pytest.mark.parametrize(
+    "mistakes_count, expected_result",
+    [
+        (0, QuizMessages.PARTIAL_RESULT_0),
+        (1, QuizMessages.PARTIAL_RESULT_1),
+        (2, QuizMessages.PARTIAL_RESULT_NOT_BAD.format(mistakes="две")),
+        (3, QuizMessages.PARTIAL_RESULT_NOT_BAD.format(mistakes="3")),
+        (4, QuizMessages.PARTIAL_RESULT_NOT_BAD.format(mistakes="4")),
+        (5, QuizMessages.PARTIAL_RESULT_BAD.format(mistakes=5)),
+        (11, QuizMessages.PARTIAL_RESULT_BAD.format(mistakes=11)),
+    ],
+)
+def test_quiz_skill_get_partial_result(
+    mistakes_count: int,
+    expected_result: str,
+):
+    quiz_skill = QuizSkill(filename="tests/quiz_patterns/quiz_ok.json")
+    quiz_skill.load_state(quiz_state_finished_mistakes_0)
+    quiz_skill._quiz._mistakes_count = mistakes_count
+    result = quiz_skill._get_partial_result()
+    assert result == expected_result, "Неверное сообщение результата"

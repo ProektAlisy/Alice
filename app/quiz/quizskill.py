@@ -53,7 +53,7 @@ class QuizSkill:
         match self._quiz.mistakes_count:
             case 0:
                 return QuizMessages.RESULT_EXCELLENT.format(
-                    self._quiz.current_question_number - 1,
+                    total=self._quiz.current_question_number - 1,
                 )
             case 1:
                 return QuizMessages.RESULT_GOOD_1
