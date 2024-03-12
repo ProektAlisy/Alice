@@ -5,16 +5,16 @@
 ### Запуск проекта локально:
 
 - В директории `Alice/` создать виртуальное окружение:
-
-`python -m venv venv`
-
+```
+python -m venv venv
+```
 - Активировать виртуальное окружение:
 
-* Если у вас Linux/macOS:
+  * Если у вас Linux/macOS:
     ```
     source venv/bin/activate
     ```
-* Если у вас windows:
+  * Если у вас windows:
     ```
     source venv/scripts/activate
     ```
@@ -23,13 +23,11 @@
 ```
 pip install -r requirements.txt
 ```
-
 - Создать туннель ngrok:
 ```
 ngrok http 8000
 ```
 - Запустить MongoDB.
-
 - Наполнить БД ответами пользователю:
 ```
 python db_loader.py
