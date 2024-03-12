@@ -8,6 +8,7 @@ import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
+from app.constants.comands_states_answers import another_answers_documents
 from app.core.action_classes import Action
 from app.core.command_classes import (
     AgreeCommand,
@@ -23,6 +24,7 @@ from app.core.command_classes import (
     QuizSetState,
     RepeatCommand,
     skill,
+    DontUnderstandCommand,
 )
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
@@ -74,8 +76,9 @@ async def root(data: RequestData) -> ResponseData:
         DisagreeCommand(skill, command_instance),
         HelpCommandsCommand(skill, command_instance),
         ExitCommand(skill, command_instance),
+        DontUnderstandCommand(skill, command_instance),
     ]
-    result = skill.get_output(skill.dont_understand())
+    result = another_answers_documents.get("someting_went_wrong")
     for command_obj in commands:
         if command_obj.condition(intents, command, is_new):
             result = command_obj.execute(intents, command, is_new)

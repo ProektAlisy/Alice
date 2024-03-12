@@ -258,23 +258,6 @@ class FiniteStateMachine:
             COMMANDS_STATES_ANSWERS_INTENTS,
         )
 
-    def dont_understand(self) -> str:
-        """Обработка ответов, когда система не понимает пользователя.
-
-        Увеличивает счетчик ответов и устанавливает сообщение
-        в зависимости от счетчика.
-        """
-        self.incorrect_answers += 1
-        if self.incorrect_answers <= 1:
-            return another_answers_documents.get(
-                "dont_understand_the_first_time",
-                "",
-            )
-        return another_answers_documents.get(
-            "dont_understand_more_than_once",
-            "",
-        )
-
     def _dump_states(
         self,
         states: list[str],
@@ -361,6 +344,7 @@ class FiniteStateMachine:
             "history": self._dump_states(self.history, ORDERED_STATES),
             "training": self.manual_training.dump_state(),
             "previous_command": self.previous_command,
+            "incorrect_answers": self.incorrect_answers,
         }
 
     def load_session_state(self, session_state: dict) -> None:
@@ -369,6 +353,7 @@ class FiniteStateMachine:
         if QUIZ_SESSION_STATE_KEY in session_state:
             quiz_state = session_state.pop(QUIZ_SESSION_STATE_KEY)
         self.quiz_skill.load_state(quiz_state)
+        self.incorrect_answers = session_state.get("incorrect_answers", 0)
         # тут возможна загрузка других ключей при необходимости
         dumped_progress = session_state.get("progress", [])
         self.progress = self._load_states(dumped_progress, ORDERED_STATES)
