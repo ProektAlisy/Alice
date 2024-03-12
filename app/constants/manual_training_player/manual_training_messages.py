@@ -1,5 +1,7 @@
 from typing import Final
 
+from app import settings
+
 
 class ManualPlayerMessages:
     def __setattr__(self, key, value):
@@ -25,8 +27,6 @@ class ManualPlayerMessages:
         "Начинаю проигрывание главы номер "
         "{chapter_number} - {chapter_name}."
     )
-    AUDIO_URL: Final = (
-        "https://www.guidedogs.acceleratorpracticum.ru/" "{chapter_name}.mp3"
-    )
+    CHAPTER_AUDIO_URL: Final = f"{settings.BASE_AUDIO_URL}""{chapter_name}.mp3"
     CONTENT: Final = "Оглавление: sil <[300]>"
     CONTENT_CHAPTER: Final = "Глава {chapter_num} - {title}. sil <[300]>"
