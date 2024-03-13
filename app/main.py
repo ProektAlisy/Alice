@@ -15,6 +15,7 @@ from app.core.command_classes import (
     AliceCommandsCommand,
     AllCommandsCommand,
     DisagreeCommand,
+    DontUnderstandCommand,
     ExitCommand,
     GreetingsCommand,
     HelpCommandsCommand,
@@ -24,7 +25,6 @@ from app.core.command_classes import (
     QuizSetState,
     RepeatCommand,
     skill,
-    DontUnderstandCommand,
 )
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
