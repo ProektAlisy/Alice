@@ -416,7 +416,7 @@ class HelpCommandsCommand(Command):
 
     def condition(self, intents: dict[str], command: str, is_new: bool):
         """Условие для запуска `execute`."""
-        return command.lower() in HELP_COMMANDS or INTENTS.get_available(
+        return command.lower() in HELP_COMMANDS or INTENTS.get_help_available(
             intents,
         )
 
@@ -435,4 +435,32 @@ class HelpCommandsCommand(Command):
                 HELP_COMMANDS_STATES_ANSWERS_INTENTS,
             ),
         )
+        return skill.get_output(result)
+
+
+class DontUnderstandCommand(Command):
+    """Работа с непонятными командами."""
+
+    def condition(self, intents: dict[str], command: str, is_new: bool):
+        """Условие для запуска `execute`."""
+        return True
+
+    def execute(
+        self,
+        intents: dict[str],
+        command: str,
+        is_new: bool,
+    ) -> ResponseData:
+        """Получение соответствующего ответа."""
+        self.skill.is_to_progress = False
+        skill.incorrect_answers += 1
+        keys = [
+            "dont_understand_the_first_time",
+            "dont_understand_the_second_time",
+            "dont_understand_more_than_two_times",
+        ]
+        print(skill.incorrect_answers)
+        # Выбираем ключ в зависимости от количества неправильных ответов
+        key = keys[min(skill.incorrect_answers, len(keys)) - 1]
+        result = another_answers_documents.get(key, "")
         return skill.get_output(result)

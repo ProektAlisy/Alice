@@ -57,6 +57,12 @@ def test_process_request_play(manual_player):
         chapter_name="Вступление",
     )
     assert manual_player.is_playing is True
+    assert (
+        manual_player.start_audio_playback("1")[-1]["audio_player"]["item"][
+            "stream"
+        ]["url"]
+        == "https://www.guidedogs.acceleratorpracticum.ru/00-vstuplenie.mp3"
+    )
 
 
 def test_process_request_pause(manual_player_with_chapter):
