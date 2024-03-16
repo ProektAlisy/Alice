@@ -118,14 +118,17 @@ class ManualTrainingPlayer:
     def start_audio_playback(self, chapter_number):
         token_info = self.token_offsets.get(chapter_number)
         if token_info is None:
+            self.token_offsets.clear()
             token = str(uuid.uuid4())
             self.token_offsets[chapter_number] = {
                 "token": token,
                 "offset_ms": 0,
             }
+            self.current_token = token
         else:
-            token = token_info["token"]
-        self.current_token = token
+            self.current_token = token_info
+            # token = token_info["token"]
+        # self.current_token = token
         offset_ms = self.token_offsets[chapter_number]["offset_ms"]
         self.audio_playback_start_time = int(time.time() * 1000)
         self.is_playing = True
@@ -187,8 +190,7 @@ class ManualTrainingPlayer:
         if self.is_playing:
             stop_time_ms = int(time.time() * 1000)
             elapsed_time_ms = stop_time_ms - self.audio_playback_start_time
-            token = self.current_token
-            if token in self.token_offsets[self.current_chapter]["token"]:
+            if self.current_chapter in self.token_offsets:
                 self.token_offsets[self.current_chapter][
                     "offset_ms"
                 ] += elapsed_time_ms
