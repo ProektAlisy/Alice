@@ -26,8 +26,8 @@ after_answers_collection.create_index("key", unique=True)
 disagree_answers_collection.create_index("key", unique=True)
 another_answers_collection.create_index("key", unique=True)
 
-path = Path("", "constants")
-paths = [path / folder for folder in folders]
+constants_path = Path(__file__).resolve().parent.parent / "constants"
+paths = [constants_path / folder for folder in folders]
 
 
 def write_to_db(file_path, collection):
