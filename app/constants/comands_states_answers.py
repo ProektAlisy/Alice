@@ -42,3 +42,8 @@ HELP_COMMANDS_STATES_ANSWERS_INTENTS = [
 HELP_COMMANDS = get_all_commands(HELP_COMMANDS_STATES_ANSWERS_INTENTS)
 
 ORDERED_STATES = get_states_by_order(COMMANDS_STATES_ANSWERS_INTENTS)
+
+ERROR_MESSAGE = another_answers_documents.get(
+    "someting_went_wrong",
+    "Что-то пошло не так. Попробуйте, пожалуйста попозже.",
+)

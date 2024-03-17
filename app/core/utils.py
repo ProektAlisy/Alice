@@ -7,7 +7,7 @@ from app.constants.commands import ALICE_COMMANDS
 from app.constants.states import POSSIBILITIES_STATE, STATES
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
-from app.schemas import InnerResponse
+from app.schemas import InnerResponse, ResponseData
 
 CommandStructure: TypeAlias = list[tuple[str, str, str, str, str, str]]
 
@@ -352,3 +352,33 @@ def limit_response_text_length(
             "TEXT LENGTH ERROR: {} for {}".format(text_len, response.text),
         )
         response.text = response.text[: max_length - 3] + "..."
+
+
+def get_error_response(
+    answer_text,
+    directives=None,
+    end_session=False,
+    session_state=None,
+) -> ResponseData:
+    """Возвращает ответ для случая ошибки (исключения).
+
+    Args:
+        answer_text: Текст ответа.
+        directives: Команды для аудиоплеера.
+        end_session: Ключ для завершения сессии.
+        session_state: Параметры для сохранения в сессии навыка.
+    """
+    if not answer_text:
+        answer_text = "Непредвиденная ошибка, попробуйте попозже."
+    if session_state is None:
+        session_state = {}
+    return ResponseData(
+        response=InnerResponse(
+            text=answer_text,
+            end_session=end_session,
+            directives=directives,
+        ),
+        # возможно нет смысла сохранять состояние сессии при ошибке
+        session_state=session_state,
+        version="1.0",
+    )
