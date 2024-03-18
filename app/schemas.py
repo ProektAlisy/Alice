@@ -8,6 +8,12 @@ class RequestData(BaseModel):
     request: dict
     state: Optional[dict]
 
+    def is_audio_player_type(self) -> bool:
+        return self.request["type"].startswith("AudioPlayer")
+
+    def is_simple_utterance_type(self) -> bool:
+        return self.request["type"] == "SimpleUtterance"
+
 
 class InnerResponse(BaseModel):
     text: str
