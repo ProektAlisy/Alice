@@ -9,13 +9,13 @@ from app.constants.comands_states_answers import (
 )
 from app.constants.commands import Commands, ServiceCommands
 from app.constants.states import STATES
-from app.core.command_classes import skill
 from app.core.utils import (
     compose_message,
     get_after_answer_by_state,
     get_answer_by_state,
 )
 from app.main import application
+from app.skill import skill
 
 client = TestClient(application)
 
