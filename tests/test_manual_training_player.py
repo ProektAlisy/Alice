@@ -73,6 +73,7 @@ def test_process_request_pause(manual_player_with_chapter):
     )
     assert response == ManualPlayerMessages.PLAYBACK_STOP
     assert manual_player_with_chapter.is_playing is False
+    assert manual_player_with_chapter.is_finish is False
 
 
 def test_process_request_resume(manual_player_with_chapter):
