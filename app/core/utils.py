@@ -266,12 +266,17 @@ def disagree_answer_by_state(
 
 def check_api(data: BaseModel) -> None:
     try:
-        _ = data.request["command"]
-        _ = data.request["nlu"]
+        _ = data.request["type"]
         _ = data.session["new"]
         _ = data.state["session"]
     except KeyError:
         raise APIError
+    if data.is_simple_utterance_type():
+        try:
+            _ = data.request["command"]
+            _ = data.request["nlu"]
+        except KeyError:
+            raise APIError
 
 
 def get_api_data(data: BaseModel) -> tuple[str, dict[str], bool, dict[str]]:
