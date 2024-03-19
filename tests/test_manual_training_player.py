@@ -57,6 +57,7 @@ def test_process_request_play(manual_player):
         chapter_name="Вступление",
     )
     assert manual_player.is_playing is True
+    assert manual_player.is_finish is False
     assert (
         manual_player.start_audio_playback("1")[-1]["audio_player"]["item"][
             "stream"
@@ -87,6 +88,7 @@ def test_process_request_resume(manual_player_with_chapter):
     )
     assert manual_player_with_chapter.is_playing is True
     assert manual_player_with_chapter.greetings is True
+    assert manual_player_with_chapter.is_finish is False
 
 
 def test_pause_resume_after_5_seconds(manual_player_with_chapter):
@@ -112,6 +114,7 @@ def test_pause_resume_after_5_seconds(manual_player_with_chapter):
     )
     assert offset_ms2 == 5000
     assert manual_player_with_chapter.is_playing is True
+    assert manual_player_with_chapter.is_finish is False
 
 
 def test_get_chapter_info_empty(manual_player_with_chapter):
@@ -144,6 +147,7 @@ def test_terminate_training(manual_player_with_chapter):
         {"terminate_manual_training"},
     )
     assert response == ManualPlayerMessages.TRAINING_COMPLETED
+    assert manual_player_with_chapter.is_finish is True
 
 
 def test_training_finished(manual_player):
@@ -157,3 +161,4 @@ def test_training_finished(manual_player):
         {"next_manual_training_chapter"},
     )
     assert response == ManualPlayerMessages.MANUAL_END
+    assert manual_player.is_finish is False
