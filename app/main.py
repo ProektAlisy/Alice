@@ -8,7 +8,10 @@ import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
-from app.constants.comands_states_answers import ERROR_MESSAGE
+from app.constants.comands_states_answers import (
+    ERROR_MESSAGE,
+    ERROR_MESSAGE_YANDEX,
+)
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
 from app.core.utils import check_api, get_error_response
@@ -38,7 +41,7 @@ async def root(data: RequestData) -> ResponseData:
     except APIError:
         logger.error("Invalid request format!")
         return get_error_response(
-            "Технические проблемы на стороне Яндекса. Попробуйте позже.",
+            ERROR_MESSAGE_YANDEX,
         )
     try:
         result = get_skill_response(data)

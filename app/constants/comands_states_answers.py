@@ -47,3 +47,4 @@ ERROR_MESSAGE = another_answers_documents.get(
     "someting_went_wrong",
     "Что-то пошло не так. Попробуйте, пожалуйста попозже.",
 )
+ERROR_MESSAGE_YANDEX = another_answers_documents.get("error_yandex")
