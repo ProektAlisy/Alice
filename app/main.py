@@ -8,28 +8,12 @@ import sentry_sdk
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
-from app.constants.comands_states_answers import another_answers_documents
-from app.core.action_classes import Action
-from app.core.command_classes import (
-    AgreeCommand,
-    AliceCommandsCommand,
-    AllCommandsCommand,
-    DisagreeCommand,
-    DontUnderstandCommand,
-    ExitCommand,
-    GreetingsCommand,
-    HelpCommandsCommand,
-    ManualTrainingCommand,
-    ManualTrainingSetState,
-    QuizCommand,
-    QuizSetState,
-    RepeatCommand,
-    skill,
-)
+from app.constants.comands_states_answers import ERROR_MESSAGE
 from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
-from app.core.utils import check_api, get_api_data, limit_response_text_length
+from app.core.utils import check_api, get_error_response
 from app.schemas import RequestData, ResponseData
+from app.skill import get_skill_response
 
 load_dotenv()
 
@@ -49,46 +33,18 @@ application = FastAPI()
 )
 async def root(data: RequestData) -> ResponseData:
     request_data = data.model_dump()
-
     try:
         check_api(data)
     except APIError:
         logger.error("Invalid request format!")
-        return skill.get_output(
+        return get_error_response(
             "Технические проблемы на стороне Яндекса. Попробуйте позже.",
         )
-    command, intents, is_new, session_state = get_api_data(data)
-    skill.load_session_state(session_state)
-    skill.command = command
-    skill.intents = intents
-    command_instance = Action()
-
-    commands = [
-        QuizSetState(skill, command_instance),
-        QuizCommand(skill, command_instance),
-        ManualTrainingSetState(skill, command_instance),
-        ManualTrainingCommand(skill, command_instance),
-        GreetingsCommand(skill, is_new),
-        RepeatCommand(skill, command_instance),
-        AliceCommandsCommand(skill, command_instance),
-        AllCommandsCommand(skill, command_instance),
-        AgreeCommand(skill, command_instance),
-        DisagreeCommand(skill, command_instance),
-        HelpCommandsCommand(skill, command_instance),
-        ExitCommand(skill, command_instance),
-        DontUnderstandCommand(skill, command_instance),
-    ]
-    result = another_answers_documents.get("someting_went_wrong")
-    for command_obj in commands:
-        if command_obj.condition(intents, command, is_new):
-            result = command_obj.execute(intents, command, is_new)
-            break
-    # ic(command, skill.progress, skill.history)
-    skill.previous_command = command
-    # возможно тут надо повторно выполнить dump_session_state
-    # т.к. поменялись progress
-    result.session_state = skill.dump_session_state()
-    limit_response_text_length(result.response)
+    try:
+        result = get_skill_response(data)
+    except Exception as e:
+        logger.exception(e, exc_info=True)
+        result = get_error_response(ERROR_MESSAGE)
     logger.info(
         "HISTORY",
         extra={
