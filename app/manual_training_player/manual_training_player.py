@@ -91,27 +91,31 @@ class ManualTrainingPlayer:
         return self.get_response(no_chapter_text)
 
     def get_chapter_name(self, intents):
-        chapter_number = intents["get_manual_training_chapter_info"]["slots"][
-            "chapter"
-        ]["value"]
-        if chapter_number:
-            try:
-                chapter_number = int(chapter_number)
-                chapter_name = self.get_chapter_name_by_number(chapter_number)
-                if chapter_name:
-                    chapter_name_text = (
-                        ManualPlayerMessages.CHAPTER_NAME.format(
-                            chapter_number=chapter_number,
-                            chapter_name=chapter_name,
+        try:
+            chapter_number = intents["get_manual_training_chapter_info"]["slots"][
+                "chapter"
+            ]["value"]
+            if chapter_number:
+                try:
+                    chapter_number = int(chapter_number)
+                    chapter_name = self.get_chapter_name_by_number(chapter_number)
+                    if chapter_name:
+                        chapter_name_text = (
+                            ManualPlayerMessages.CHAPTER_NAME.format(
+                                chapter_number=chapter_number,
+                                chapter_name=chapter_name,
+                            )
                         )
-                    )
-                    return self.get_response(chapter_name_text)
-                no_chapter_text = ManualPlayerMessages.CHAPTER_NUMBER_NOT_FOUND
-                return self.get_response(no_chapter_text)
-            except ValueError:
-                error_text = ManualPlayerMessages.INVALID_CHAPTER_NUMBER
+                        return self.get_response(chapter_name_text)
+                    no_chapter_text = ManualPlayerMessages.CHAPTER_NUMBER_NOT_FOUND
+                    return self.get_response(no_chapter_text)
+                except ValueError:
+                    error_text = ManualPlayerMessages.INVALID_CHAPTER_NUMBER
+                    return self.get_response(error_text)
+            else:
+                error_text = ManualPlayerMessages.NO_CHAPTER_NUMBER
                 return self.get_response(error_text)
-        else:
+        except KeyError:
             error_text = ManualPlayerMessages.NO_CHAPTER_NUMBER
             return self.get_response(error_text)
 
