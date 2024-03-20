@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from app.monga.db_loader import constants_path
+
 
 @dataclass
 class Commands:
@@ -90,7 +92,7 @@ class ServiceCommands:
 
 
 with open(
-    "app/constants/alice_commands.txt",
+    constants_path / "alice_commands.txt",
     "r",
     encoding="utf-8",
 ) as file:
