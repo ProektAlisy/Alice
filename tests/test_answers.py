@@ -32,7 +32,9 @@ def test_direct_commands(data, load_session_state_mock):
     """
     response = client.post("/", json=data)
     assert response.status_code == HTTP_200_OK, "Status code is not 200"
-    assert response.json()["response"]["text"] == another_answers_documents.get(
+    assert response.json()["response"][
+        "text"
+    ] == another_answers_documents.get(
         "full_greetings",
     ), "Key value mismatch in response"
     data["session"]["new"] = False
@@ -42,7 +44,9 @@ def test_direct_commands(data, load_session_state_mock):
         "TAKE_MANUAL_TRAINING",
     ]
     command_names = {
-        key: value for key, value in command_names.items() if key not in state_to_remove
+        key: value
+        for key, value in command_names.items()
+        if key not in state_to_remove
     }
 
     for command_name in command_names:
