@@ -59,9 +59,9 @@ def test_process_request_play(manual_player):
     assert manual_player.is_playing is True
     assert manual_player.is_finish is False
     assert (
-        manual_player.start_audio_playback("1")[-1]["audio_player"]["item"][
-            "stream"
-        ]["url"]
+        manual_player.start_audio_playback("1")[-1]["audio_player"]["item"]["stream"][
+            "url"
+        ]
         == "https://www.guidedogs.acceleratorpracticum.ru/00-vstuplenie.mp3"
     )
 
@@ -93,9 +93,7 @@ def test_process_request_resume(manual_player_with_chapter):
 
 def test_pause_resume_after_5_seconds(manual_player_with_chapter):
     chapter_number = manual_player_with_chapter.current_chapter
-    manual_player_with_chapter.token_offsets[chapter_number][
-        "offset_ms"
-    ] = 5000
+    manual_player_with_chapter.token_offsets[chapter_number]["offset_ms"] = 5000
     manual_player_with_chapter.start_audio_playback(chapter_number)
     response1, _ = manual_player_with_chapter.process_request(
         "",

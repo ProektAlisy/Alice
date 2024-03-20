@@ -276,8 +276,7 @@ class ManualTrainingPlayer:
         self.current_chapter = state.get("chapter", None)
         self.is_playing = state.get("is_playing", False)
         self.audio_playback_start_time = state.get(
-            "audio_playback_start_time",
-            None
+            "audio_playback_start_time", None
         )
         self.token_offsets = state.get("token_offsets", None)
         self.is_finish = state.get("is_finish", True)
