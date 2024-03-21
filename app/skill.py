@@ -57,11 +57,11 @@ def update_greetings_command(commands: list[Command], is_new: bool) -> None:
             break
 
 
-def get_skill_response(data: RequestData) -> ResponseData:
-    """Анализирует запрос от диалогов и формирует ответ навыка.
+def get_simple_utterance_response(data: RequestData) -> ResponseData:
+    """Анализирует команду от диалогов и формирует ответ навыка.
 
     Args:
-        data: Объект запроса от Яндекс.Диалогов.
+        data: Объект запроса от Яндекс.Диалогов типа SimpleUtterance.
 
     Returns:
         Сформированный объект ответа в Яндекс.Диалоги.
@@ -89,3 +89,42 @@ def get_skill_response(data: RequestData) -> ResponseData:
             answer_text=ERROR_MESSAGE, session_state=skill.dump_session_state()
         )
     return result
+
+
+def get_audio_player_response(data: RequestData) -> ResponseData:
+    """Анализирует параметры аудиоплеера от диалогов и формирует ответ навыка.
+
+    Args:
+        data: Объект запроса от Яндекс.Диалогов типа AudioPlayer*.
+
+    Returns:
+        Сформированный объект ответа в Яндекс.Диалоги.
+    """
+    # пока просто загружаем состояние сессии и отправляем его обратно
+    _, _, _, session_state = get_api_data(data)
+    skill.load_session_state(session_state)
+    if data.request["type"] == "AudioPlayer.PlaybackFinished":
+        response_data = skill.manual_training.play_next_chapter()
+        # session_state = skill.dump_session_state()
+        return ResponseData(text=response_data.text, session_state=session_state)
+    else:
+        return get_error_response(
+            answer_text=" ", session_state=skill.dump_session_state()
+        )
+
+
+
+def get_skill_response(data: RequestData) -> ResponseData:
+    """Анализирует запрос от диалогов и формирует ответ навыка.
+
+    Args:
+        data: Объект запроса от Яндекс.Диалогов.
+
+    Returns:
+        Сформированный объект ответа в Яндекс.Диалоги.
+    """
+    if data.is_simple_utterance_type():
+        return get_simple_utterance_response(data)
+    if data.is_audio_player_type():
+        return get_audio_player_response(data)
+    return get_error_response(answer_text=ERROR_MESSAGE)

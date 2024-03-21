@@ -43,6 +43,7 @@ class ManualTrainingPlayer:
             return ManualPlayerMessages.ALREADY_FINISHED, {}
         self.is_finish = True
         self.greetings = False
+        self.token_offsets.clear()
         return ManualPlayerMessages.TRAINING_COMPLETED, {}
 
     def process_request(self, command, intents):
@@ -118,14 +119,15 @@ class ManualTrainingPlayer:
     def start_audio_playback(self, chapter_number):
         token_info = self.token_offsets.get(chapter_number)
         if token_info is None:
+            self.token_offsets.clear()
             token = str(uuid.uuid4())
             self.token_offsets[chapter_number] = {
                 "token": token,
                 "offset_ms": 0,
             }
+            self.current_token = token
         else:
-            token = token_info["token"]
-        self.current_token = token
+            self.current_token = token_info["token"]
         offset_ms = self.token_offsets[chapter_number]["offset_ms"]
         self.audio_playback_start_time = int(time.time() * 1000)
         self.is_playing = True
@@ -175,6 +177,8 @@ class ManualTrainingPlayer:
         if str(next_chapter_number) in self.human_readable_chapter_titles:
             self.current_chapter = str(next_chapter_number)
             return self.start_audio_playback(next_chapter_number)
+        self.is_playing = False
+        self.terminate_manual_training()
         return self.get_response(ManualPlayerMessages.MANUAL_END)
 
     def continue_playback(self):
@@ -231,6 +235,8 @@ class ManualTrainingPlayer:
                 "token": str | None,
                 "chapter": str | None,
                 "is_playing": bool,
+                "audio_playback_start_time": str | None,
+                "token_offsets": Dict | None,
                 "is_finish": bool,
             }
         """
@@ -239,8 +245,8 @@ class ManualTrainingPlayer:
             "token": self.current_token,
             "chapter": self.current_chapter,
             "is_playing": self.is_playing,
-            # "start_time": self.audio_playback_start_time,
-            # "token_offsets": self.token_offsets = {},
+            "start_time": self.audio_playback_start_time,
+            "token_offsets": self.token_offsets,
             "is_finish": self.is_finish,
         }
 
@@ -255,6 +261,8 @@ class ManualTrainingPlayer:
                 "token": str | None,
                 "chapter": str | None,
                 "is_playing": bool,
+                "audio_playback_start_time": str | None,
+                "token_offsets": Dict | None,
                 "is_finish": bool,
             }
         """
@@ -263,12 +271,16 @@ class ManualTrainingPlayer:
             self.current_token = None
             self.current_chapter = None
             self.is_playing = False
-            # self.audio_playback_start_time = 0
-            # self.token_offsets = {}
+            self.audio_playback_start_time = 0
+            self.token_offsets = {}
             self.is_finish = True
             return
         self.greetings = state.get("greetings", False)
         self.current_token = state.get("token", None)
         self.current_chapter = state.get("chapter", None)
         self.is_playing = state.get("is_playing", False)
+        self.audio_playback_start_time = state.get(
+            "audio_playback_start_time", 0
+        )
+        self.token_offsets = state.get("token_offsets", None)
         self.is_finish = state.get("is_finish", True)
