@@ -42,7 +42,9 @@ class ManualTrainingPlayer:
         if self.is_finished():
             return ManualPlayerMessages.ALREADY_FINISHED, {}
         self.is_finish = True
+        self.is_playing = False
         self.greetings = False
+        self.token_offsets.clear()
         return ManualPlayerMessages.TRAINING_COMPLETED, {}
 
     def process_request(self, command, intents):
@@ -176,6 +178,7 @@ class ManualTrainingPlayer:
         if str(next_chapter_number) in self.human_readable_chapter_titles:
             self.current_chapter = str(next_chapter_number)
             return self.start_audio_playback(next_chapter_number)
+        self.terminate_manual_training()
         return self.get_response(ManualPlayerMessages.MANUAL_END)
 
     def continue_playback(self):
@@ -241,7 +244,7 @@ class ManualTrainingPlayer:
             "token": self.current_token,
             "chapter": self.current_chapter,
             "is_playing": self.is_playing,
-            "start_time": self.audio_playback_start_time,
+            "audio_playback_start_time": self.audio_playback_start_time,
             "token_offsets": self.token_offsets,
             "is_finish": self.is_finish,
         }
@@ -276,7 +279,7 @@ class ManualTrainingPlayer:
         self.current_chapter = state.get("chapter", None)
         self.is_playing = state.get("is_playing", False)
         self.audio_playback_start_time = state.get(
-            "audio_playback_start_time", None
+            "audio_playback_start_time", 0
         )
         self.token_offsets = state.get("token_offsets", None)
         self.is_finish = state.get("is_finish", True)

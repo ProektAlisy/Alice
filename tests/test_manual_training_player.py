@@ -154,11 +154,11 @@ def test_training_finished(manual_player):
     manual_player.greetings = True
     manual_player.current_chapter = "13"
     manual_player.start_audio_playback(manual_player.current_chapter)
-    assert manual_player.is_playing is True
     assert manual_player.current_chapter == "13"
     response, _ = manual_player.process_request(
-        "",
+        "следующая",
         {"next_manual_training_chapter"},
     )
+    assert manual_player.is_finish is True
+    assert manual_player.is_playing is False
     assert response == ManualPlayerMessages.MANUAL_END
-    assert manual_player.is_finish is False
