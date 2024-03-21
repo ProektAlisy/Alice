@@ -244,7 +244,7 @@ class ManualTrainingPlayer:
             "token": self.current_token,
             "chapter": self.current_chapter,
             "is_playing": self.is_playing,
-            "start_time": self.audio_playback_start_time,
+            "audio_playback_start_time": self.audio_playback_start_time,
             "token_offsets": self.token_offsets,
             "is_finish": self.is_finish,
         }
