@@ -159,7 +159,6 @@ def test_training_finished(manual_player):
         "следующая",
         {"next_manual_training_chapter"},
     )
-    assert  manual_player.is_finish is True
+    assert manual_player.is_finish is True
     assert manual_player.is_playing is False
     assert response == ManualPlayerMessages.MANUAL_END
-    assert manual_player.is_finish is False

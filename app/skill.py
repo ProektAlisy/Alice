@@ -137,14 +137,9 @@ def get_audio_player_response(data: RequestData) -> ResponseData:
     _, _, _, session_state = get_api_data(data)
     skill.load_session_state(session_state)
     if data.request["type"] == "AudioPlayer.PlaybackFinished":
-        response_data = skill.manual_training.play_next_chapter()
-        # session_state = skill.dump_session_state()
-        return ResponseData(text=response_data.text, session_state=session_state)
-    else:
-        return get_error_response(
-            answer_text=" ", session_state=skill.dump_session_state()
-        )
-
+        answer, directives = skill.manual_training.play_next_chapter()
+        return skill.get_output(answer, directives)
+    return skill.get_output(" ")
 
 
 def get_skill_response(data: RequestData) -> ResponseData:

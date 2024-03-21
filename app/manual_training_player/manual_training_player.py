@@ -42,6 +42,7 @@ class ManualTrainingPlayer:
         if self.is_finished():
             return ManualPlayerMessages.ALREADY_FINISHED, {}
         self.is_finish = True
+        self.is_playing = False
         self.greetings = False
         self.token_offsets.clear()
         return ManualPlayerMessages.TRAINING_COMPLETED, {}
@@ -177,7 +178,6 @@ class ManualTrainingPlayer:
         if str(next_chapter_number) in self.human_readable_chapter_titles:
             self.current_chapter = str(next_chapter_number)
             return self.start_audio_playback(next_chapter_number)
-        self.is_playing = False
         self.terminate_manual_training()
         return self.get_response(ManualPlayerMessages.MANUAL_END)
 
