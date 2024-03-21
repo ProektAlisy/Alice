@@ -191,8 +191,7 @@ class ManualTrainingPlayer:
         if self.is_playing:
             stop_time_ms = int(time.time() * 1000)
             elapsed_time_ms = stop_time_ms - self.audio_playback_start_time
-            token = self.current_token
-            if token in self.token_offsets[self.current_chapter]["token"]:
+            if self.current_chapter in self.token_offsets:
                 self.token_offsets[self.current_chapter][
                     "offset_ms"
                 ] += elapsed_time_ms

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from app.monga.db_loader import constants_path
+
 
 @dataclass
 class Commands:
@@ -20,8 +22,8 @@ class Commands:
     TAKE_QUIZ: str = "Пройти викторину"
     LISTEN_TO_LEGISLATION: str = "Прослушать выдержки из законодательства"
     ABOUT_LEGISLATION_ACCESSIBILITY: str = (
-        "Прослушать информацию о основаниях для доступа к "
-        "объектам инфраструктуры"
+        "Прослушать информацию о основаниях для доступа к объектам"
+        "инфраструктуры"
     )
     CHOICE_BY_LAND_RAIL_AIR_WATER: str = (
         "Выбор информации о провозе собаки в различных видах транспорта"
@@ -90,7 +92,7 @@ class ServiceCommands:
 
 
 with open(
-    "app/constants/alice_commands.txt",
+    constants_path / "alice_commands.txt",
     "r",
     encoding="utf-8",
 ) as file:
