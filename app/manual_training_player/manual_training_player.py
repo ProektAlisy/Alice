@@ -164,7 +164,7 @@ class ManualTrainingPlayer:
                 chapter_num=chapter_num,
                 title=title,
             )
-        return toc, {}
+        return toc + ManualPlayerMessages.CONTENT_END_PHRASE, {}
 
     def get_response(self, text):
         return text, {}

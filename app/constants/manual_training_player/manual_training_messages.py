@@ -29,5 +29,7 @@ class ManualPlayerMessages:
     CHAPTER_AUDIO_URL: Final = (
         f"{settings.BASE_AUDIO_URL}" "{chapter_name}.mp3"
     )
-    CONTENT: Final = "Оглавление: sil <[300]>"
+    CONTENT: Final = "Вот список глав: sil <[300]>"
     CONTENT_CHAPTER: Final = "Глава {chapter_num} - {title}. sil <[300]>"
+    CONTENT_END_PHRASE: Final = ("С какой главы начнем? sil <[300]>"
+                                 "Назовите ее номер.")

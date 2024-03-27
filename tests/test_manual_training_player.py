@@ -12,6 +12,16 @@ from app.manual_training_player.manual_training_player import (
     ManualTrainingPlayer,
 )
 
+CHAPTER_TITLES = "app/manual_training_player/chapter_titles.json"
+
+
+with open(
+    CHAPTER_TITLES,
+    "r",
+    encoding="utf-8",
+) as f:
+    chapter_titles_data = json.load(f)
+
 
 @pytest.fixture
 def manual_player():
@@ -44,6 +54,21 @@ def test_process_request_greetings(manual_player, welcome_text):
     assert response == welcome_text
     assert manual_player.greetings is True
     assert manual_player.is_finish is False
+
+
+def test_process_request_table_of_contents(manual_player):
+    response, _ = manual_player.get_table_of_contents()
+    human_readable_chapter_titles = (chapter_titles_data)[
+        "human_readable_chapter_titles"
+    ]
+    toc = ManualPlayerMessages.CONTENT
+    for chapter_num, title in human_readable_chapter_titles.items():
+        toc += ManualPlayerMessages.CONTENT_CHAPTER.format(
+            chapter_num=chapter_num,
+            title=title,
+        )
+    final_toc = str(toc + ManualPlayerMessages.CONTENT_END_PHRASE)
+    assert response == final_toc
 
 
 def test_process_request_play(manual_player):
