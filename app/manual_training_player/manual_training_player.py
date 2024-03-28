@@ -188,7 +188,8 @@ class ManualTrainingPlayer:
 
     def play_final_audio(self):
         if not self.final_audio_played:
-            audio_url = "https://www.guidedogs.acceleratorpracticum.ru/finish.mp3"
+            audio_url = ("https://www.guidedogs.acceleratorpracticum.ru/"
+                         "finish.mp3")
             directives = {
                 "audio_player": {
                     "action": "Play",
@@ -249,9 +250,11 @@ class ManualTrainingPlayer:
         stop_time_ms = int(time.time() * 1000)
         elapsed_time_ms = stop_time_ms - self.audio_playback_start_time
         if self.current_chapter in self.token_offsets:
-            self.token_offsets[self.current_chapter]["offset_ms"] += elapsed_time_ms
+            self.token_offsets[self.current_chapter][
+                "offset_ms"] += elapsed_time_ms
         else:
-            self.token_offsets[self.current_chapter]["offset_ms"] = elapsed_time_ms
+            self.token_offsets[self.current_chapter][
+                "offset_ms"] = elapsed_time_ms
 
     def dump_state(self):
         """Возвращает словарь текущего состояния обучения.
