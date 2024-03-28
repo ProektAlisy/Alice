@@ -102,21 +102,24 @@ class ManualTrainingPlayer:
                 chapter_number = int(chapter_number)
                 chapter_name = self.get_chapter_name_by_number(chapter_number)
                 if chapter_name:
-                    chapter_name_text = (
-                        ManualPlayerMessages.CHAPTER_NAME.format(
-                            chapter_number=chapter_number,
-                            chapter_name=chapter_name,
+                    if self.is_playing:
+                        self._update_offset_ms()
+                        self.is_playing = False
+                        directives = {"audio_player": {"action": "Stop"}}
+                        chapter_name_text = (
+                            ManualPlayerMessages.CHAPTER_NAME.format(
+                                chapter_number=chapter_number,
+                                chapter_name=chapter_name,
+                            )
                         )
-                    )
-                    return self.get_response(chapter_name_text)
+                        return chapter_name_text, directives
                 no_chapter_text = ManualPlayerMessages.CHAPTER_NUMBER_NOT_FOUND
                 return self.get_response(no_chapter_text)
             except ValueError:
                 error_text = ManualPlayerMessages.INVALID_CHAPTER_NUMBER
                 return self.get_response(error_text)
-        else:
-            error_text = ManualPlayerMessages.NO_CHAPTER_NUMBER
-            return self.get_response(error_text)
+        error_text = ManualPlayerMessages.NO_CHAPTER_NUMBER
+        return self.get_response(error_text)
 
     def start_audio_playback(self, chapter_number):
         token_info = self.token_offsets.get(chapter_number)
@@ -159,13 +162,22 @@ class ManualTrainingPlayer:
         return text, directives
 
     def get_table_of_contents(self):
+        toc = self.get_all_chapters_text()
+        if self.is_playing:
+            self._update_offset_ms()
+            self.is_playing = False
+            directives = {"audio_player": {"action": "Stop"}}
+            return toc + ManualPlayerMessages.CONTENT_END_PHRASE, directives
+        return toc + ManualPlayerMessages.CONTENT_END_PHRASE, {}
+
+    def get_all_chapters_text(self):
         toc = ManualPlayerMessages.CONTENT
         for chapter_num, title in self.human_readable_chapter_titles.items():
             toc += ManualPlayerMessages.CONTENT_CHAPTER.format(
                 chapter_num=chapter_num,
                 title=title,
             )
-        return toc + ManualPlayerMessages.CONTENT_END_PHRASE, {}
+        return toc
 
     def get_response(self, text):
         return text, {}
@@ -208,16 +220,7 @@ class ManualTrainingPlayer:
 
     def pause_playback(self):
         if self.is_playing:
-            stop_time_ms = int(time.time() * 1000)
-            elapsed_time_ms = stop_time_ms - self.audio_playback_start_time
-            if self.current_chapter in self.token_offsets:
-                self.token_offsets[self.current_chapter][
-                    "offset_ms"
-                ] += elapsed_time_ms
-            else:
-                self.token_offsets[self.current_chapter][
-                    "offset_ms"
-                ] = elapsed_time_ms
+            self._update_offset_ms()
             self.is_playing = False
             text = ManualPlayerMessages.PLAYBACK_STOP
             directives = {"audio_player": {"action": "Stop"}}
@@ -241,6 +244,14 @@ class ManualTrainingPlayer:
 
     def get_chapter_name_by_number(self, chapter_number):
         return self.human_readable_chapter_titles.get(str(chapter_number))
+
+    def _update_offset_ms(self):
+        stop_time_ms = int(time.time() * 1000)
+        elapsed_time_ms = stop_time_ms - self.audio_playback_start_time
+        if self.current_chapter in self.token_offsets:
+            self.token_offsets[self.current_chapter]["offset_ms"] += elapsed_time_ms
+        else:
+            self.token_offsets[self.current_chapter]["offset_ms"] = elapsed_time_ms
 
     def dump_state(self):
         """Возвращает словарь текущего состояния обучения.
