@@ -34,6 +34,7 @@ class ManualTrainingPlayer:
         self.file_name_chapter_titles = (chapter_titles_data)[
             "file_name_chapter_titles"
         ]
+        self.final_audio_played = False
 
     def is_finished(self):
         return self.is_finish
@@ -173,13 +174,31 @@ class ManualTrainingPlayer:
         self.current_chapter = chapter_number
         return self.start_audio_playback(self.current_chapter)
 
+    def play_final_audio(self):
+        if not self.final_audio_played:
+            audio_url = "https://www.guidedogs.acceleratorpracticum.ru/finish.mp3"
+            directives = {
+                "audio_player": {
+                    "action": "Play",
+                    "item": {
+                        "stream": {
+                            "url": audio_url,
+                            "token": str(uuid.uuid4()),
+                        },
+                    },
+                },
+            }
+            self.final_audio_played = True
+            return ManualPlayerMessages.MANUAL_END, directives
+        return "", {}
+
     def play_next_chapter(self):
         next_chapter_number = str(int(self.current_chapter) + 1)
         if str(next_chapter_number) in self.human_readable_chapter_titles:
             self.current_chapter = str(next_chapter_number)
             return self.start_audio_playback(next_chapter_number)
         self.terminate_manual_training()
-        return self.get_response(ManualPlayerMessages.MANUAL_END)
+        return self.play_final_audio()
 
     def continue_playback(self):
         if self.current_chapter is not None:
