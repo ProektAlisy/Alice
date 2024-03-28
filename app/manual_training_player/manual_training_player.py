@@ -113,6 +113,13 @@ class ManualTrainingPlayer:
                             )
                         )
                         return chapter_name_text, directives
+                    chapter_name_text = (
+                        ManualPlayerMessages.CHAPTER_NAME.format(
+                            chapter_number=chapter_number,
+                            chapter_name=chapter_name,
+                        )
+                    )
+                    return self.get_response(chapter_name_text)
                 no_chapter_text = ManualPlayerMessages.CHAPTER_NUMBER_NOT_FOUND
                 return self.get_response(no_chapter_text)
             except ValueError:
@@ -187,7 +194,7 @@ class ManualTrainingPlayer:
         return self.start_audio_playback(self.current_chapter)
 
     def play_final_audio(self):
-        if not self.final_audio_played:
+        if int(self.current_chapter) == 13:
             audio_url = ("https://www.guidedogs.acceleratorpracticum.ru/"
                          "finish.mp3")
             directives = {
@@ -201,8 +208,9 @@ class ManualTrainingPlayer:
                     },
                 },
             }
-            self.final_audio_played = True
+            self.current_chapter = None
             return ManualPlayerMessages.MANUAL_END, directives
+        self.current_chapter = None
         return "", {}
 
     def play_next_chapter(self):
