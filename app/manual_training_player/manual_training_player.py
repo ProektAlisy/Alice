@@ -214,6 +214,8 @@ class ManualTrainingPlayer:
         return "", {}
 
     def play_next_chapter(self):
+        if self.current_chapter is None:
+            return '', {}
         next_chapter_number = str(int(self.current_chapter) + 1)
         if str(next_chapter_number) in self.human_readable_chapter_titles:
             self.current_chapter = str(next_chapter_number)
