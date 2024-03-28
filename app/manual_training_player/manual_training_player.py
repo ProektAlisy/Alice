@@ -194,7 +194,7 @@ class ManualTrainingPlayer:
         return self.start_audio_playback(self.current_chapter)
 
     def play_final_audio(self):
-        if int(self.current_chapter) == 13:
+        if self.current_chapter and int(self.current_chapter) == 13:
             audio_url = ("https://www.guidedogs.acceleratorpracticum.ru/"
                          "finish.mp3")
             directives = {
