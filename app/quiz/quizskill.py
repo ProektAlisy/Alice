@@ -148,7 +148,7 @@ class QuizSkill:
             }
         """
         if not state:
-            self._quiz.load_state(None)
+            self._quiz.restart()
             self._state = QuizState.INIT
             return
         state_tmp = state.copy()
