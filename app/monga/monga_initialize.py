@@ -1,19 +1,11 @@
-import os
-
-from dotenv import load_dotenv
 from pymongo import MongoClient
 
-load_dotenv()
-
-mongo_host = os.getenv("ME_CONFIG_MONGODB_URL")
-mongo_user = os.getenv("ME_CONFIG_MONGODB_ADMINUSERNAME")
-mongo_pass = os.getenv("ME_CONFIG_MONGODB_ADMINPASSWORD")
-
+from app.settings import settings
 
 client = MongoClient(
-    mongo_host,
-    username=mongo_user,
-    password=mongo_pass,
+    host=settings.ME_CONFIG_MONGODB_URL,
+    username=settings.ME_CONFIG_MONGODB_ADMINUSERNAME,
+    password=settings.ME_CONFIG_MONGODB_ADMINPASSWORD,
 )
 
 db = client["database"]
