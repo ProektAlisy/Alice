@@ -1,16 +1,11 @@
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 
-from dotenv import load_dotenv
 from pythonjsonlogger import jsonlogger
 
-LOG_FILENAME = "/logs/alice.log"
-
-load_dotenv()
-
-log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+from app.settings import settings
 
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
@@ -21,7 +16,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             message_dict,
         )
         if not log_record.get("timestamp"):
-            now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             log_record["timestamp"] = now
         if log_record.get("level"):
             log_record["level"] = log_record["level"].upper()
@@ -36,11 +31,11 @@ formatter = CustomJsonFormatter(
 
 logger = logging.getLogger()
 log_handler = RotatingFileHandler(
-    LOG_FILENAME,
-    maxBytes=10_000_000,
-    backupCount=10,
+    filename=os.path.join(settings.LOG_DIR, settings.LOG_FILE),
+    maxBytes=settings.LOG_FILE_SIZE,
+    backupCount=settings.LOG_FILES_COUNT,
     encoding="utf-8",
 )
 log_handler.setFormatter(formatter)
 logger.addHandler(log_handler)
-logger.setLevel(log_level)
+logger.setLevel(settings.LOG_LEVEL)

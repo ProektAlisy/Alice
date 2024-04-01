@@ -2,10 +2,7 @@
 Точка входа в приложение.
 """
 
-import os
-
 import sentry_sdk
-from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from app.constants.comands_states_answers import ERROR_MESSAGE
@@ -13,12 +10,11 @@ from app.core.exceptions import APIError
 from app.core.logger_initialize import logger
 from app.core.utils import check_api, get_error_response
 from app.schemas import RequestData, ResponseData
+from app.settings import settings
 from app.skill import get_skill_response
 
-load_dotenv()
-
 sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN"),
+    dsn=settings.SENTRY_DSN,
     traces_sample_rate=1.0,
     profiles_sample_rate=1.0,
 )

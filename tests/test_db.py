@@ -1,7 +1,4 @@
-import os
-
 import pytest
-from dotenv import load_dotenv
 from mongomock import MongoClient
 
 from tests.db_test_operations import (
@@ -10,13 +7,6 @@ from tests.db_test_operations import (
     insert_data,
     update_data,
 )
-
-load_dotenv()
-
-mongo_test_host = os.getenv("MONGO_TEST_HOST")
-mongo_user = os.getenv("MONGO_TEST_USER")
-mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
-mongo_port = os.getenv("MONGO_PORT")
 
 
 @pytest.fixture

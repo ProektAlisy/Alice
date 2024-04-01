@@ -1,6 +1,6 @@
 from typing import Final
 
-from app import settings
+from app.settings import settings
 
 
 class ManualPlayerMessages:
@@ -31,5 +31,6 @@ class ManualPlayerMessages:
     )
     CONTENT: Final = "Вот список глав: sil <[300]>"
     CONTENT_CHAPTER: Final = "Глава {chapter_num} - {title}. sil <[300]>"
-    CONTENT_END_PHRASE: Final = ("С какой главы начнем? sil <[300]>"
-                                 "Назовите ее номер.")
+    CONTENT_END_PHRASE: Final = (
+        "С какой главы начнем? sil <[300]>" "Назовите ее номер."
+    )
