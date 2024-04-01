@@ -6,7 +6,7 @@ from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 from pythonjsonlogger import jsonlogger
 
-LOG_FILENAME = "alice.log"
+LOG_FILENAME = "/logs/alice.log"
 
 load_dotenv()
 

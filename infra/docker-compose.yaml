@@ -14,7 +14,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./alice.log:/alice_app/alice.log
+      - ./logs:/logs
 
   mongo:
     image: mongo:4.4.6
