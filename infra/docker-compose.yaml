@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: guidedogsalice/alice_guidedogs:v1
+    image: guidedogsalice/alice_guidedogs:latest
     platform: linux/x86_64
     restart: always
     env_file:
@@ -13,6 +13,9 @@ services:
       - mongo
     ports:
       - "8000:8000"
+    volumes:
+      - ./alice.log:/alice_app/alice.log
+
   mongo:
     image: mongo:4.4.6
     env_file:
