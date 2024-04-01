@@ -29,6 +29,7 @@ formatter = CustomJsonFormatter(
     json_ensure_ascii=False,
 )
 
+os.makedirs(settings.LOG_DIR, exist_ok=True)
 logger = logging.getLogger()
 log_handler = RotatingFileHandler(
     filename=os.path.join(settings.LOG_DIR, settings.LOG_FILE),
