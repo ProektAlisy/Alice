@@ -11,6 +11,7 @@ from app.manual_training_player.manual_training_player import (
     WELCOME_TEXT,
     ManualTrainingPlayer,
 )
+from app.schemas import AudioPlayerState
 
 CHAPTER_TITLES = "app/manual_training_player/chapter_titles.json"
 
@@ -199,8 +200,7 @@ def test_training_finished_with_voice_file(manual_player):
     )
     assert manual_player.is_finish is True
     assert manual_player.current_chapter is None
-    audio_url = ("https://www.guidedogs.acceleratorpracticum.ru/"
-                 "finish.mp3")
+    audio_url = "https://www.guidedogs.acceleratorpracticum.ru/" "finish.mp3"
     directives = {
         "audio_player": {
             "action": "Play",
@@ -225,7 +225,7 @@ def test_training_finished_with_voice_file_incorrect_chapter(manual_player):
     )
     assert manual_player.is_finish is True
     assert manual_player.current_chapter is None
-    assert response == ''
+    assert response == ""
 
 
 def test_stop_player_chapter_name_information(manual_player_with_chapter):
@@ -238,12 +238,172 @@ def test_stop_player_chapter_name_information(manual_player_with_chapter):
         },
     )
     directives = {"audio_player": {"action": "Stop"}}
-    chapter_name_text = (
-        ManualPlayerMessages.CHAPTER_NAME.format(
-            chapter_number=manual_player_with_chapter.current_chapter,
-            chapter_name=manual_player_with_chapter.
-            human_readable_chapter_titles.get(
-                str(1)),
-        )
+    chapter_name_text = ManualPlayerMessages.CHAPTER_NAME.format(
+        chapter_number=manual_player_with_chapter.current_chapter,
+        chapter_name=manual_player_with_chapter.human_readable_chapter_titles.get(
+            str(1)
+        ),
     )
     assert response == chapter_name_text, directives
+
+
+@pytest.mark.parametrize(
+    "current_chapter, current_token, audio_player_state, is_finished",
+    [
+        ("1", "some_token", None, False),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="another_token", offset_ms=95000, state="STOPPED"
+            ),
+            False,
+        ),
+        (
+            None,
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=94999, state="STOPPED"
+            ),
+            False,
+        ),
+        (
+            "1",
+            None,
+            AudioPlayerState(
+                token="some_token", offset_ms=94999, state="STOPPED"
+            ),
+            False,
+        ),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=95001, state="STOPPED"
+            ),
+            True,
+        ),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=94999, state="STOPPED"
+            ),
+            False,
+        ),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=95001, state="PAUSED"
+            ),
+            False,
+        ),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=95001, state="PLAYING"
+            ),
+            False,
+        ),
+        (
+            "10",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=1822001, state="STOPPED"
+            ),
+            True,
+        ),
+        (
+            "10",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=1821999, state="STOPPED"
+            ),
+            False,
+        ),
+    ],
+)
+def test_is_chapter_finished(
+    manual_player,
+    current_chapter,
+    current_token,
+    audio_player_state,
+    is_finished,
+):
+    manual_player.current_chapter = current_chapter
+    manual_player.current_token = current_token
+    assert manual_player.is_chapter_finished(audio_player_state) == is_finished
+
+
+@pytest.mark.parametrize(
+    "current_chapter, current_token, audio_player_state, is_paused",
+    [
+        ("1", "some_token", None, False),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="another_token", offset_ms=20000, state="PAUSED"
+            ),
+            False,
+        ),
+        (
+            None,
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=20000, state="PAUSED"
+            ),
+            False,
+        ),
+        (
+            "1",
+            None,
+            AudioPlayerState(
+                token="some_token", offset_ms=20000, state="PAUSED"
+            ),
+            False,
+        ),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=20000, state="PAUSED"
+            ),
+            True,
+        ),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(token="some_token", offset_ms=0, state="PAUSED"),
+            True,
+        ),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=20000, state="STOPPED"
+            ),
+            False,
+        ),
+        (
+            "1",
+            "some_token",
+            AudioPlayerState(
+                token="some_token", offset_ms=20000, state="PLAYING"
+            ),
+            False,
+        ),
+    ],
+)
+def test_is_chapter_paused(
+    manual_player,
+    current_chapter,
+    current_token,
+    audio_player_state,
+    is_paused,
+):
+    manual_player.current_chapter = current_chapter
+    manual_player.current_token = current_token
+    assert manual_player.is_chapter_paused(audio_player_state) == is_paused

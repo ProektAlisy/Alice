@@ -6,6 +6,7 @@ from app.constants.manual_training_player.intents import ManualTrainingIntents
 from app.constants.manual_training_player.manual_training_messages import (
     ManualPlayerMessages,
 )
+from app.schemas import AudioPlayerState
 
 CHAPTER_TITLES = "app/manual_training_player/chapter_titles.json"
 WELCOME_TEXT = "app/manual_training_player/welcome_text.json"
@@ -241,6 +242,22 @@ class ManualTrainingPlayer:
         return_text = ManualPlayerMessages.PLAYBACK_NOT_STARTED
         return self.get_response(return_text)
 
+    def pause_playback_by_audio_player(
+        self, audio_player_data: AudioPlayerState | None
+    ):
+        if not audio_player_data:
+            return
+        self.is_playing = False
+        if self.current_chapter in self.token_offsets:
+            self.token_offsets[self.current_chapter][
+                "offset_ms"
+            ] = audio_player_data.offset_ms
+        else:
+            self.token_offsets[self.current_chapter] = {
+                "token": audio_player_data.token,
+                "offset_ms": audio_player_data.offset_ms,
+            }
+
     def unknown_command_response(self):
         unknown_command_text = ManualPlayerMessages.UNKNOWN_COMMAND
         return self.get_response(unknown_command_text)
@@ -330,3 +347,51 @@ class ManualTrainingPlayer:
         )
         self.token_offsets = state.get("token_offsets", None)
         self.is_finish = state.get("is_finish", True)
+
+    def is_chapter_finished(
+        self, audio_player_state: AudioPlayerState | None
+    ) -> bool:
+        """Анализирует запрос от диалогов и проверяет, завершилась ли глава.
+
+        Args:
+            audio_player_state: Параметры состояния аудиоплеера от диалогов.
+
+        Returns:
+            True, если плеер остановлен и время больше длины текущей главы.
+        """
+        if (
+            not audio_player_state
+            or not self.current_chapter
+            or not self.current_token
+        ):
+            return False
+        chapter_length = self.chapter_lengths_ms.get(self.current_chapter)
+        if not chapter_length:
+            return False
+        return (
+            audio_player_state.token == self.current_token
+            and audio_player_state.state == "STOPPED"
+            and audio_player_state.offset_ms >= chapter_length
+        )
+
+    def is_chapter_paused(
+        self, audio_player_state: AudioPlayerState | None
+    ) -> bool:
+        """Анализирует запрос от диалогов и проверяет, поставлена ли пауза.
+
+        Args:
+            audio_player_state: Параметры состояния аудиоплеера от диалогов.
+
+        Returns:
+            True, если плеер поставлен на паузу и была текущая глава.
+        """
+        if (
+            not audio_player_state
+            or not self.current_chapter
+            or not self.current_token
+        ):
+            return False
+        return (
+            audio_player_state.token == self.current_token
+            and audio_player_state.state == "PAUSED"
+        )
