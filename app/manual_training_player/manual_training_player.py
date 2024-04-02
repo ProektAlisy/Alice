@@ -35,6 +35,7 @@ class ManualTrainingPlayer:
             "file_name_chapter_titles"
         ]
         self.final_audio_played = False
+        self.chapter_lengths_ms = (chapter_titles_data)["chapter_lengths_ms"]
 
     def is_finished(self):
         return self.is_finish
@@ -195,8 +196,9 @@ class ManualTrainingPlayer:
 
     def play_final_audio(self):
         if self.current_chapter and int(self.current_chapter) == 13:
-            audio_url = ("https://www.guidedogs.acceleratorpracticum.ru/"
-                         "finish.mp3")
+            audio_url = (
+                "https://www.guidedogs.acceleratorpracticum.ru/finish.mp3"
+            )
             directives = {
                 "audio_player": {
                     "action": "Play",
@@ -215,7 +217,7 @@ class ManualTrainingPlayer:
 
     def play_next_chapter(self):
         if self.current_chapter is None:
-            return '', {}
+            return "", {}
         next_chapter_number = str(int(self.current_chapter) + 1)
         if str(next_chapter_number) in self.human_readable_chapter_titles:
             self.current_chapter = str(next_chapter_number)
@@ -261,10 +263,12 @@ class ManualTrainingPlayer:
         elapsed_time_ms = stop_time_ms - self.audio_playback_start_time
         if self.current_chapter in self.token_offsets:
             self.token_offsets[self.current_chapter][
-                "offset_ms"] += elapsed_time_ms
+                "offset_ms"
+            ] += elapsed_time_ms
         else:
             self.token_offsets[self.current_chapter][
-                "offset_ms"] = elapsed_time_ms
+                "offset_ms"
+            ] = elapsed_time_ms
 
     def dump_state(self):
         """Возвращает словарь текущего состояния обучения.
