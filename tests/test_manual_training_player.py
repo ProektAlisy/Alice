@@ -240,8 +240,8 @@ def test_stop_player_chapter_name_information(manual_player_with_chapter):
     directives = {"audio_player": {"action": "Stop"}}
     chapter_name_text = ManualPlayerMessages.CHAPTER_NAME.format(
         chapter_number=manual_player_with_chapter.current_chapter,
-        chapter_name=manual_player_with_chapter.human_readable_chapter_titles.get(
-            str(1)
+        chapter_name=(
+            manual_player_with_chapter.human_readable_chapter_titles.get("1")
         ),
     )
     assert response == chapter_name_text, directives
