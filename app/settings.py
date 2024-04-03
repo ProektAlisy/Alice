@@ -9,13 +9,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8"
+        env_file="./app/.env", env_file_encoding="utf-8"
     )
 
     # Logging settings
-    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = (
-        "INFO"
-    )
+    LOG_LEVEL: Literal[
+        "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+    ] = "INFO"
     LOG_DIR: str | Path = BASE_DIR / "logs"
     LOG_FILE: str = "alice.log"
     LOG_FILE_SIZE: int = 10 * 2**20
@@ -35,3 +35,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+print(settings.ME_CONFIG_MONGODB_URL)

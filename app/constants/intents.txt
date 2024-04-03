@@ -1195,7 +1195,7 @@ ID
 
 Грамматика
 root:
-    [($Help)? $Need]
+    [$Help ($Need)?]
 $Help:
     %lemma
     помощь | помоги | команды

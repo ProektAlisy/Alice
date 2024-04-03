@@ -25,7 +25,7 @@ answers_collection.create_index("key", unique=True)
 after_answers_collection.create_index("key", unique=True)
 disagree_answers_collection.create_index("key", unique=True)
 another_answers_collection.create_index("key", unique=True)
-
+print(answers_collection)
 constants_path = Path(__file__).resolve().parent.parent / "constants"
 paths = [constants_path / folder for folder in folders]
 
