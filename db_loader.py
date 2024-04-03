@@ -1,5 +1,5 @@
 """
-Загружаем в БД ответы пользователю из файлов в папке app/monga/constants/answers
+Загружаем в БД ответы пользователю из папки app/monga/constants/answers
 """
 
 from pathlib import Path
