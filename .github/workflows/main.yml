@@ -75,4 +75,4 @@ jobs:
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
             sudo docker-compose up -d
             sleep 10s
-            sudo docker exec alice_app-app-1 python app/monga/db_loader.py
+            sudo docker exec alice_app-app-1 python db_loader.py
