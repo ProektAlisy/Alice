@@ -21,7 +21,7 @@ class RequestData(BaseModel):
         return self.request["type"] == "SimpleUtterance"
 
     def get_audio_player_state(self) -> AudioPlayerState | None:
-        audio_player = self.session.get("audio_player")
+        audio_player = self.state.get("audio_player")
         if audio_player:
             return AudioPlayerState(**audio_player)
         return None
