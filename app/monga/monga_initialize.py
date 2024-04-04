@@ -2,7 +2,6 @@ from pymongo import MongoClient
 
 from app.settings import settings
 
-print(settings.ME_CONFIG_MONGODB_ADMINUSERNAME)
 client = MongoClient(
     host=settings.ME_CONFIG_MONGODB_URL,
     username=settings.ME_CONFIG_MONGODB_ADMINUSERNAME,

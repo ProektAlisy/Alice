@@ -35,4 +35,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(settings.ME_CONFIG_MONGODB_URL)
