@@ -13,9 +13,9 @@ class Settings(BaseSettings):
     )
 
     # Logging settings
-    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = (
-        "INFO"
-    )
+    LOG_LEVEL: Literal[
+        "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+    ] = "INFO"
     LOG_DIR: str | Path = BASE_DIR / "logs"
     LOG_FILE: str = "alice.log"
     LOG_FILE_SIZE: int = 10 * 2**20
