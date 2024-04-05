@@ -110,7 +110,7 @@ def get_audio_player_response(data: RequestData) -> ResponseData:
         and skill.manual_training.is_chapter_finished(player_state)
     ):
         answer, directives = skill.manual_training.play_next_chapter()
-        return skill.get_output(answer, directives)
+        return skill.get_output(answer, directives, should_listen=False)
     if (
         data.request["type"] == "AudioPlayer.PlaybackStopped"
     ) and skill.manual_training.is_chapter_paused(player_state):
