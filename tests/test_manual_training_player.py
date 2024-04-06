@@ -34,7 +34,7 @@ def manual_player_with_chapter():
     player = ManualTrainingPlayer()
     player.greetings = True
     player.is_playing = True
-    player.current_chapter = "1"
+    player.current_chapter = "0"
     if player.current_chapter not in player.token_offsets:
         player.token_offsets[player.current_chapter] = {
             "token": str(uuid.uuid4()),
@@ -79,13 +79,13 @@ def test_process_request_play(manual_player):
         [ManualTrainingIntents.START_MANUAL_TRAINING],
     )
     assert response == ManualPlayerMessages.PLAYBACK_START.format(
-        chapter_number="1",
+        chapter_number="0",
         chapter_name="Вступление",
     )
     assert manual_player.is_playing is True
     assert manual_player.is_finish is False
     assert (
-        manual_player.start_audio_playback("1")[-1]["audio_player"]["item"][
+        manual_player.start_audio_playback("0")[-1]["audio_player"]["item"][
             "stream"
         ]["url"]
         == "https://www.guidedogs.acceleratorpracticum.ru/00-vstuplenie.mp3"
@@ -93,7 +93,7 @@ def test_process_request_play(manual_player):
 
 
 def test_process_request_pause(manual_player_with_chapter):
-    manual_player_with_chapter.start_audio_playback("1")
+    manual_player_with_chapter.start_audio_playback("0")
     response, _ = manual_player_with_chapter.process_request(
         "",
         [ManualTrainingIntents.PAUSE_MANUAL_TRAINING],
@@ -109,7 +109,7 @@ def test_process_request_resume(manual_player_with_chapter):
         [ManualTrainingIntents.RESUME_MANUAL_TRAINING],
     )
     assert response == ManualPlayerMessages.PLAYBACK_START.format(
-        chapter_number="1",
+        chapter_number="0",
         chapter_name="Вступление",
     )
     assert manual_player_with_chapter.is_playing is True
@@ -135,7 +135,7 @@ def test_pause_resume_after_5_seconds(manual_player_with_chapter):
     )
     offset_ms2 = directives2["audio_player"]["item"]["stream"]["offset_ms"]
     assert response2 == ManualPlayerMessages.PLAYBACK_START.format(
-        chapter_number="1",
+        chapter_number="0",
         chapter_name="Вступление",
     )
     assert offset_ms2 == 5000
@@ -178,9 +178,9 @@ def test_terminate_training(manual_player_with_chapter):
 
 def test_training_finished(manual_player):
     manual_player.greetings = True
-    manual_player.current_chapter = "13"
+    manual_player.current_chapter = "12"
     manual_player.start_audio_playback(manual_player.current_chapter)
-    assert manual_player.current_chapter == "13"
+    assert manual_player.current_chapter == "12"
     response, _ = manual_player.process_request(
         "следующая",
         {"next_manual_training_chapter"},
@@ -192,7 +192,7 @@ def test_training_finished(manual_player):
 
 def test_training_finished_with_voice_file(manual_player):
     manual_player.greetings = True
-    manual_player.current_chapter = "13"
+    manual_player.current_chapter = "12"
     manual_player.start_audio_playback(manual_player.current_chapter)
     response, _ = manual_player.process_request(
         "следующая",
@@ -200,7 +200,7 @@ def test_training_finished_with_voice_file(manual_player):
     )
     assert manual_player.is_finish is True
     assert manual_player.current_chapter is None
-    audio_url = "https://www.guidedogs.acceleratorpracticum.ru/" "finish.mp3"
+    audio_url = "https://www.guidedogs.acceleratorpracticum.ru/finish.mp3"
     directives = {
         "audio_player": {
             "action": "Play",
@@ -217,7 +217,7 @@ def test_training_finished_with_voice_file(manual_player):
 
 def test_training_finished_with_voice_file_incorrect_chapter(manual_player):
     manual_player.greetings = True
-    manual_player.current_chapter = "14"
+    manual_player.current_chapter = "13"
     manual_player.start_audio_playback(manual_player.current_chapter)
     response, _ = manual_player.process_request(
         "следующая",
@@ -233,7 +233,7 @@ def test_stop_player_chapter_name_information(manual_player_with_chapter):
         "расскажи название главы",
         {
             "get_manual_training_chapter_info": {
-                "slots": {"chapter": {"value": "1"}},
+                "slots": {"chapter": {"value": "0"}},
             },
         },
     )
@@ -241,7 +241,7 @@ def test_stop_player_chapter_name_information(manual_player_with_chapter):
     chapter_name_text = ManualPlayerMessages.CHAPTER_NAME.format(
         chapter_number=manual_player_with_chapter.current_chapter,
         chapter_name=(
-            manual_player_with_chapter.human_readable_chapter_titles.get("1")
+            manual_player_with_chapter.human_readable_chapter_titles.get("0")
         ),
     )
     assert response == chapter_name_text, directives
