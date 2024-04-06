@@ -2,7 +2,6 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
-
 from app.constants.comands_states_answers import (
     ALL_COMMANDS,
     COMMANDS_STATES_ANSWERS_INTENTS,
@@ -348,7 +347,6 @@ class AgreeCommand(Command):
                 INTENTS.TAKE_MANUAL_TRAINING,
             )
             return self.skill.get_output(answer)
-
         return self.command_instance.execute(
             self.skill,
             state,
@@ -457,7 +455,6 @@ class DontUnderstandCommand(Command):
             "dont_understand_the_second_time",
             "dont_understand_more_than_two_times",
         ]
-        # print(self.skill.incorrect_answers)
         # Выбираем ключ в зависимости от количества неправильных ответов
         key = keys[min(self.skill.incorrect_answers, len(keys)) - 1]
         result = another_answers_documents.get(key, "")

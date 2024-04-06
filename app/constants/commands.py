@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from pathlib import Path
 
-from app.monga.db_loader import constants_path
+constants_path = Path(__file__).resolve().parent
 
 
 @dataclass

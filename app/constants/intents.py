@@ -28,7 +28,7 @@ class Intents:
 
     @staticmethod
     def get_help_available(intents: dict[str] | None) -> set[str]:
-        """Возвращает список разрешенных интентов.
+        """Возвращает список разрешенных интентов для help команд.
         Args:
             intents: Список интентов (получен от диалогов)
         Returns:

@@ -1,6 +1,5 @@
 import random
 from enum import IntEnum
-from pathlib import Path
 from typing import Any
 
 from app.constants.quiz.intents import QuizIntents
@@ -8,8 +7,7 @@ from app.constants.quiz.messages import QuizMessages
 from app.core.logger_initialize import logger
 from app.quiz.exceptions import QuizException
 from app.quiz.quiz import Quiz
-
-QUIZ_FILE_PATH = Path(__file__).resolve().parent / "quiz.json"
+from app.settings import settings
 
 
 class QuizState(IntEnum):
@@ -25,7 +23,7 @@ class QuizState(IntEnum):
 
 
 class QuizSkill:
-    def __init__(self, filename: str = QUIZ_FILE_PATH):
+    def __init__(self, filename: str = settings.QUIZ_FILE_PATH):
         """Инициализация викторины вопросами из файла filename."""
         self._quiz = Quiz()
         self._state = QuizState.INIT
@@ -148,7 +146,7 @@ class QuizSkill:
             }
         """
         if not state:
-            self._quiz.load_state(None)
+            self._quiz.restart()
             self._state = QuizState.INIT
             return
         state_tmp = state.copy()

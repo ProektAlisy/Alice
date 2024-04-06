@@ -102,43 +102,19 @@ def get_audio_player_response(data: RequestData) -> ResponseData:
     """
     # пока просто загружаем состояние сессии и отправляем его обратно
     _, _, _, session_state = get_api_data(data)
+    player_state = data.get_audio_player_state()
     skill.load_session_state(session_state)
-    return get_error_response(
-        answer_text=" ", session_state=skill.dump_session_state()
-    )
-
-
-def get_skill_response(data: RequestData) -> ResponseData:
-    """Анализирует запрос от диалогов и формирует ответ навыка.
-
-    Args:
-        data: Объект запроса от Яндекс.Диалогов.
-
-    Returns:
-        Сформированный объект ответа в Яндекс.Диалоги.
-    """
-    if data.is_simple_utterance_type():
-        return get_simple_utterance_response(data)
-    if data.is_audio_player_type():
-        return get_audio_player_response(data)
-    return get_error_response(answer_text=ERROR_MESSAGE)
-
-
-def get_audio_player_response(data: RequestData) -> ResponseData:
-    """Анализирует параметры аудиоплеера от диалогов и формирует ответ навыка.
-
-    Args:
-        data: Объект запроса от Яндекс.Диалогов типа AudioPlayer*.
-
-    Returns:
-        Сформированный объект ответа в Яндекс.Диалоги.
-    """
-    # пока просто загружаем состояние сессии и отправляем его обратно
-    _, _, _, session_state = get_api_data(data)
-    skill.load_session_state(session_state)
-    if data.request["type"] == "AudioPlayer.PlaybackFinished":
+    if (
+        data.request["type"] == "AudioPlayer.PlaybackFinished"
+        or data.request["type"] == "AudioPlayer.PlaybackStopped"
+        and skill.manual_training.is_chapter_finished(player_state)
+    ):
         answer, directives = skill.manual_training.play_next_chapter()
-        return skill.get_output(answer, directives)
+        return skill.get_output(answer, directives, should_listen=False)
+    if (
+        data.request["type"] == "AudioPlayer.PlaybackStopped"
+    ) and skill.manual_training.is_chapter_paused(player_state):
+        skill.manual_training.pause_playback_by_audio_player(player_state)
     return skill.get_output("")
 
 

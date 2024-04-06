@@ -408,6 +408,7 @@ class FiniteStateMachine:
         answer_text,
         directives=None,
         end_session=False,
+        should_listen=None,
     ) -> ResponseData:
         """Возвращает модель с ответом и дополнительными данными.
 
@@ -415,6 +416,8 @@ class FiniteStateMachine:
             answer_text: Текст ответа.
             directives: Команды для аудиоплеера.
             end_session: Ключ для завершения сессии.
+            should_listen: false для запуска плеера без ожидания запроса
+            пользователя
         """
         if answer_text is None:
             answer_text = " "
@@ -422,6 +425,7 @@ class FiniteStateMachine:
             response=InnerResponse(
                 text=answer_text,
                 end_session=end_session,
+                should_listen=should_listen,
                 directives=directives,
             ),
             session_state=self.dump_session_state(),

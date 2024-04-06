@@ -1,14 +1,4 @@
-import os
-
-from dotenv import load_dotenv
 from mongomock import MongoClient
-
-load_dotenv()
-
-mongo_test_host = os.getenv("MONGO_TEST_HOST")
-mongo_user = os.getenv("MONGO_TEST_USER")
-mongo_pass = os.getenv("MONGO_TEST_PASSWORD")
-
 
 client = MongoClient()
 db = client["test_db"]
