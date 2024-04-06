@@ -69,7 +69,7 @@ class ManualTrainingPlayer:
     def process_learning_request(self, command, intents):
         if ManualTrainingIntents.START_MANUAL_TRAINING in intents:
             if not self.current_chapter:
-                self.current_chapter = "1"
+                self.current_chapter = "0"
                 return self.start_audio_playback(self.current_chapter)
             if self.is_playing:
                 playback_text = ManualPlayerMessages.PLAYBACK_IS_ACTIVE
@@ -89,17 +89,19 @@ class ManualTrainingPlayer:
                 "value"
             ],
         )
+        no_chapter_text = ManualPlayerMessages.NO_CHAPTER
+        if chapter_number == '0':
+            return self.get_response(no_chapter_text)
         if chapter_number in self.human_readable_chapter_titles:
             self.current_chapter = chapter_number
             return self.start_audio_playback(self.current_chapter)
-        no_chapter_text = ManualPlayerMessages.NO_CHAPTER
         return self.get_response(no_chapter_text)
 
     def get_chapter_name(self, intents):
         chapter_number = intents["get_manual_training_chapter_info"]["slots"][
             "chapter"
         ]["value"]
-        if chapter_number:
+        if chapter_number and chapter_number != "0":
             try:
                 chapter_number = int(chapter_number)
                 chapter_name = self.get_chapter_name_by_number(chapter_number)
@@ -196,7 +198,7 @@ class ManualTrainingPlayer:
         return self.start_audio_playback(self.current_chapter)
 
     def play_final_audio(self):
-        if self.current_chapter and int(self.current_chapter) == 13:
+        if self.current_chapter and int(self.current_chapter) == 12:
             audio_url = (
                 "https://www.guidedogs.acceleratorpracticum.ru/finish.mp3"
             )
