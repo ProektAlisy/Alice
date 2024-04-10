@@ -42,10 +42,16 @@ class ManualTrainingPlayer:
         return self.is_finish
 
     def terminate_manual_training(self):
+        if self.is_playing:
+            self._update_offset_ms()
+            self.is_playing = False
+            directives = {"audio_player": {"action": "Stop"}}
+            return ManualPlayerMessages.TRAINING_COMPLETED, directives
+
         if self.is_finished():
             return ManualPlayerMessages.ALREADY_FINISHED, {}
+
         self.is_finish = True
-        self.is_playing = False
         self.greetings = False
         self.token_offsets.clear()
         return ManualPlayerMessages.TRAINING_COMPLETED, {}
