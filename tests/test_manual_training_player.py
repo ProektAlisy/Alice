@@ -78,10 +78,7 @@ def test_process_request_play(manual_player):
         "",
         [ManualTrainingIntents.START_MANUAL_TRAINING],
     )
-    assert response == ManualPlayerMessages.PLAYBACK_START.format(
-        chapter_number="0",
-        chapter_name="Вступление",
-    )
+    assert response == ManualPlayerMessages.PLAYBACK_INTRO
     assert manual_player.is_playing is True
     assert manual_player.is_finish is False
     assert (
@@ -108,10 +105,7 @@ def test_process_request_resume(manual_player_with_chapter):
         "",
         [ManualTrainingIntents.RESUME_MANUAL_TRAINING],
     )
-    assert response == ManualPlayerMessages.PLAYBACK_START.format(
-        chapter_number="0",
-        chapter_name="Вступление",
-    )
+    assert response == ManualPlayerMessages.PLAYBACK_INTRO
     assert manual_player_with_chapter.is_playing is True
     assert manual_player_with_chapter.greetings is True
     assert manual_player_with_chapter.is_finish is False
@@ -134,10 +128,7 @@ def test_pause_resume_after_5_seconds(manual_player_with_chapter):
         {"resume_manual_training"},
     )
     offset_ms2 = directives2["audio_player"]["item"]["stream"]["offset_ms"]
-    assert response2 == ManualPlayerMessages.PLAYBACK_START.format(
-        chapter_number="0",
-        chapter_name="Вступление",
-    )
+    assert response2 == ManualPlayerMessages.PLAYBACK_INTRO
     assert offset_ms2 == 5000
     assert manual_player_with_chapter.is_playing is True
     assert manual_player_with_chapter.is_finish is False

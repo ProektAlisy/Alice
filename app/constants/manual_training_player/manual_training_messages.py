@@ -26,6 +26,7 @@ class ManualPlayerMessages:
     PLAYBACK_START: Final = (
         "Начинаю проигрывание главы номер {chapter_number} - {chapter_name}."
     )
+    PLAYBACK_INTRO: Final = "Начинаю проигрывание главы Вступление."
     CHAPTER_AUDIO_URL: Final = (
         f"{settings.BASE_AUDIO_URL}" "{chapter_name}.mp3"
     )
