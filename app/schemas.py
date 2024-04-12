@@ -30,7 +30,7 @@ class RequestData(BaseModel):
 class InnerResponse(BaseModel):
     text: str
     end_session: bool
-    should_listen: bool | None
+    should_listen: bool | None = None
     directives: dict | None
 
 

@@ -42,19 +42,20 @@ class ManualTrainingPlayer:
         return self.is_finish
 
     def terminate_manual_training(self):
-        if self.is_playing:
-            self._update_offset_ms()
-            self.is_playing = False
-            directives = {"audio_player": {"action": "Stop"}}
-            return ManualPlayerMessages.TRAINING_COMPLETED, directives
-
         if self.is_finished():
             return ManualPlayerMessages.ALREADY_FINISHED, {}
 
+        directives = {}
+        if self.is_playing:
+            self._update_offset_ms()
+            directives = {"audio_player": {"action": "Stop"}}
+        else:
+            self.token_offsets.clear()
+
+        self.is_playing = False
         self.is_finish = True
         self.greetings = False
-        self.token_offsets.clear()
-        return ManualPlayerMessages.TRAINING_COMPLETED, {}
+        return ManualPlayerMessages.TRAINING_COMPLETED, directives
 
     def process_request(self, command, intents):
         if not self.greetings:
@@ -96,7 +97,7 @@ class ManualTrainingPlayer:
             ],
         )
         no_chapter_text = ManualPlayerMessages.NO_CHAPTER
-        if chapter_number == '0':
+        if chapter_number == "0":
             return self.get_response(no_chapter_text)
         if chapter_number in self.human_readable_chapter_titles:
             self.current_chapter = chapter_number
@@ -158,12 +159,16 @@ class ManualTrainingPlayer:
                 str(chapter_number),
             ),
         )
-        text = ManualPlayerMessages.PLAYBACK_START.format(
-            chapter_number=str(chapter_number),
-            chapter_name=self.human_readable_chapter_titles.get(
-                str(chapter_number),
-            ),
-        )
+        chapter_number = str(chapter_number)
+        if chapter_number == "0":
+            text = ManualPlayerMessages.PLAYBACK_INTRO
+        else:
+            text = ManualPlayerMessages.PLAYBACK_START.format(
+                chapter_number=chapter_number,
+                chapter_name=self.human_readable_chapter_titles.get(
+                    str(chapter_number),
+                ),
+            )
         directives = {
             "audio_player": {
                 "action": "Play",
