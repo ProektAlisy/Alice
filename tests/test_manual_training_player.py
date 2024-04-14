@@ -167,59 +167,17 @@ def test_terminate_training(manual_player_with_chapter):
     assert manual_player_with_chapter.is_finish is True
 
 
-# def test_training_finished(manual_player):
-#     manual_player.greetings = True
-#     manual_player.current_chapter = "12"
-#     manual_player.start_audio_playback(manual_player.current_chapter)
-#     assert manual_player.current_chapter == "12"
-#     response, _ = manual_player.process_request(
-#         "следующая",
-#         {"next_manual_training_chapter"},
-#     )
-#     assert manual_player.is_finish is True
-#     assert manual_player.is_playing is False
-#     assert response == ManualPlayerMessages.MANUAL_END
-
-
-# def test_training_finished_with_voice_file(manual_player):
-#     manual_player.greetings = True
-#     manual_player.current_chapter = "12"
-#     manual_player.start_audio_playback(manual_player.current_chapter)
-#     response, response_directives = manual_player.process_request(
-#         "следующая",
-#         {"next_manual_training_chapter"},
-#     )
-#     assert manual_player.is_finish is True
-#     assert manual_player.current_chapter is None
-#     audio_url = "https://www.guidedogs.acceleratorpracticum.ru/finish.mp3"
-#     directives = {
-#         "audio_player": {
-#             "action": "Play",
-#             "item": {
-#                 "stream": {
-#                     "url": audio_url,
-#                     "token": str(uuid.uuid4()),
-#                 },
-#             },
-#         },
-#     }
-#     assert (response, response_directives) == (
-#         ManualPlayerMessages.MANUAL_END,
-#         directives,
-#     )
-
-
-# def test_training_finished_with_voice_file_incorrect_chapter(manual_player):
-#     manual_player.greetings = True
-#     manual_player.current_chapter = "13"
-#     manual_player.start_audio_playback(manual_player.current_chapter)
-#     response, _ = manual_player.process_request(
-#         "следующая",
-#         {"next_manual_training_chapter"},
-#     )
-#     assert manual_player.is_finish is True
-#     assert manual_player.current_chapter is None
-#     assert response == ""
+def test_training_finished(manual_player):
+    manual_player.greetings = True
+    manual_player.current_chapter = "12"
+    manual_player.start_audio_playback(manual_player.current_chapter)
+    assert manual_player.current_chapter == "12"
+    response, _ = manual_player.process_request(
+        "следующая",
+        {"next_manual_training_chapter"},
+    )
+    assert manual_player.is_finish is True
+    assert manual_player.is_playing is False
 
 
 def test_stop_player_chapter_name_information(manual_player_with_chapter):
