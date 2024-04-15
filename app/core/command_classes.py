@@ -2,6 +2,7 @@
 Содержит класс с основным методом, запускающим все триггеры и классы,
 соответствующие определенным условиям.
 """
+
 from app.constants.comands_states_answers import (
     ALL_COMMANDS,
     COMMANDS_STATES_ANSWERS_INTENTS,
@@ -23,7 +24,7 @@ from app.core.utils import (
     last_states,
     next_state,
 )
-from app.schemas import ResponseData
+from app.schemas import AudioPlayerState, ResponseData
 
 
 class Command:
@@ -37,10 +38,7 @@ class Command:
         self.command_instance = command_instance
 
     def condition(
-        self,
-        intents: dict[str],
-        command: str,
-        is_new: bool,
+        self, intents: dict[str], command: str, is_new: bool
     ) -> None:
         """Определение условия при котором выполнится `execute`.
 
@@ -59,6 +57,7 @@ class Command:
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> None:
         """Определение условия действия, при котором выполнится `execute`.
 
@@ -90,6 +89,7 @@ class QuizCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Запуск викторины."""
         return self.skill.get_output(
@@ -124,6 +124,7 @@ class QuizSetState(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Отвечаем на вопросы викторины."""
         self.skill.is_to_progress = True
@@ -158,12 +159,14 @@ class ManualTrainingCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Запуск обучения по методичке."""
         # self.skill.manual_training.is_finish = False
         result, directives = self.skill.manual_training.process_request(
             command,
             intents,
+            audio_player,
         )
         return self.skill.get_output(
             result,
@@ -203,6 +206,7 @@ class ManualTrainingSetState(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Проходим обучение по методичке."""
         self.skill.is_to_progress = True
@@ -231,6 +235,7 @@ class GreetingsCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Выводит приветствие."""
         return self.skill.get_output(
@@ -256,6 +261,7 @@ class RepeatCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Вызываем последнее состояние в истории состояний."""
         return self.command_instance.execute(
@@ -276,6 +282,7 @@ class AliceCommandsCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Вывод соответствующего ответа."""
         return self.skill.get_output(
@@ -300,6 +307,7 @@ class AllCommandsCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = True
@@ -328,6 +336,7 @@ class AgreeCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Получение соответствующего сообщения."""
         self.skill.is_to_progress = True
@@ -369,6 +378,7 @@ class DisagreeCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Получение соответствующего ответа для пользователя."""
         self.skill.is_to_progress = False
@@ -396,6 +406,7 @@ class ExitCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Обнуление прогресса и соответствующее сообщение пользователю."""
         self.skill.is_to_progress = False
@@ -421,6 +432,7 @@ class HelpCommandsCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = False
@@ -446,6 +458,7 @@ class DontUnderstandCommand(Command):
         intents: dict[str],
         command: str,
         is_new: bool,
+        audio_player: AudioPlayerState | None = None,
     ) -> ResponseData:
         """Получение соответствующего ответа."""
         self.skill.is_to_progress = False
