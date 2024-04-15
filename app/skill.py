@@ -67,6 +67,7 @@ def get_simple_utterance_response(data: RequestData) -> ResponseData:
         Сформированный объект ответа в Яндекс.Диалоги.
     """
     command, intents, is_new, session_state = get_api_data(data)
+    player_state = data.get_audio_player_state()
     skill.load_session_state(session_state)
     skill.command = command
     skill.intents = intents
@@ -76,7 +77,9 @@ def get_simple_utterance_response(data: RequestData) -> ResponseData:
     result = None
     for command_obj in commands:
         if command_obj.condition(intents, command, is_new):
-            result = command_obj.execute(intents, command, is_new)
+            result = command_obj.execute(
+                intents, command, is_new, player_state
+            )
             # повторно выполнить dump_session_state (поменялся progress)
             result.session_state = skill.dump_session_state()
             limit_response_text_length(result.response)
