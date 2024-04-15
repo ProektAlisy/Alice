@@ -158,6 +158,7 @@ class ManualTrainingPlayer:
         offset_ms = self.token_offsets[chapter_number]["offset_ms"]
         if audio_player and audio_player.token == self.current_token:
             offset_ms = audio_player.offset_ms
+            self.token_offsets[chapter_number]["offset_ms"] = offset_ms
         self.audio_playback_start_time = int(time.time() * 1000)
         self.is_playing = True
         audio_url = ManualPlayerMessages.CHAPTER_AUDIO_URL.format(
