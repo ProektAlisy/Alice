@@ -57,7 +57,9 @@ class ManualTrainingPlayer:
         self.greetings = False
         return ManualPlayerMessages.TRAINING_COMPLETED, directives
 
-    def process_request(self, command, intents):
+    def process_request(
+        self, command, intents, audio_player: AudioPlayerState | None = None
+    ):
         if not self.greetings:
             self.greetings = True
             self.is_finish = False
@@ -66,7 +68,7 @@ class ManualTrainingPlayer:
         if ManualTrainingIntents.PAUSE_MANUAL_TRAINING in intents:
             return self.pause_playback()
         if ManualTrainingIntents.RESUME_MANUAL_TRAINING in intents:
-            return self.continue_playback()
+            return self.continue_playback(audio_player)
         if ManualTrainingIntents.NEXT_MANUAL_TRAINING_CHAPTER in intents:
             return self.play_next_chapter()
         if ManualTrainingIntents.TERMINATE_MANUAL_TRAINING in intents:
@@ -139,7 +141,9 @@ class ManualTrainingPlayer:
         error_text = ManualPlayerMessages.NO_CHAPTER_NUMBER
         return self.get_response(error_text)
 
-    def start_audio_playback(self, chapter_number):
+    def start_audio_playback(
+        self, chapter_number, audio_player: AudioPlayerState | None = None
+    ):
         token_info = self.token_offsets.get(chapter_number)
         if token_info is None:
             self.token_offsets.clear()
@@ -152,6 +156,8 @@ class ManualTrainingPlayer:
         else:
             self.current_token = token_info["token"]
         offset_ms = self.token_offsets[chapter_number]["offset_ms"]
+        if audio_player and audio_player.token == self.current_token:
+            offset_ms = audio_player.offset_ms
         self.audio_playback_start_time = int(time.time() * 1000)
         self.is_playing = True
         audio_url = ManualPlayerMessages.CHAPTER_AUDIO_URL.format(
@@ -218,9 +224,11 @@ class ManualTrainingPlayer:
         self.terminate_manual_training()
         return "", {}
 
-    def continue_playback(self):
+    def continue_playback(self, audio_player: AudioPlayerState | None = None):
         if self.current_chapter is not None:
-            return self.start_audio_playback(self.current_chapter)
+            return self.start_audio_playback(
+                self.current_chapter, audio_player
+            )
         error_text = ManualPlayerMessages.NO_CURRENT_CHAPTER
         return self.get_response(error_text)
 

@@ -111,6 +111,24 @@ def test_process_request_resume(manual_player_with_chapter):
     assert manual_player_with_chapter.is_finish is False
 
 
+def test_pause_resume_with_audio_player_offset_ms(manual_player_with_chapter):
+    player_offset_ms = 3000
+    token = manual_player_with_chapter.token_offsets["0"]["token"]
+    audio_player = AudioPlayerState(
+        token=token, offset_ms=player_offset_ms, state="PAUSED"
+    )
+    chapter_number = manual_player_with_chapter.current_chapter
+    manual_player_with_chapter.token_offsets[chapter_number]["offset_ms"] = 0
+    response, directives = manual_player_with_chapter.process_request(
+        "", {"resume_manual_training": ""}, audio_player
+    )
+    offset_ms = directives["audio_player"]["item"]["stream"]["offset_ms"]
+    assert response == ManualPlayerMessages.PLAYBACK_INTRO
+    assert offset_ms == player_offset_ms
+    assert manual_player_with_chapter.is_playing is True
+    assert manual_player_with_chapter.is_finish is False
+
+
 def test_pause_resume_after_5_seconds(manual_player_with_chapter):
     chapter_number = manual_player_with_chapter.current_chapter
     manual_player_with_chapter.token_offsets[chapter_number][
