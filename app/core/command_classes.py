@@ -215,6 +215,7 @@ class ManualTrainingSetState(Command):
         answer, directives = self.skill.manual_training.process_request(
             command,
             intents,
+            audio_player,
         )
         after_answer = self._get_manual_after_agree_command()
         return self.skill.get_output(
