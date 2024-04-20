@@ -40,17 +40,29 @@ uvicorn app.main:application --reload
 ## Запуск проекта локально через docker-compose:
 
 ### Шаблон наполнения env-файла:
+Сформировать .env файл согласно example.env
+
 ```
-MONGO_TEST_HOST="localhost"
-MONGO_TEST_USER="root"
-MONGO_TEST_PASSWORD="example"
-ME_CONFIG_MONGODB_ADMINUSERNAME="adminuser"
-ME_CONFIG_MONGODB_ADMINPASSWORD="adminpassword"
-ME_CONFIG_MONGODB_URL="www.guidedogs.acceleratorpracticum.ru"
-MONGO_INITDB_ROOT_USERNAME="adminuser"
-MONGO_INITDB_ROOT_PASSWORD="adminpassword"
-MONGO_PORT="27017"
-SENTRY_DSN="https://somedsn"
+# Настройки логирования (указаны значения по умолчанию при отсутствии параметра в .env)
+LOG_LEVEL=INFO
+LOG_DIR=logs
+LOG_FILE=alice.log
+LOG_FILE_SIZE=10485760
+LOG_FILES_COUNT=10
+
+# Настройки подключения
+ME_CONFIG_MONGODB_URL=www.guidedogs.acceleratorpracticum.ru
+ME_CONFIG_MONGODB_ADMINUSERNAME=adminuser
+ME_CONFIG_MONGODB_ADMINPASSWORD=adminpassword
+
+SENTRY_DSN=https://somedsn
+
+# Настройки приложения
+# Адрес расположения методички (указано значение по умолчанию)
+BASE_AUDIO_URL=https://www.guidedogs.acceleratorpracticum.ru/
+
+# Путь к файлу вопросов викторины (указано значение по умолчанию при отсутствии параметра в .env)
+QUIZ_FILE_PATH="app/quiz/quiz.json"
 ```
 
 
@@ -69,7 +81,7 @@ docker-compose up -d --build
 ```
 Наполняем базу данных:
 ```
-sudo docker exec alice_app-app-1 python app/monga/db_loader.py
+sudo docker exec alice_app-app-1 python app/db_loader.py
 ```
 
 ## Запуск проекта на сервере через docker-compose и GitHub Actions:
@@ -80,16 +92,15 @@ scp -r infra/* username@server:/home/alice_app/
 
 ### Используя этот шаблон наполнения env-файла прописываем константы в GitHub Actions:
 ```
-MONGO_TEST_HOST="localhost"
-MONGO_TEST_USER="root"
-MONGO_TEST_PASSWORD="example"
-ME_CONFIG_MONGODB_ADMINUSERNAME="adminuser"
-ME_CONFIG_MONGODB_ADMINPASSWORD="adminpassword"
-ME_CONFIG_MONGODB_URL="www.guidedogs.acceleratorpracticum.ru"
-MONGO_INITDB_ROOT_USERNAME="adminuser"
-MONGO_INITDB_ROOT_PASSWORD="adminpassword"
+
+ME_CONFIG_MONGODB_ADMINUSERNAME=adminuser
+ME_CONFIG_MONGODB_ADMINPASSWORD=adminpassword
+ME_CONFIG_MONGODB_URL=www.guidedogs.acceleratorpracticum.ru
+MONGO_INITDB_ROOT_USERNAME=adminuser
+MONGO_INITDB_ROOT_PASSWORD=adminpassword
 MONGO_PORT="27017"
 SENTRY_DSN="https://somedsn"
+LOG_DIR=logs
 ```
 
 - Автоматический деплой происходит при команде git push в ветку develop или main.
