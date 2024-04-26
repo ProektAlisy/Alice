@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     SENTRY_DSN: AnyHttpUrl
     BASE_AUDIO_URL: AnyHttpUrl = (
-        "https://www.guidedogs.acceleratorpracticum.ru/"
+        "https://www.alisa.guidedogs.ru/"
     )
 
     QUIZ_FILE_PATH: str | Path = BASE_DIR / "app" / "quiz" / "quiz.json"
