@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=BASE_DIR / ".env", env_file_encoding="utf-8", extra="ignore"
     )
 
     # Logging settings
@@ -27,9 +27,7 @@ class Settings(BaseSettings):
     ME_CONFIG_MONGODB_ADMINPASSWORD: str
 
     SENTRY_DSN: AnyHttpUrl
-    BASE_AUDIO_URL: AnyHttpUrl = (
-        "https://alisa.guidedogs.ru/"
-    )
+    BASE_AUDIO_URL: AnyHttpUrl = "https://alisa.guidedogs.ru/"
 
     QUIZ_FILE_PATH: str | Path = BASE_DIR / "app" / "quiz" / "quiz.json"
 
