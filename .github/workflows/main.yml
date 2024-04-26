@@ -66,6 +66,7 @@ jobs:
             echo ME_CONFIG_MONGODB_URL=${{ secrets.ME_CONFIG_MONGODB_URL }} >> .env
             echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env
             echo LOG_DIR=${{ secrets.LOG_DIR }} >> .env
+            echo BASE_AUDIO_URL=${{ secrets.BASE_AUDIO_URL }} >> .env
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
             sudo docker-compose up -d
             sleep 10s
