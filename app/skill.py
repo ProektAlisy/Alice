@@ -71,6 +71,7 @@ def get_simple_utterance_response(data: RequestData) -> ResponseData:
     skill.load_session_state(session_state)
     skill.command = command
     skill.intents = intents
+
     # update GreetingsCommand state according current is_new
     update_greetings_command(commands, is_new)
 
