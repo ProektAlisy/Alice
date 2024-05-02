@@ -1,0 +1,48 @@
+{
+    "human_readable_chapter_titles": {
+        "0": "Вступление",
+        "1": "Часто задаваемые вопросы",
+        "2": "Общий курс дрессировки",
+        "3": "Специальный курс дрессировки",
+        "4": "Типичные ошибки при работе с собакой - поводырем",
+        "5": "Работа на месте и изучение новых маршрутов",
+        "6": "Ориентировка с собакой",
+        "7": "Кормление собаки - поводыря",
+        "8": "Содержание собаки - поводыря",
+        "9": "Профилактика заболеваний собаки - поводыря",
+        "10": "Техника безопасности",
+        "11": "Снаряжение собаки - поводыря",
+        "12": "Контактная информация"
+    },
+    "file_name_chapter_titles": {
+        "0": "00-vstuplenie",
+        "1": "01-chasto-zadavaemye-voprosy",
+        "2": "02-obshchij-kurs-dressirovki",
+        "3": "03-specialnyj-kurs-dressirovki",
+        "4": "04-tipichnye-oshibki-pri-rabote-s-sobakoj-povodyrem",
+        "5": "05-rabota-na-meste-i-izuchenie-novyh-marshrutov",
+        "6": "06-orientirovka-s-sobakoj",
+        "7": "07-kormlenie-sobaki-povodyrya",
+        "8": "08-soderzhanie-sobaki-povodyrya",
+        "9": "09-profilaktika-zabolevanij-sobaki-povodyrya",
+        "10": "10-tekhnika-bezopasnosti",
+        "11": "11-snaryazhenie-sobaki-povodyrya",
+        "12": "12-kontaktnaya-informaciya"
+    },
+    "chapter_lengths_ms": {
+        "0": 95000,
+        "1": 1779000,
+        "2": 1571000,
+        "3": 1153000,
+        "4": 885000,
+        "5": 958000,
+        "6": 1001000,
+        "7": 2412000,
+        "8": 1537000,
+        "9": 1822000,
+        "10": 1275000,
+        "11": 1005000,
+        "12": 30000
+    }
+}
+
