@@ -145,11 +145,10 @@ dmypy.json
 
 # Local History for Visual Studio Code
 .history/
-
 .mypy_cache
 
 # папки со статикой и медиа
 media/
 static/
-yatube_api/posts/static/
-yatube_api/media/
+logs
+alice.log*
