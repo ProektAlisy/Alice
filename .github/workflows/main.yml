@@ -61,10 +61,10 @@ jobs:
           script: |
             cd ../home/alice_app/
             sudo docker-compose stop
-            sudo docker-compose rm app
-            echo SENTRY_DSN=${{ secrets.SENTRY_DSN}} >> .env
+            sudo docker-compose rm alice_app_app_1
+            echo SENTRY_DSN=${{ secrets.SENTRY_DSN}} > .env
             echo LOG_DIR=${{ secrets.LOG_DIR}} >> .env
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
             sudo docker-compose up -d
             sleep 10s
-            sudo docker exec alice_app-app-1 python db_loader.py
+            sudo docker exec alice_app_app_1 python db_loader.py
