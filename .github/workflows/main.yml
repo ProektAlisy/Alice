@@ -66,5 +66,3 @@ jobs:
             echo BASE_AUDIO_URL=${{ secrets.BASE_AUDIO_URL }} >> .env
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alice_guidedogs:latest
             sudo docker-compose up -d
-            sleep 10s
-            sudo docker exec alice_app_app_1 python db_loader.py
