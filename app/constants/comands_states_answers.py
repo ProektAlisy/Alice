@@ -1,18 +1,13 @@
 from app.constants.commands import Commands, HelpCommands
 from app.constants.intents import INTENTS
 from app.constants.states import HELP_STATES, STATES
-from app.core.utils import get_all_commands, get_states_by_order, read_from_db
-from app.monga.monga_initialize import (
-    after_answers_collection,
-    another_answers_collection,
-    answers_collection,
-    disagree_answers_collection,
+from app.core.answers_loader import (
+    after_answers_documents,
+    another_answers_documents,
+    answers_documents,
+    disagree_answers_documents,
 )
-
-answers_documents = read_from_db(answers_collection)
-after_answers_documents = read_from_db(after_answers_collection)
-disagree_answers_documents = read_from_db(disagree_answers_collection)
-another_answers_documents = read_from_db(another_answers_collection)
+from app.core.utils import get_all_commands, get_states_by_order
 
 COMMANDS_STATES_ANSWERS_INTENTS = [
     (

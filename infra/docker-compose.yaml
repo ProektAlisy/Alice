@@ -9,33 +9,33 @@ services:
       - .env
     networks:
       - custom
-    depends_on:
-      mongo:
-        condition: service_healthy
+    # depends_on:
+    #   mongo:
+    #     condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
       - ./logs:/logs
 
-  mongo:
-    image: mongo:4.4.6
-    env_file:
-      - .env
-    healthcheck:
-      test: "mongo --eval 'db.stats().ok'"
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-    restart: on-failure
-    command: ["--auth"]
-    container_name: "mongo_db"
-    ports:
-      - "27017:27017"
-    networks:
-      - custom
-    volumes:
-      - mongodata:/data/db
+  # mongo:
+  #   image: mongo:4.4.6
+  #   env_file:
+  #     - .env
+  #   healthcheck:
+  #     test: "mongo --eval 'db.stats().ok'"
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 40s
+  #   restart: on-failure
+  #   command: ["--auth"]
+  #   container_name: "mongo_db"
+  #   ports:
+  #     - "27017:27017"
+  #   networks:
+  #     - custom
+  #   volumes:
+  #     - mongodata:/data/db
 
   nginx:
     image: nginx:1.19.3
