@@ -21,11 +21,6 @@ class Settings(BaseSettings):
     LOG_FILE_SIZE: int = 10 * 2**20
     LOG_FILES_COUNT: int = 10
 
-    # MongoDB settings
-    ME_CONFIG_MONGODB_URL: str
-    ME_CONFIG_MONGODB_ADMINUSERNAME: str
-    ME_CONFIG_MONGODB_ADMINPASSWORD: str
-
     SENTRY_DSN: AnyHttpUrl
     BASE_AUDIO_URL: AnyHttpUrl = "https://alisa.guidedogs.ru/"
 

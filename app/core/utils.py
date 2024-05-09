@@ -1,7 +1,7 @@
+from pathlib import Path
 from typing import Any, TypeAlias
 
 from pydantic import BaseModel
-from pymongo.collection import Collection
 
 from app.constants.commands import ALICE_COMMANDS
 from app.constants.states import POSSIBILITIES_STATE, STATES
@@ -149,20 +149,28 @@ def last_states(states: list) -> str:
     return result
 
 
-def read_from_db(collection: Collection):
-    """Считываем из БД.
-
-    Считываем ключи(название возможности) и ответы, которые преобразует в
-    словарь.
+def read_from_files(file_path: Path) -> dict[str, str]:
+    """Чтение текстов ответов из файлов.
 
     Args:
-        collection: Коллекция в БД.
+        file_path: Путь до папки с файлами.
 
     Returns:
         Словарь вида {key: answer}
     """
-    documents = collection.find({}, projection={"_id": False})
-    return {doc["key"]: doc["answer"] for doc in documents}
+    collection = {}
+    for file_name in file_path.iterdir():
+        with open(file_path / file_name.name, "r", encoding="utf-8") as file:
+            answer = " ".join([line.strip() for line in file])
+            answer = answer.replace("  ", " ")
+            if not answer:
+                logger.debug(f"Файл {file_name} пустой")
+                continue
+            if file_name.stem in collection:
+                logger.debug(f"Дубликатный ответ {file_name.stem}")
+            else:
+                collection[file_name.stem] = answer
+    return collection
 
 
 def get_after_answer_by_state(

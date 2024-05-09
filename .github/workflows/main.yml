@@ -61,9 +61,6 @@ jobs:
             cd ../home/alice_app/
             sudo docker-compose stop
             sudo docker-compose rm app
-            echo ME_CONFIG_MONGODB_ADMINUSERNAME=${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }} > .env
-            echo ME_CONFIG_MONGODB_ADMINPASSWORD=${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }} >> .env
-            echo ME_CONFIG_MONGODB_URL=${{ secrets.ME_CONFIG_MONGODB_URL }} >> .env
             echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env
             echo LOG_DIR=${{ secrets.LOG_DIR }} >> .env
             echo BASE_AUDIO_URL=${{ secrets.BASE_AUDIO_URL }} >> .env
