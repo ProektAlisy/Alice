@@ -53,8 +53,8 @@ services:
     networks:
       - custom
 
-volumes:
-  mongodata:
+# volumes:
+#   mongodata:
 
 networks:
   custom:
